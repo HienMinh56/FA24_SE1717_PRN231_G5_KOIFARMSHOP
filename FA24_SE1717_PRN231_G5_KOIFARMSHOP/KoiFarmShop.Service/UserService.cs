@@ -30,7 +30,7 @@ namespace KoiFarmShop.Service
 
             #endregion
 
-            var users = await _unitOfWork.AccountRepository.GetAllAsync();
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
 
             if (users == null)
             {
@@ -48,7 +48,7 @@ namespace KoiFarmShop.Service
 
             #endregion
 
-            var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
 
             if (user == null)
             {
@@ -70,7 +70,7 @@ namespace KoiFarmShop.Service
             {
                 int result = -1;
 
-                var userTmp = _unitOfWork.AccountRepository.GetById(user.UserId);
+                var userTmp = _unitOfWork.UserRepository.GetById(user.UserId);
 
                 if (userTmp != null)
                 {
@@ -78,7 +78,7 @@ namespace KoiFarmShop.Service
 
                     #endregion
 
-                    result = await _unitOfWork.AccountRepository.UpdateAsync(user);
+                    result = await _unitOfWork.UserRepository.UpdateAsync(user);
 
                     if (result > 0)
                     {
@@ -91,7 +91,7 @@ namespace KoiFarmShop.Service
                 }
                 else
                 {
-                    result = await _unitOfWork.AccountRepository.CreateAsync(user);
+                    result = await _unitOfWork.UserRepository.CreateAsync(user);
 
                     if (result > 0)
                     {
@@ -117,7 +117,7 @@ namespace KoiFarmShop.Service
 
             try
             {
-                var user = await _unitOfWork.AccountRepository.GetByIdAsync(userId);
+                var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
 
                 if (user == null)
                 {
@@ -125,7 +125,7 @@ namespace KoiFarmShop.Service
                 }
                 else
                 {
-                    var result = await _unitOfWork.AccountRepository.RemoveAsync(user);
+                    var result = await _unitOfWork.UserRepository.RemoveAsync(user);
 
                     if (result)
                     {
