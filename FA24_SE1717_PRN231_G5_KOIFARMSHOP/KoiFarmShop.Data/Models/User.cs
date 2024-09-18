@@ -37,8 +37,6 @@ public partial class User
 
     public string DeletedBy { get; set; }
 
-    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
-
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

@@ -29,7 +29,7 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         // GET: api/Users/5
-        [HttpGet("{id}")]
+        [HttpGet("{userId}")]
         public async Task<IBusinessResult> GetUser(string userId)
         {
             return await _userService.GetById(userId);
