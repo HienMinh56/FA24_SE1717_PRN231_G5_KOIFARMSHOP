@@ -48,7 +48,7 @@ namespace KoiFarmShop.Service
 
             #endregion
 
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            var user =  _unitOfWork.UserRepository.Get(u => u.UserId == userId);
 
             if (user == null)
             {
@@ -70,7 +70,7 @@ namespace KoiFarmShop.Service
             {
                 int result = -1;
 
-                var userTmp = _unitOfWork.UserRepository.GetById(user.UserId);
+                var userTmp = _unitOfWork.UserRepository.Get(u => u.UserId == user.UserId);
 
                 if (userTmp != null)
                 {
@@ -117,7 +117,7 @@ namespace KoiFarmShop.Service
 
             try
             {
-                var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+                var user =  _unitOfWork.UserRepository.Get(u => u.UserId == userId);
 
                 if (user == null)
                 {

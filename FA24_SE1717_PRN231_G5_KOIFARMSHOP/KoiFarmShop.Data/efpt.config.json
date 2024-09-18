@@ -15,10 +15,6 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "[dbo].[Blog]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Consignment]",
          "ObjectType": 0
       },
@@ -40,10 +36,6 @@
       },
       {
          "Name": "[dbo].[Payment]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Token]",
          "ObjectType": 0
       },
       {
