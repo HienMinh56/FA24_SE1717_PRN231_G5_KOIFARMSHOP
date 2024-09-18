@@ -6,18 +6,72 @@ namespace KoiFarmShop.Data
     public class UnitOfWork
     {
         private FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context;
-        private UserRepository accountRepository;
+        private KoiFishRepository koiFishRepository;
+        private ConsigmentRepository consigmentRepository;
+        private PaymentRepository paymentRepository;
+        private VoucherRepository voucherRepository;
+        private OrderRepository orderRepository;
+        private OrderDetailRepository orderDetailRepository;
+        private UserRepository userRepository;
 
         public UnitOfWork()
         {
             context ??= new FA24_SE1717_PRN231_G5_KOIFARMSHOPContext();
         }
 
-        public UserRepository AccountRepository
+        public KoiFishRepository KoiFishRepository
         {
             get
             {
-                return accountRepository ??= new UserRepository(context);
+                return koiFishRepository ??= new KoiFishRepository();
+            }
+        }
+
+        public ConsigmentRepository ConsigmentRepository
+        {
+            get
+            {
+                return consigmentRepository ??= new ConsigmentRepository();
+            }
+        }
+
+        public PaymentRepository PaymentRepository
+        {
+            get
+            {
+                return paymentRepository ??= new PaymentRepository();
+            }
+        }
+
+        public VoucherRepository VoucherRepository
+        {
+            get
+            {
+                return voucherRepository ??= new VoucherRepository();
+            }
+        }
+
+        public OrderRepository OrderRepository
+        {
+            get
+            {
+                return orderRepository ??= new OrderRepository();
+            }
+        }
+
+        public OrderDetailRepository OrderDetailRepository
+        {
+            get
+            {
+                return orderDetailRepository ??= new OrderDetailRepository();
+            }
+        }
+
+        public UserRepository UserRepository
+        {
+            get
+            {
+                return userRepository ??= new UserRepository();
             }
         }
 

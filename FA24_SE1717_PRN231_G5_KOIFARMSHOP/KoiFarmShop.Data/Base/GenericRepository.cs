@@ -1,5 +1,6 @@
 ﻿using KoiFarmShop.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace KoiFarmShop.Data.Base
 {
@@ -25,6 +26,12 @@ namespace KoiFarmShop.Data.Base
         {
             return await _context.Set<T>().ToListAsync();
         }
+
+        public virtual T Get(Expression<Func<T, bool>> expression)
+        {
+            return _context.Set<T>().FirstOrDefault(expression);
+        }
+
         public void Create(T entity)
         {
             _context.Add(entity);
