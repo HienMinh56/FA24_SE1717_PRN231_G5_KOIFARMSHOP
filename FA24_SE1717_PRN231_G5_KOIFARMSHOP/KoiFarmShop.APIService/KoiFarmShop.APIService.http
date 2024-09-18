@@ -1,0 +1,6 @@
+@KoiFarmShop.APIService_HostAddress = http://localhost:5217
+
+GET {{KoiFarmShop.APIService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
