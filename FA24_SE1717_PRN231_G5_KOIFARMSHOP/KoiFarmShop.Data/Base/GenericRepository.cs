@@ -132,6 +132,10 @@ namespace KoiFarmShop.Data.Base
         }
 
         #endregion Separating asign entity and save operators
+        public async Task<int> Count()
+        {
+            return await _context.Set<T>().CountAsync();
+        }
     }
 
 }
