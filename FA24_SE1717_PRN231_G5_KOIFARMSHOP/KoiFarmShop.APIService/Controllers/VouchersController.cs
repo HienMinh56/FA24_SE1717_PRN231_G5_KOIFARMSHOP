@@ -30,75 +30,33 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         // GET: api/Vouchers/5
-        [HttpGet("{id}")]
-        public async Task<IBusinessResult> GetVoucher(int id)
+        [HttpGet("{voucherId}")]
+        public async Task<IBusinessResult> GetVoucher(string voucherId)
         {
-            var voucher = await _context.Vouchers.FindAsync(id);
-
-            if (voucher == null)
-            {
-                return NotFound();
-            }
-
-            return voucher;
+            return await _voucherService.GetById(voucherId);
         }
 
         // PUT: api/Vouchers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IBusinessResult> PutVoucher(int id, Voucher voucher)
+        [HttpPut]
+        public async Task<IBusinessResult> PutVoucher( Voucher voucher)
         {
-            if (id != voucher.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(voucher).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VoucherExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _voucherService.Save(voucher);
         }
 
         // POST: api/Vouchers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Voucher>> PostVoucher(Voucher voucher)
+        public async Task<IBusinessResult> PostVoucher(Voucher voucher)
         {
-            _context.Vouchers.Add(voucher);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetVoucher", new { id = voucher.Id }, voucher);
+            return await _voucherService.Save(voucher);
         }
 
         // DELETE: api/Vouchers/5
-        [HttpDelete("{id}")]
-        public async Task<IBusinessResult> DeleteVoucher(int id)
+        [HttpDelete]
+        public async Task<IBusinessResult> DeleteVoucher(string voucherId)
         {
-            var voucher = await _context.Vouchers.FindAsync(id);
-            if (voucher == null)
-            {
-                return NotFound();
-            }
-
-            _context.Vouchers.Remove(voucher);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return await _voucherService.DeleteById(voucherId);
         }
 
 
