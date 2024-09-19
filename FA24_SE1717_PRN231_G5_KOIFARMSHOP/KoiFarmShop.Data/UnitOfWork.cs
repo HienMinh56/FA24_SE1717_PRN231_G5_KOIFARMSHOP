@@ -13,6 +13,7 @@ namespace KoiFarmShop.Data
         private OrderRepository orderRepository;
         private OrderDetailRepository orderDetailRepository;
         private UserRepository userRepository;
+        private ImageRepository imageRepository;
 
         public UnitOfWork()
         {
@@ -72,6 +73,13 @@ namespace KoiFarmShop.Data
             get
             {
                 return userRepository ??= new UserRepository();
+            }
+        }
+        public ImageRepository ImageRepository
+        {
+            get
+            {
+                return imageRepository ??= new ImageRepository();
             }
         }
 

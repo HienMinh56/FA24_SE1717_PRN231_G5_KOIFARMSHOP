@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Service.Base;
+using KoiFarmShop.Service;
+using KoiFarmShop.Data.Request;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -13,95 +16,45 @@ namespace KoiFarmShop.APIService.Controllers
     [ApiController]
     public class KoiFishController : ControllerBase
     {
-        private readonly FA24_SE1717_PRN231_G5_KOIFARMSHOPContext _context;
+        private readonly IKoiFishService _koiFishService;
 
-        public KoiFishController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
+        public KoiFishController(IKoiFishService koiFishService)
         {
-            _context = context;
+            _koiFishService = koiFishService;
         }
 
-        // GET: api/KoiFish
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<KoiFish>>> GetKoiFishes()
+        public async Task<IBusinessResult> GetKoiFishes()
         {
-            return await _context.KoiFishes.ToListAsync();
+            return await _koiFishService.GetAll();
         }
 
-        // GET: api/KoiFish/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<KoiFish>> GetKoiFish(int id)
+        public async Task<IBusinessResult> GetKoiFish(string code)
         {
-            var koiFish = await _context.KoiFishes.FindAsync(id);
-
-            if (koiFish == null)
-            {
-                return NotFound();
-            }
-
-            return koiFish;
+            var result = await _koiFishService.GetById(code);
+            return result;
         }
 
-        // PUT: api/KoiFish/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutKoiFish(int id, KoiFish koiFish)
+        public async Task<IBusinessResult> PutKoiFish(KoiFish koiFish)
         {
-            if (id != koiFish.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(koiFish).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!KoiFishExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var result = await _koiFishService.Update(koiFish);
+            return result;
         }
 
-        // POST: api/KoiFish
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<KoiFish>> PostKoiFish(KoiFish koiFish)
+        public async Task<IBusinessResult> PostKoiFish(CreateKoiFishRequest koiFish)
         {
-            _context.KoiFishes.Add(koiFish);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetKoiFish", new { id = koiFish.Id }, koiFish);
+            var result = await _koiFishService.Create(koiFish);
+            return result;
         }
 
-        // DELETE: api/KoiFish/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteKoiFish(int id)
+        public async Task<IBusinessResult> DeleteKoiFish(string code)
         {
-            var koiFish = await _context.KoiFishes.FindAsync(id);
-            if (koiFish == null)
-            {
-                return NotFound();
-            }
-
-            _context.KoiFishes.Remove(koiFish);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool KoiFishExists(int id)
-        {
-            return _context.KoiFishes.Any(e => e.Id == id);
+            var result = await _koiFishService.DeleteById(code);
+            return result;
         }
     }
 }
