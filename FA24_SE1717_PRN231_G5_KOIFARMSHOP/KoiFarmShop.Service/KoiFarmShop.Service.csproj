@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KoiFarmShop.Common\KoiFarmShop.Common.csproj" />
     <ProjectReference Include="..\KoiFarmShop.Data\KoiFarmShop.Data.csproj" />
   </ItemGroup>

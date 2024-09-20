@@ -1,5 +1,6 @@
 ﻿using KoiFarmShop.Data.Base;
 using KoiFarmShop.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,15 @@ namespace KoiFarmShop.Data.Repository
         }
 
         public KoiFishRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
+
+        public async Task<KoiFish?> GetByIdWithImage(string code)
+        {
+            return await _context.KoiFishes
+                .Where(k => k.DeletedBy == null)
+                .Where(k => k.KoiId == code)
+                .AsNoTracking()
+                .Include(k => k.Images)
+                .SingleOrDefaultAsync();
+        }
     }
 }
