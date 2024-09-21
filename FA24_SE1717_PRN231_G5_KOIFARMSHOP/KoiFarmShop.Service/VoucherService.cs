@@ -80,8 +80,20 @@ namespace KoiFarmShop.Service
                     #region Business Rule
 
                     #endregion
-
-                    result = await _unitOfWork.VoucherRepository.UpdateAsync(voucher);
+                    voucherTmp.VoucherCode = voucher.VoucherCode;
+                    voucherTmp.VoucherId = voucher.VoucherId;
+                    voucherTmp.Orders = voucher.Orders;
+                    voucherTmp.CreatedDate = voucher.CreatedDate;
+                    voucherTmp.CreatedBy = voucher.CreatedBy;
+                    voucherTmp.DiscountAmount = voucher.DiscountAmount;
+                    voucherTmp.MinOrderAmount = voucher.MinOrderAmount;
+                    voucherTmp.ModifiedBy = voucher.ModifiedBy;
+                    voucherTmp.ModifiedDate = voucher.ModifiedDate;
+                    voucherTmp.Status = voucher.Status;
+                    voucherTmp.ValidityEndDate = voucher.ValidityEndDate;
+                    voucherTmp.ValidityStartDate = voucher.ValidityStartDate;
+                    
+                    result = await _unitOfWork.VoucherRepository.UpdateAsync(voucherTmp);
 
                     if (result > 0)
                     {
