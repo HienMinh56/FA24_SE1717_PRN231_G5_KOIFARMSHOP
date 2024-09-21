@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Service;
+using KoiFarmShop.Service.Base;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -13,95 +15,23 @@ namespace KoiFarmShop.APIService.Controllers
     [ApiController]
     public class OrderDetailsController : ControllerBase
     {
-        private readonly FA24_SE1717_PRN231_G5_KOIFARMSHOPContext _context;
+        private readonly IOrderDetailService _detailService;
 
-        public OrderDetailsController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
+        public OrderDetailsController(IOrderDetailService detailService)
         {
-            _context = context;
+            _detailService = detailService;
         }
 
-        // GET: api/OrderDetails
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetails()
+        [HttpGet("{orderId}")]
+        public async Task<ActionResult<IBusinessResult>> GetOrderDetailsByOrderId(string orderId)
         {
-            return await _context.OrderDetails.ToListAsync();
-        }
-
-        // GET: api/OrderDetails/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
-        {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-
-            if (orderDetail == null)
+            var result = await _detailService.GetOrderDetailsByOrderId(orderId);
+            if (result.Status == 1)
             {
-                return NotFound();
+                return Ok(result);
             }
 
-            return orderDetail;
-        }
-
-        // PUT: api/OrderDetails/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderDetail(int id, OrderDetail orderDetail)
-        {
-            if (id != orderDetail.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(orderDetail).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderDetailExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/OrderDetails
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<OrderDetail>> PostOrderDetail(OrderDetail orderDetail)
-        {
-            _context.OrderDetails.Add(orderDetail);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrderDetail", new { id = orderDetail.Id }, orderDetail);
-        }
-
-        // DELETE: api/OrderDetails/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrderDetail(int id)
-        {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            if (orderDetail == null)
-            {
-                return NotFound();
-            }
-
-            _context.OrderDetails.Remove(orderDetail);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool OrderDetailExists(int id)
-        {
-            return _context.OrderDetails.Any(e => e.Id == id);
+            return BadRequest(result);
         }
     }
 }
