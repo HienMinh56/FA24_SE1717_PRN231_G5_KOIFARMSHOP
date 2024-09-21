@@ -37,9 +37,9 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IBusinessResult> PutKoiFish(KoiFish koiFish)
+        public async Task<IBusinessResult> PutKoiFish(UpdateKoiFishRequest updateKoiFishRequest)
         {
-            var result = await _koiFishService.Update(koiFish);
+            var result = await _koiFishService.Update(updateKoiFishRequest);
             return result;
         }
 
@@ -51,9 +51,9 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IBusinessResult> DeleteKoiFish(string code)
+        public async Task<IBusinessResult> DeleteKoiFish(string id)
         {
-            var result = await _koiFishService.DeleteById(code);
+            var result = await _koiFishService.DeleteById(id);
             return result;
         }
     }
