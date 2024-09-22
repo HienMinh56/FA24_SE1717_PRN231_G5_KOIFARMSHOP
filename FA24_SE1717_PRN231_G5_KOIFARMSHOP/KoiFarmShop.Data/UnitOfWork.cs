@@ -7,7 +7,7 @@ namespace KoiFarmShop.Data
     {
         private FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context;
         private KoiFishRepository koiFishRepository;
-        private ConsigmentRepository consigmentRepository;
+        private ConsignmentRepository consignmentRepository;
         private PaymentRepository paymentRepository;
         private VoucherRepository voucherRepository;
         private OrderRepository orderRepository;
@@ -28,11 +28,11 @@ namespace KoiFarmShop.Data
             }
         }
 
-        public ConsigmentRepository ConsigmentRepository
+        public ConsignmentRepository ConsignmentRepository
         {
             get
             {
-                return consigmentRepository ??= new ConsigmentRepository();
+                return consignmentRepository ??= new ConsignmentRepository();
             }
         }
 

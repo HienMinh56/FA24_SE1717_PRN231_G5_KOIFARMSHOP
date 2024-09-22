@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Service;
+using KoiFarmShop.Service.Base;
+using KoiFarmShop.Data.Request;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -13,95 +16,48 @@ namespace KoiFarmShop.APIService.Controllers
     [ApiController]
     public class ConsignmentsController : ControllerBase
     {
-        private readonly FA24_SE1717_PRN231_G5_KOIFARMSHOPContext _context;
+        private readonly IConsignmentService _consignmentService;
 
-        public ConsignmentsController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
+        public ConsignmentsController(IConsignmentService consignmentService)
         {
-            _context = context;
+            _consignmentService = consignmentService;
         }
 
         // GET: api/Consignments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Consignment>>> GetConsignments()
+        public async Task<IBusinessResult> GetConsignments()
         {
-            return await _context.Consignments.ToListAsync();
+            return await _consignmentService.GetAll();
         }
 
         // GET: api/Consignments/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Consignment>> GetConsignment(int id)
+        [HttpGet("{consignmentId}")]
+        public async Task<IBusinessResult> GetConsignment(string consignmentId)
         {
-            var consignment = await _context.Consignments.FindAsync(id);
-
-            if (consignment == null)
-            {
-                return NotFound();
-            }
-
-            return consignment;
+            return await _consignmentService.GetById(consignmentId);
         }
 
         // PUT: api/Consignments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutConsignment(int id, Consignment consignment)
+        [HttpPut]
+        public async Task<IBusinessResult> PutConsignment(string consignmentId, int status)
         {
-            if (id != consignment.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(consignment).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ConsignmentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _consignmentService.Update(consignmentId, status);
         }
 
         // POST: api/Consignments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Consignment>> PostConsignment(Consignment consignment)
+        public async Task<IBusinessResult> PostConsignment(CreateConsignmentRequest consignment)
         {
-            _context.Consignments.Add(consignment);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetConsignment", new { id = consignment.Id }, consignment);
+            return await _consignmentService.Create(consignment);
         }
 
         // DELETE: api/Consignments/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteConsignment(int id)
-        {
-            var consignment = await _context.Consignments.FindAsync(id);
-            if (consignment == null)
-            {
-                return NotFound();
-            }
-
-            _context.Consignments.Remove(consignment);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ConsignmentExists(int id)
-        {
-            return _context.Consignments.Any(e => e.Id == id);
-        }
+        //[HttpDelete("{consignmentId}")]
+        //public async Task<IBusinessResult> DeleteConsignment(string consignmentId)
+        //{
+        //    return await _consignmentService.DeleteById(consignmentId);
+        //}
     }
 }

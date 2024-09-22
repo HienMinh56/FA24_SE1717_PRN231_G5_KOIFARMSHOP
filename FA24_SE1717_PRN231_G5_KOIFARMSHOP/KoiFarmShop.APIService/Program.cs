@@ -12,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IKoiFishService, KoiFishService>();
+builder.Services.AddScoped<IConsignmentService, ConsignmentService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
@@ -19,6 +20,12 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
 //builder.Services.AddSingleton(opt => StorageClient.Create(GoogleCredential.FromFile(Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS"))));
 builder.Services.AddSingleton(opt => StorageClient.Create(GoogleCredential.FromFile("..\\..\\koi-farm-shop-2832f-firebase-adminsdk-fpbxb-0525379f3e.json")));
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
 var app = builder.Build();
 
