@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Service;
+using KoiFarmShop.Data.Request;
+using KoiFarmShop.Service.Base;
+using KoiFarmShop.Common;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -13,95 +17,64 @@ namespace KoiFarmShop.APIService.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly FA24_SE1717_PRN231_G5_KOIFARMSHOPContext _context;
+        private readonly IOrderService _orderService;
 
-        public OrdersController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
+        public OrdersController(IOrderService orderService)
         {
-            _context = context;
+            _orderService = orderService;
         }
 
-        // GET: api/Orders
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IBusinessResult>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var result = await _orderService.GetOrders();
+            if (result.Status == 1)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
         }
 
-        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        [HttpGet("{OrderId}")]
+        public async Task<ActionResult<IBusinessResult>> GetOrderById(string OrderId)
         {
-            var order = await _context.Orders.FindAsync(id);
-
-            if (order == null)
+            var result = await _orderService.GetOrderById(OrderId);
+            if (result.Status == 1)
             {
-                return NotFound();
+                return Ok(result);
             }
 
-            return order;
+            return BadRequest(result);
         }
 
-        // PUT: api/Orders/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
-        {
-            if (id != order.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(order).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Orders
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<IBusinessResult>> CreateOrder([FromBody] List<CreateOrderRequest> request)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            var orderItems = request.Select(x => (x.KoiId, x.Quantity)).ToList();
+            // Call the service to create the order
+            var result = await _orderService.CreateOrderAsync(orderItems);
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
-        }
-
-        // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            // Check the result and return the appropriate response
+            if (result.Status == 1)
             {
-                return NotFound();
+                return Ok(result);
             }
 
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return BadRequest(result);
         }
 
-        private bool OrderExists(int id)
+        [HttpPut("{OrderId}")]
+        public async Task<ActionResult<IBusinessResult>> UpdateOrder(string OrderId, int status)
         {
-            return _context.Orders.Any(e => e.Id == id);
+            var result = await _orderService.UpdateOrderAsync(OrderId, status);
+            if (result.Status == 1)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
         }
     }
 }
