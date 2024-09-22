@@ -136,6 +136,30 @@ namespace KoiFarmShop.Data.Base
         {
             return await _context.Set<T>().CountAsync();
         }
-    }
 
+        public async Task<int> FindEmptyPositionWithBinarySearch(List<T> list, int low, int high, string entityName, string entityIndex)
+        {
+            var mid = (low + high) / 2;
+            var Id = $"{entityName}{mid.ToString("D4")}";
+            var entity = await _context.Set<T>()
+                .Where(e => EF.Property<string>(e, entityIndex) == Id)
+                .FirstOrDefaultAsync();
+            if (entity is null)
+            {
+                return mid;
+            }
+            else
+            {
+                var index = list.IndexOf(entity) + 1;
+                if (index < mid)
+                {
+                    return await FindEmptyPositionWithBinarySearch(list, low, mid, entityName, entityIndex);
+                }
+                else
+                {
+                    return await FindEmptyPositionWithBinarySearch(list, mid, high, entityName, entityIndex);
+                }
+            }
+        }
+    }
 }

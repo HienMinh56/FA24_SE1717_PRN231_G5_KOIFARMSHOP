@@ -20,6 +20,7 @@ namespace KoiFarmShop.Service
         Task DeleteImageAsync(string imageName);
 
         Task<string[]> UploadImagesAsync(IFormFileCollection files);
+        string ExtractImageNameFromUrl(string imageUrl);
     }
     public class FirebaseStorageService : IFirebaseStorageService
     {
@@ -94,6 +95,19 @@ namespace KoiFarmShop.Service
             var imageUrls = await Task.WhenAll(uploadTasks);
 
             return imageUrls;
+        }
+        public string ExtractImageNameFromUrl(string imageUrl)
+        {
+            // Find the position of 'o/' in the URL
+            int start = imageUrl.IndexOf("o/") + 2;  // +2 to skip past 'o/'
+
+            // Find the position of '?alt=' which marks the end of the image name
+            int end = imageUrl.IndexOf("?alt=media");
+
+            // Extract the image name from the URL
+            string imageName = imageUrl.Substring(start, end - start);
+
+            return imageName;
         }
     }
 }
