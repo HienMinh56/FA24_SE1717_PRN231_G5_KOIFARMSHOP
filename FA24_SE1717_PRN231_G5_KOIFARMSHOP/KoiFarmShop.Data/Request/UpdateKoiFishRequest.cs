@@ -9,21 +9,21 @@ namespace KoiFarmShop.Data.Request
 {
     public class UpdateKoiFishRequest
     {
-        public string KoiId { get; set; }
+        public string KoiId { get; set; } = null!;
 
-        public string KoiName { get; set; }
+        public string? KoiName { get; set; }
 
-        public string Origin { get; set; }
+        public string? Origin { get; set; }
 
-        public string Gender { get; set; }
+        public string? Gender { get; set; }
 
         public int Age { get; set; }
 
         public double Size { get; set; }
 
-        public string Breed { get; set; }
+        public string? Breed { get; set; }
 
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         public double Price { get; set; }
 
@@ -31,7 +31,7 @@ namespace KoiFarmShop.Data.Request
 
         public int OwnerType { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public List<string> RemovedImage { get; set; } = [];
 

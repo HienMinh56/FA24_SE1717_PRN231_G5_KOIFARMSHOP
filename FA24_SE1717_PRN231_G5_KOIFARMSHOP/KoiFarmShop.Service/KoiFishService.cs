@@ -47,13 +47,13 @@ namespace KoiFarmShop.Service
             }
 
             var koiFishs = await _unitOfWork.KoiFishRepository.GetAllOrderedByKoiId();
-            var Id = koiFishs.Count;
-            if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == $"KOIFISH{Id.ToString("D3")}") is not null)
+            var Id = koiFishs.Count + 1;
+            if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == $"{Const.KOIFISH}{Id.ToString("D4")}") is not null)
             {
-                Id = await _unitOfWork.KoiFishRepository.FindEmptyPositionWithBinarySearch(koiFishs, 1, Id);
+                Id = await _unitOfWork.KoiFishRepository.FindEmptyPositionWithBinarySearch(koiFishs, 1, Id, Const.KOIFISH, Const.KOIFISH_INDEX);
             }
-            
-            var KoiId = $"KOIFISH{Id.ToString("D3")}";
+
+            var KoiId = $"{Const.KOIFISH}{Id.ToString("D4")}";
             await _unitOfWork.KoiFishRepository.CreateAsync(new KoiFish
             {
                 KoiId = KoiId,
@@ -80,13 +80,13 @@ namespace KoiFarmShop.Service
                 foreach (var image in createKoiFishRequest.Image)
                 {
                     images = await _unitOfWork.ImageRepository.GetAllOrderByImageId();
-                    iId = images.Count;
-                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"IMAGE{iId.ToString("D3")}") is not null)
+                    iId = images.Count + 1;
+                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"{Const.IMAGE}{iId.ToString("D4")}") is not null)
                     {
-                        iId = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, iId);
+                        iId = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, iId, Const.IMAGE, Const.IMAGE_INDEX);
                     }
 
-                    ImageId = $"IMAGE{iId.ToString("D3")}";
+                    ImageId = $"{Const.IMAGE}{iId.ToString("D4")}";
                     await _unitOfWork.ImageRepository.CreateAsync(new Image
                     {
                         ImageId = ImageId,
@@ -257,17 +257,17 @@ namespace KoiFarmShop.Service
             }
             else
             {
-                koiFish.KoiName = updateKoiFishRequest.KoiName;
-                koiFish.Origin = updateKoiFishRequest.Origin;
-                koiFish.Gender = updateKoiFishRequest.Gender; // Male or Female
-                koiFish.Age = updateKoiFishRequest.Age;
-                koiFish.Size = updateKoiFishRequest.Size;
-                koiFish.Breed = updateKoiFishRequest.Breed;
-                koiFish.Type = updateKoiFishRequest.Type; // 'Imported Purebred', 'F1', 'Vietnamese Purebred'
-                koiFish.Price = updateKoiFishRequest.Price;
-                koiFish.Quantity = updateKoiFishRequest.Quantity;
-                koiFish.OwnerType = updateKoiFishRequest.OwnerType;
-                koiFish.Description = updateKoiFishRequest.Description;
+                koiFish.KoiName = updateKoiFishRequest.KoiName is null ? koiFish.KoiName : updateKoiFishRequest.KoiName;
+                koiFish.Origin = updateKoiFishRequest.Origin is null ? koiFish.Origin : updateKoiFishRequest.Origin;
+                koiFish.Gender = updateKoiFishRequest.Gender is null ? koiFish.Gender : updateKoiFishRequest.Gender; // Male or Female
+                koiFish.Age = updateKoiFishRequest.Age == 0 ? koiFish.Age : updateKoiFishRequest.Age;
+                koiFish.Size = updateKoiFishRequest.Size == 0 ? koiFish.Size : updateKoiFishRequest.Size;
+                koiFish.Breed = updateKoiFishRequest.Breed is null ? koiFish.Breed : updateKoiFishRequest.Breed;
+                koiFish.Type = updateKoiFishRequest.Type is null ? koiFish.Type : updateKoiFishRequest.Type; // 'Imported Purebred', 'F1', 'Vietnamese Purebred'
+                koiFish.Price = updateKoiFishRequest.Price == 0 ? koiFish.Price : updateKoiFishRequest.Price;
+                koiFish.Quantity = updateKoiFishRequest.Quantity == 0 ? koiFish.Quantity : updateKoiFishRequest.Quantity;
+                koiFish.OwnerType = updateKoiFishRequest.OwnerType == 0 ? koiFish.OwnerType : updateKoiFishRequest.OwnerType;
+                koiFish.Description = updateKoiFishRequest.Description is null ? koiFish.Description : updateKoiFishRequest.Description;
                 koiFish.ModifiedDate = DateTime.UtcNow;
                 koiFish.ModifiedBy = "Admin"; // fix cung truoc, se sua lai sau khi them authen
             }
@@ -282,7 +282,6 @@ namespace KoiFarmShop.Service
                         await _firebaseStorageService.DeleteImageAsync(_firebaseStorageService.ExtractImageNameFromUrl(url));
                         await _unitOfWork.ImageRepository.RemoveAsync(image);
                     }
-                    
                 }
             }
             if (updateKoiFishRequest.AddedImage is not null)
@@ -293,13 +292,13 @@ namespace KoiFarmShop.Service
                 foreach (var image in updateKoiFishRequest.AddedImage)
                 {
                     images = await _unitOfWork.ImageRepository.GetAllOrderByImageId();
-                    id = images.Count;
-                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"IMAGE{id.ToString("D3")}") is not null)
+                    id = images.Count + 1;
+                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"{Const.IMAGE}{id.ToString("D4")}") is not null)
                     {
-                        id = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, id);
+                        id = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, id, Const.IMAGE, Const.IMAGE_INDEX);
                     }
 
-                    ImageId = $"IMAGE{id.ToString("D3")}";
+                    ImageId = $"{Const.IMAGE}{id.ToString("D4")}";
                     await _unitOfWork.ImageRepository.CreateAsync(new Image
                     {
                         ImageId = ImageId,
@@ -311,7 +310,7 @@ namespace KoiFarmShop.Service
                 }
             }
 
-            if (await _unitOfWork.ImageRepository.SaveAsync() > 0)
+            if (await _unitOfWork.KoiFishRepository.UpdateAsync(koiFish) > 0)
             {
                 return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, koiFish);
             }

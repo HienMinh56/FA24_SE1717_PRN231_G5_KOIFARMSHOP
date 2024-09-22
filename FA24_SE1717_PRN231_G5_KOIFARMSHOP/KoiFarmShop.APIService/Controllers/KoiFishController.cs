@@ -30,13 +30,13 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IBusinessResult> GetKoiFish(string code)
+        public async Task<IBusinessResult> GetKoiFish(string id)
         {
-            var result = await _koiFishService.GetById(code);
+            var result = await _koiFishService.GetById(id);
             return result;
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IBusinessResult> PutKoiFish(UpdateKoiFishRequest updateKoiFishRequest)
         {
             var result = await _koiFishService.Update(updateKoiFishRequest);

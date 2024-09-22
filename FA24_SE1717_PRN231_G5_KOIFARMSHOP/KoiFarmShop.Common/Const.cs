@@ -42,5 +42,23 @@
 
         #endregion
 
+        #region Entity Id
+
+        public static string CONSIGNMENT = "CONSIGN";
+        public static string CONSIGNMENT_INDEX = "ConsignmentId";
+        public static string IMAGE = "IMG";
+        public static string IMAGE_INDEX = "ImageId";
+        public static string KOIFISH = "KOI";
+        public static string KOIFISH_INDEX = "KoiId";
+        public static string ORDER = "ORDER";
+        public static string ORDER_INDEX = "OrderId";
+        public static string PAYMENT = "TRANS";
+        public static string PAYMENT_INDEX = "PaymentId";
+        public static string USER = "USER";
+        public static string USER_INDEX = "UserId";
+        public static string VOUCHER = "VOUCH";
+        public static string VOUCHER_INDEX = "VoucherId";
+
+        #endregion
     }
 }
