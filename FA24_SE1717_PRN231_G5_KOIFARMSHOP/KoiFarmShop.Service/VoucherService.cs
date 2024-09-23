@@ -41,7 +41,23 @@ namespace KoiFarmShop.Service
             }
             else
             {
-                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, vouchers);
+                var simplifiedVouchers = vouchers
+                    .Select(v => new { 
+                        VoucherId = v.VoucherId,
+                        VoucherCode = v.VoucherCode,
+                        DiscountAmount = v.DiscountAmount,
+                        MinOrderAmount = v.MinOrderAmount,
+                        ValidityStartDate = v.ValidityStartDate,
+                        ValidityEndDate = v.ValidityEndDate,
+                        Status = v.Status,
+                        CreatedDate = v.CreatedDate,
+                        CreatedBy = v.CreatedBy,
+                        ModifiedDate = v.ModifiedDate,
+                        ModifiedBy = v.ModifiedBy,
+                        
+                    })
+                    .ToList();
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, simplifiedVouchers);
             }
         }
 
