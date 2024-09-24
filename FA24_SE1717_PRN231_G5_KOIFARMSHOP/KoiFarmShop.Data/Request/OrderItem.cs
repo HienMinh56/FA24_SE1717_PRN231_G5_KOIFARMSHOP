@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KoiFarmShop.Data.Request
 {
-    public class CreateOrderRequest
+    public class OrderItem
     {
         public string KoiId { get; set; }
         public int Quantity { get; set; }

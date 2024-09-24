@@ -17,7 +17,7 @@ namespace KoiFarmShop.Data.Repository
 
         public OrderRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
 
-        public async Task<Order> CreateOrderAsync(string userId, List<(string koiId, int quantity)> orderDetails, string voucherId)
+        public async Task<Order> CreateOrderAsync(string userId, List<(string koiId, int quantity)> orderDetails, string? voucherId)
         {
             try
             {

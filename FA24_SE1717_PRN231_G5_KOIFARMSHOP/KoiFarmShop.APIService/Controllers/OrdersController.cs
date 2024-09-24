@@ -50,11 +50,11 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<IBusinessResult>> CreateOrder([FromBody] List<CreateOrderRequest> request)
+        public async Task<ActionResult<IBusinessResult>> CreateOrder([FromBody] OrderCreateRequest request)
         {
-            var orderItems = request.Select(x => (x.KoiId, x.Quantity)).ToList();
+            var orderItems = request.OrderItems.Select(x => (x.KoiId, x.Quantity)).ToList();
             // Call the service to create the order
-            var result = await _orderService.CreateOrderAsync(orderItems);
+            var result = await _orderService.CreateOrderAsync(orderItems, request.VoucherId);
 
             // Check the result and return the appropriate response
             if (result.Status == 1)
