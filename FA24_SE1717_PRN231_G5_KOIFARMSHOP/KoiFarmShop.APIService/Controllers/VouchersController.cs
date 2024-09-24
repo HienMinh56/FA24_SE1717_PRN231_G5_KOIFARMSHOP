@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Service;
 using KoiFarmShop.Service.Base;
+using KoiFarmShop.Data.Request;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -39,7 +40,7 @@ namespace KoiFarmShop.APIService.Controllers
         // PUT: api/Vouchers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<IBusinessResult> PutVoucher( Voucher voucher)
+        public async Task<IBusinessResult> PutVoucher( CreateVoucherRequest voucher)
         {
             return await _voucherService.Save(voucher);
         }
@@ -47,7 +48,7 @@ namespace KoiFarmShop.APIService.Controllers
         // POST: api/Vouchers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<IBusinessResult> PostVoucher(Voucher voucher)
+        public async Task<IBusinessResult> PostVoucher(CreateVoucherRequest voucher)
         {
             return await _voucherService.Save(voucher);
         }
