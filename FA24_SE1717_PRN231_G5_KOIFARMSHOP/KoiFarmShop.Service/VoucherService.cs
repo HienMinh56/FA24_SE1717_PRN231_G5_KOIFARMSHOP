@@ -1,6 +1,7 @@
 ﻿using KoiFarmShop.Common;
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetAll();
         Task<IBusinessResult> GetById(string Id);
-        Task<IBusinessResult> Save(Voucher voucher);
+        Task<IBusinessResult> Save(CreateVoucherRequest voucher);
         Task<IBusinessResult> DeleteById(string Id);
 
 
@@ -50,9 +51,9 @@ namespace KoiFarmShop.Service
                         ValidityStartDate = v.ValidityStartDate,
                         ValidityEndDate = v.ValidityEndDate,
                         Status = v.Status,
-                        CreatedDate = v.CreatedDate,
+                        CreatedDate = DateTime.Now,
                         CreatedBy = v.CreatedBy,
-                        ModifiedDate = v.ModifiedDate,
+                        ModifiedDate = DateTime.Now,
                         ModifiedBy = v.ModifiedBy,
                         
                     })
@@ -79,7 +80,7 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> Save(Voucher voucher)
+        public async Task<IBusinessResult> Save(CreateVoucherRequest voucher)
         {
             #region Business rule
 
@@ -98,7 +99,7 @@ namespace KoiFarmShop.Service
                     #endregion
                     voucherTmp.VoucherCode = voucher.VoucherCode;
                     voucherTmp.VoucherId = voucher.VoucherId;
-                    voucherTmp.Orders = voucher.Orders;
+                    
                     voucherTmp.CreatedDate = voucher.CreatedDate;
                     voucherTmp.CreatedBy = voucher.CreatedBy;
                     voucherTmp.DiscountAmount = voucher.DiscountAmount;
@@ -122,7 +123,22 @@ namespace KoiFarmShop.Service
                 }
                 else
                 {
-                    result = await _unitOfWork.VoucherRepository.CreateAsync(voucher);
+                    result = await _unitOfWork.VoucherRepository.CreateAsync(new Voucher
+                    {
+                        VoucherId = voucher.VoucherId,
+                        VoucherCode = voucher.VoucherCode,
+                        DiscountAmount = voucher.DiscountAmount,
+                        MinOrderAmount = voucher.MinOrderAmount,
+                        Status = voucher.Status,
+                        ValidityStartDate = voucher.ValidityStartDate,
+                        ValidityEndDate = voucher.ValidityEndDate,
+                        CreatedDate = voucher.CreatedDate,
+                        CreatedBy = voucher.CreatedBy,
+                        ModifiedDate = voucher.ModifiedDate,
+                        ModifiedBy = voucher.ModifiedBy
+                        
+
+                    });
 
                     if (result > 0)
                     {
