@@ -19,11 +19,13 @@ namespace KoiFarmShop.Data.Repository
         public async Task<List<Consignment>> GetAllConsignmentAsync()
         {
             var consignments = await _context.Consignments
-                                .AsNoTracking()
-                                .Include(k => k.Koi)
-                                .Include(u => u.User)
-                                .Include(p => p.Payment)
-                                .ToListAsync();
+                                             .AsNoTracking()
+                                             .Include(k => k.Koi).ThenInclude(i => i.Images)
+                                             .Include(k => k.Koi).ThenInclude(o => o.OrderDetails)
+                                             .Include(u => u.User).ThenInclude(p => p.Payments)
+                                             .Include(u => u.User).ThenInclude(o => o.Orders)
+                                             .Include(p => p.Payment).ThenInclude(o => o.Orders)
+                                             .ToListAsync();
             return consignments;
         }
 
@@ -32,9 +34,11 @@ namespace KoiFarmShop.Data.Repository
             var consignment = await _context.Consignments
                                             .AsNoTracking()
                                             .Where(c => c.ConsignmentId == ConsignmentId)
-                                            .Include(k => k.Koi)
-                                            .Include(u => u.User)
-                                            .Include(p => p.Payment)
+                                            .Include(k => k.Koi).ThenInclude(i => i.Images)
+                                            .Include(k => k.Koi).ThenInclude(o => o.OrderDetails)
+                                            .Include(u => u.User).ThenInclude(p => p.Payments)
+                                            .Include(u => u.User).ThenInclude(o => o.Orders)
+                                            .Include(p => p.Payment).ThenInclude(o => o.Orders)
                                             .FirstOrDefaultAsync();
 
             return consignment ?? new Consignment();
@@ -45,7 +49,7 @@ namespace KoiFarmShop.Data.Repository
             try
             {
                 // Tạo ConsignmentId và PaymentId
-                var ConsignmentId = $"CONSIGN{(await Count() + 1).ToString("D3")}";
+                var ConsignmentId = $"CONSIGN{(await Count() + 1).ToString("D4")}";
                 string paymentId = $"PAY{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
 
                 // Khởi tạo đối tượng Consignment
