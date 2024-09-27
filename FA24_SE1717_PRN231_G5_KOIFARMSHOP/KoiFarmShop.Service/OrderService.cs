@@ -16,7 +16,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string OrderId);
-        Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails);
+        Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails, string? voucherId);
         Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status);
     }
 
@@ -47,7 +47,7 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var order =  _unitOfWork.OrderRepository.Get(o => o.OrderId == OrderId);
+                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == OrderId);
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, order);
             }
             catch (Exception ex)
@@ -57,13 +57,12 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails)
+        public async Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails, string? voucherId)
         {
             try
             {
                 var userId = "S1";
-                var voucherId = "VOU123";
-               var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherId);
+                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherId);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
             catch (Exception ex)
