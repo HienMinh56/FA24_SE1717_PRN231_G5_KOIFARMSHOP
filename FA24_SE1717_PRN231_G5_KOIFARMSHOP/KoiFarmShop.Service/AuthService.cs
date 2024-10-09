@@ -23,9 +23,9 @@ namespace KoiFarmShop.Service
     public class AuthService : IAuthService
     {
         private readonly UnitOfWork _unitOfWork;
-        private readonly TokenService _tokenService ;
+        private readonly ITokenService _tokenService ;
 
-        public AuthService(UnitOfWork unitOfWork, TokenService tokenService)
+        public AuthService(UnitOfWork unitOfWork, ITokenService tokenService)
         {
             _unitOfWork = unitOfWork;
             _tokenService = tokenService;
@@ -68,7 +68,7 @@ namespace KoiFarmShop.Service
 
         public async Task RegisterAccount(RegisterRequest request)
         {
-            var account = await _unitOfWork.UserRepository.GetByIdAsync(request.Email);
+            var account = _unitOfWork.UserRepository.Get(u => u.Email == request.Email);
 
             if (account is not null)
             {
