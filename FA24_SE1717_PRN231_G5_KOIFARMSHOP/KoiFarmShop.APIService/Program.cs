@@ -2,9 +2,13 @@
 using Google.Cloud.Storage.V1;
 using KoiFarmShop.APIService;
 using KoiFarmShop.Data;
+using KoiFarmShop.Data.Models;
 using KoiFarmShop.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
@@ -36,6 +40,10 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    })
+    .AddOData(options =>
+    {
+        options.Select().Filter().OrderBy().Count().SetMaxTop(100);
     });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -101,6 +109,8 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseRouting();
 
 app.MapControllers();
 

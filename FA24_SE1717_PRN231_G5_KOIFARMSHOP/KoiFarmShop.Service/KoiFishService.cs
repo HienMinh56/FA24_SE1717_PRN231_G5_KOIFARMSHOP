@@ -21,7 +21,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> Delete(string code);
         Task<IBusinessResult> Save(KoiFish koiFish);
         Task<IBusinessResult> DeleteById(string code);
-        
+        Task<IQueryable<KoiFish>?> GetAllOData();
     }
     public class KoiFishService : IKoiFishService
     {
@@ -172,8 +172,6 @@ namespace KoiFarmShop.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
-
-
         }
 
         public async Task<IBusinessResult> GetById(string code)
@@ -319,39 +317,48 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG, new KoiFish());
             }
         }
-/*
-        public bool CheckEmpty(string code)
-        {
-            if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == code) is not null)
-            {
-                return false;   
-            }
-            return true;
-
-        }
-        public async Task<int> FindEmptyPositionWithBinarySearch(List<KoiFish> koiFishs, int low, int high)
-        {
-//            var Id = $"KOI{current.ToString("D3")}";
-            var mid = (low + high) / 2;
-            var Id = $"KOIFISH{mid.ToString("D3")}";
-
-            if (CheckEmpty(Id))
-            {
-                return mid;
-            }
-            else
-            {
-                var index = koiFishs.FindIndex(k => k.KoiId == Id) + 1;
-                if (index < mid)
+        /*
+                public bool CheckEmpty(string code)
                 {
-                    return await FindEmptyPositionWithBinarySearch(koiFishs, low, mid);
+                    if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == code) is not null)
+                    {
+                        return false;   
+                    }
+                    return true;
+
                 }
-                else
+                public async Task<int> FindEmptyPositionWithBinarySearch(List<KoiFish> koiFishs, int low, int high)
                 {
-                    return await FindEmptyPositionWithBinarySearch(koiFishs, mid, high);
+        //            var Id = $"KOI{current.ToString("D3")}";
+                    var mid = (low + high) / 2;
+                    var Id = $"KOIFISH{mid.ToString("D3")}";
+
+                    if (CheckEmpty(Id))
+                    {
+                        return mid;
+                    }
+                    else
+                    {
+                        var index = koiFishs.FindIndex(k => k.KoiId == Id) + 1;
+                        if (index < mid)
+                        {
+                            return await FindEmptyPositionWithBinarySearch(koiFishs, low, mid);
+                        }
+                        else
+                        {
+                            return await FindEmptyPositionWithBinarySearch(koiFishs, mid, high);
+                        }
+                    }
                 }
+        */
+        public async Task<IQueryable<KoiFish>?> GetAllOData()
+        {
+            var koifishes = await _unitOfWork.KoiFishRepository.GetAllWithImages();
+            if (koifishes == null)
+            {
+                return null;
             }
+            return koifishes.AsQueryable();
         }
-*/
     }
 }
