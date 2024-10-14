@@ -1,5 +1,6 @@
 ﻿using KoiFarmShop.Data.Base;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Data.Request;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace KoiFarmShop.Data.Repository
 
         public OrderRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
 
-        public async Task<Order> CreateOrderAsync(string userId, List<(string koiId, int quantity)> orderDetails, string? voucherId)
+        public async Task<Order> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode)
         {
             try
             {
@@ -25,16 +26,19 @@ namespace KoiFarmShop.Data.Repository
                 string orderId = $"ORDER{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
                 string paymentId = $"PAY{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
 
+                var voucher = !string.IsNullOrEmpty(voucherCode)
+             ? _context.Vouchers.Where(v => v.VoucherCode == voucherCode).FirstOrDefault()
+             : null;
+
                 // Khởi tạo đối tượng Order
                 var order = new Order
                 {
                     OrderId = orderId,
                     UserId = userId,
-                    PaymentId = paymentId, // Liên kết với Payment
                     Status = 1, // Trạng thái ban đầu của Order
                     CreatedDate = DateTime.Now,
                     CreatedBy = userId,
-                    VoucherId = voucherId,
+                    VoucherId = voucher?.VoucherId, // VoucherId có thể là null nếu không có voucher
                 };
 
                 double totalAmount = 0;
@@ -45,26 +49,26 @@ namespace KoiFarmShop.Data.Repository
                 {
                     // Lấy thông tin sản phẩm (Koi) từ database dựa trên koiId
                     var koi = await _context.KoiFishes
-                        .Where(k => k.DeletedBy == null && k.KoiId == item.koiId)
+                        .Where(k => k.DeletedBy == null && k.KoiId == item.KoiId)
                         .AsNoTracking()
                         .SingleOrDefaultAsync();
 
                     if (koi == null)
                     {
-                        throw new Exception($"Koi with ID {item.koiId} not found.");
+                        throw new Exception($"Koi with ID {item.KoiId} not found.");
                     }
 
                     // Tạo đối tượng OrderDetail
                     var orderDetail = new OrderDetail
                     {
-                        KoiId = item.koiId, // Liên kết Koi với OrderDetail
-                        Quantity = item.quantity,
-                        Price = koi.Price * item.quantity,
+                        KoiId = item.KoiId, // Liên kết Koi với OrderDetail
+                        Quantity = item.Quantity,
+                        Price = koi.Price * item.Quantity,
                         OrderId = orderId,
                     };
 
                     totalAmount += orderDetail.Price;
-                    totalQuantity += item.quantity;
+                    totalQuantity += item.Quantity;
                     order.OrderDetails.Add(orderDetail); // Thêm OrderDetail vào Order
                 }
 
@@ -73,19 +77,10 @@ namespace KoiFarmShop.Data.Repository
                 order.Quantity = totalQuantity;
 
                 // Tạo đối tượng Payment và liên kết với Order
-                var payment = new Payment
-                {
-                    PaymentId = paymentId,
-                    UserId = userId,
-                    Amount = totalAmount,
-                    Type = 1, // Loại thanh toán
-                    Status = 0, // Trạng thái chưa thanh toán
-                    CreatedDate = DateTime.Now,
-                };
+                
 
                 // Lưu thông tin Order và Payment vào database
                 await _context.Orders.AddAsync(order);
-                await _context.Payments.AddAsync(payment);
 
                 // Lưu thay đổi vào database
                 await _context.SaveChangesAsync();
