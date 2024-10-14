@@ -52,5 +52,11 @@ namespace KoiFarmShop.APIService.Controllers
         {
             return await _consignmentService.Update(consignmentId, status);
         }
+
+        [HttpDelete("{consignmentId}")]
+        public async Task<IBusinessResult> DeleteConsignment(string consignmentId)
+        {
+            return await _consignmentService.DeleteById(consignmentId);
+        }
     }
 }

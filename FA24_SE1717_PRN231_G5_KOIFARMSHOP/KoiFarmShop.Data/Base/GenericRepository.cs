@@ -31,6 +31,10 @@ namespace KoiFarmShop.Data.Base
         {
             return _context.Set<T>().FirstOrDefault(expression);
         }
+        public virtual List<T> GetList(Expression<Func<T, bool>> expression)
+        {
+            return _context.Set<T>().Where(expression).ToList();
+        }
 
         public void Create(T entity)
         {

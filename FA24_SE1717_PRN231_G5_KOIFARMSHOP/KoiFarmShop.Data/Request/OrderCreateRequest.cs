@@ -9,6 +9,6 @@ namespace KoiFarmShop.Data.Request
     public class OrderCreateRequest
     {
         public List<OrderItem> OrderItems { get; set; }
-        public string? VoucherId { get; set; }
+        public string? VoucherCode { get; set; }
     }
 }

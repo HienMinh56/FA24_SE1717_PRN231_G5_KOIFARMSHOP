@@ -15,6 +15,7 @@
                 <tr class="card-header">
                     <th class="card-title text-center">Consignment Id</th>
                     <th class="card-title text-center">Koi Id</th>
+                    <th class="card-title text-center">User Id</th>
                     <th class="card-title text-center">Type</th>
                     <th class="card-title text-center">Deal Price</th>
                     <th class="card-title text-center">Method</th>
@@ -150,6 +151,7 @@
                         html += '<tr>';
                         html += '<td>' + item.consignmentId + '</td>';
                         html += '<td>' + item.koiId + '</td>';
+                        html += '<td>' + item.userId + '</td>';
                         var typeText = "";
                         switch (item.type) {
                             case 1:
@@ -162,7 +164,7 @@
                         html += '<td>' + typeText + '</td>';
                         html += '<td>' + item.dealPrice + '</td>';
                         html += '<td>' + item.method + '</td>';
-                        html += '<td>' + item.paymentId + '</td>';
+                            html += '<td>' + (item.paymentId || 'N/A') + '</td>';
                         var statusText = "";
                         switch (item.status) {
                             case 1:
@@ -186,7 +188,7 @@
                         }
                         html += '<td>' + statusText + '</td>';
                         html += '<td>' + item.consignmentDate + '</td>';
-                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\', ' + item.status + ')">Update</button></td>';
+                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\', ' + item.status + ')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
                         html += '</tr>';
                     });
                     $('.tblConsignments').html(html);
@@ -250,12 +252,12 @@
             var status = $("#statusUpdate").val();
 
             $.ajax({
-                url: "https://localhost:7149/api/Consignments/" + consignmentId + "?status=" + status,  // Truyền status qua URL
-                type: "PUT",  // Phương thức PUT
+                url: "https://localhost:7149/api/Consignments/" + consignmentId + "?status=" + status,
+                type: "PUT",
                 success: function (result) {
                     if (result.status >= 1) {
                         $('#consignmentModal').modal('hide');
-                        loadData(); // Reload Data
+                        loadData();
                     }
                     alert(result.message);
                 },
@@ -274,5 +276,24 @@
                 updateConsignment();
             }
         });
+
+        // Delete Consignment
+        function deleteConsignment(consignmentId) {
+            if (confirm("Are you sure you want to delete this consignment?")) {
+                $.ajax({
+                    url: "https://localhost:7149/api/Consignments/" + consignmentId,
+                    type: "DELETE",
+                    success: function (result) {
+                        if (result.status >= 1) {
+                            loadData();
+                        }
+                        alert(result.message);
+                    },
+                    error: function (xhr) {
+                        alert(xhr.statusText);
+                    }
+                });
+            }
+        }
     </script>
 }
