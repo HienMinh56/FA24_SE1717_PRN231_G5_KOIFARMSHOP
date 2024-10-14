@@ -21,7 +21,6 @@ namespace KoiFarmShop.Data.Repository
                 string userId = string.Empty;
                 double amount = 0;
 
-                // Kiểm tra Type và lấy thông tin từ bảng Order hoặc Consignment
                 if (createPaymentRequest.Type == 1) // Type 1: Order
                 {
                     var order = await _context.Orders
@@ -30,13 +29,13 @@ namespace KoiFarmShop.Data.Repository
 
                     if (order == null)
                     {
-                        throw new Exception("Order không tồn tại."); // Đảm bảo order không null
+                        throw new Exception("Order không tồn tại.");
                     }
 
                     userId = order.UserId;
                     amount = order.TotalAmount;
 
-                    // Gán PaymentId vào cột PaymentId của Order
+                    // Gán PaymentId
                     order.PaymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                 }
                 else if (createPaymentRequest.Type == 2) // Type 2: Consignment
@@ -52,13 +51,13 @@ namespace KoiFarmShop.Data.Repository
 
                     if (consignment == null)
                     {
-                        throw new Exception("Consignment không tồn tại."); // Đảm bảo consignment không null
+                        throw new Exception("Consignment không tồn tại.");
                     }
 
                     userId = consignment.UserId;
                     amount = consignment.DealPrice ?? 0; // DealPrice null = 0
 
-                    // Gán PaymentId vào cột PaymentId của Consignment
+                    // Gán PaymentId
                     consignment.PaymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                 }
                 else
