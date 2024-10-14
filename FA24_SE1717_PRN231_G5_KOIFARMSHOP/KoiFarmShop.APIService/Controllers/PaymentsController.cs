@@ -1,9 +1,8 @@
-﻿using KoiFarmShop.Data.Request;
+﻿using KoiFarmShop.Common;
+using KoiFarmShop.Data.Request;
 using KoiFarmShop.Data.Request.KoiFarmShop.Data.Request;
 using KoiFarmShop.Service;
-using KoiFarmShop.Service.Base;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -20,9 +19,34 @@ namespace KoiFarmShop.APIService.Controllers
 
         // POST: api/Payments
         [HttpPost]
-        public async Task<IBusinessResult> PostPayment(CreatePaymentRequest paymentRequest)
+        public async Task<IActionResult> PostPayment(CreatePaymentRequest paymentRequest)
         {
-            return await _paymentService.Create(paymentRequest);
+            var result = await _paymentService.Create(paymentRequest);
+            if (result.Status == Const.SUCCESS_CREATE_CODE)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        // GET: api/Payments
+        [HttpGet]
+        public async Task<IActionResult> GetPayments()
+        {
+            var result = await _paymentService.GetAll();
+            return Ok(result);
+        }
+
+        // GET: api/Payments/{paymentId}
+        [HttpGet("{paymentId}")]
+        public async Task<IActionResult> GetPaymentById(string paymentId)
+        {
+            var result = await _paymentService.GetById(paymentId);
+            if (result.Status == Const.SUCCESS_READ_CODE)
+            {
+                return Ok(result);
+            }
+            return NotFound(result);
         }
     }
 }

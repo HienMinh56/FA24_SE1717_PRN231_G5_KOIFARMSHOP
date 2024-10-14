@@ -13,53 +13,72 @@ namespace KoiFarmShop.Data.Repository
             _context = context;
         }
 
+        // Hàm tạo Payment với thông tin từ Order hoặc Consignment
         public async Task<Payment> CreatePaymentAsync(CreatePaymentRequest createPaymentRequest)
         {
             try
             {
-                // Tạo PaymentId
-                var paymentCount = await _context.Payments.CountAsync();
-                var paymentId = $"PAYMENT{(paymentCount + 1).ToString("D3")}";
+                string userId = string.Empty;
+                double amount = 0;
 
-                // Lấy UserId từ Order hoặc Consignment
-                string userId;
-                double amount;
-
-                if (!string.IsNullOrEmpty(createPaymentRequest.OrderId))
+                // Kiểm tra Type và lấy thông tin từ bảng Order hoặc Consignment
+                if (createPaymentRequest.Type == 1) // Type 1: Order
                 {
-                    var order = await _context.Orders.FindAsync(createPaymentRequest.OrderId);
+                    var order = await _context.Orders
+                                              .AsNoTracking()
+                                              .FirstOrDefaultAsync(o => o.OrderId == createPaymentRequest.OrderId);
+
                     if (order == null)
-                        throw new Exception("Order not found.");
+                    {
+                        throw new Exception("Order không tồn tại."); // Đảm bảo order không null
+                    }
 
                     userId = order.UserId;
-                    amount = order.TotalAmount; 
+                    amount = order.TotalAmount;
+
+                    // Gán PaymentId vào cột PaymentId của Order
+                    order.PaymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                 }
-                else if (!string.IsNullOrEmpty(createPaymentRequest.ConsignmentId))
+                else if (createPaymentRequest.Type == 2) // Type 2: Consignment
                 {
-                    var consignment = await _context.Consignments.FindAsync(createPaymentRequest.ConsignmentId);
+                    if (string.IsNullOrEmpty(createPaymentRequest.ConsignmentId))
+                    {
+                        throw new Exception("ConsignmentId không thể để trống khi Type là 2.");
+                    }
+
+                    var consignment = await _context.Consignments
+                                                    .AsNoTracking()
+                                                    .FirstOrDefaultAsync(c => c.ConsignmentId == createPaymentRequest.ConsignmentId);
+
                     if (consignment == null)
-                        throw new Exception("Consignment not found.");
+                    {
+                        throw new Exception("Consignment không tồn tại."); // Đảm bảo consignment không null
+                    }
 
                     userId = consignment.UserId;
-                    amount = consignment.DealPrice ?? 0; 
+                    amount = consignment.DealPrice ?? 0; // DealPrice null = 0
+
+                    // Gán PaymentId vào cột PaymentId của Consignment
+                    consignment.PaymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                 }
                 else
                 {
-                    throw new Exception("Either OrderId or ConsignmentId must be provided.");
+                    throw new Exception("Type không hợp lệ.");
                 }
 
-                // Khởi tạo Payment
+                // Tạo PaymentId
+                string paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
+
                 var payment = new Payment
                 {
                     PaymentId = paymentId,
                     UserId = userId,
                     Amount = amount,
-                    Type = !string.IsNullOrEmpty(createPaymentRequest.OrderId) ? 1 : 2, // 1: Order, 2: Consignment
+                    Type = createPaymentRequest.Type,
                     Status = 2, // Pending
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = DateTime.Now
                 };
 
-                // Thêm Payment vào context
                 await _context.Payments.AddAsync(payment);
                 await _context.SaveChangesAsync();
 
@@ -67,9 +86,9 @@ namespace KoiFarmShop.Data.Repository
             }
             catch (Exception ex)
             {
-                // Handle any exceptions
-                throw new Exception($"An error occurred while creating the payment: {ex.Message}", ex);
+                throw new Exception($"Đã xảy ra lỗi khi tạo Payment: {ex.Message}", ex);
             }
         }
+
     }
 }
