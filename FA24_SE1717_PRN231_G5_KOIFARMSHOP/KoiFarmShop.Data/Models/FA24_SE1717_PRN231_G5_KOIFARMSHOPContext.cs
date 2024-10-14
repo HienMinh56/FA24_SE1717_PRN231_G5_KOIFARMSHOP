@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace KoiFarmShop.Data.Models;
 
@@ -35,18 +34,8 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
     public virtual DbSet<Voucher> Vouchers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(GetConnectionString());
-    }
-
-    private string GetConnectionString()
-    {
-        IConfiguration configuration = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", true, true).Build();
-        return configuration["ConnectionStrings:DefaultConnection"];
-    }
-
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=FANCY-LAPTOP\\STUDY;Initial Catalog=FA24_SE1717_PRN231_G5_KOIFARMSHOP;User ID=sa;Password=12345;Encrypt=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,11 +43,11 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<Consignment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Consignm__3214EC07D7855102");
+            entity.HasKey(e => e.Id).HasName("PK__Consignm__3214EC07182530FC");
 
             entity.ToTable("Consignment");
 
-            entity.HasIndex(e => e.ConsignmentId, "UQ__Consignm__2AB758422C146C9E").IsUnique();
+            entity.HasIndex(e => e.ConsignmentId, "UQ__Consignm__2AB75842551A3951").IsUnique();
 
             entity.Property(e => e.ConsignmentId)
                 .IsRequired()
@@ -77,7 +66,6 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
             entity.Property(e => e.ModifiedBy).IsUnicode(false);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentId)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.UserId)
@@ -94,7 +82,6 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
             entity.HasOne(d => d.Payment).WithMany(p => p.Consignments)
                 .HasPrincipalKey(p => p.PaymentId)
                 .HasForeignKey(d => d.PaymentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Consignment_Payment");
 
             entity.HasOne(d => d.User).WithMany(p => p.Consignments)
@@ -106,11 +93,11 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<Image>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Image__3214EC073A2B2BAA");
+            entity.HasKey(e => e.Id).HasName("PK__Image__3214EC07270A0C79");
 
             entity.ToTable("Image");
 
-            entity.HasIndex(e => e.ImageId, "UQ__Image__7516F70D58F6DA7F").IsUnique();
+            entity.HasIndex(e => e.ImageId, "UQ__Image__7516F70D76B40ECB").IsUnique();
 
             entity.Property(e => e.CreatedBy).IsUnicode(false);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
@@ -139,11 +126,11 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<KoiFish>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__KoiFish__3214EC07558979E5");
+            entity.HasKey(e => e.Id).HasName("PK__KoiFish__3214EC079935AA9E");
 
             entity.ToTable("KoiFish");
 
-            entity.HasIndex(e => e.KoiId, "UQ__KoiFish__E03435990A1CBF9E").IsUnique();
+            entity.HasIndex(e => e.KoiId, "UQ__KoiFish__E03435995F78967C").IsUnique();
 
             entity.Property(e => e.Breed)
                 .IsRequired()
@@ -175,11 +162,11 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC079A917FEF");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC0776E602FC");
 
             entity.ToTable("Order");
 
-            entity.HasIndex(e => e.OrderId, "UQ__Order__C3905BCE1DA102CD").IsUnique();
+            entity.HasIndex(e => e.OrderId, "UQ__Order__C3905BCE7ED47F24").IsUnique();
 
             entity.Property(e => e.CreatedBy).IsUnicode(false);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
@@ -190,7 +177,6 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.PaymentId)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.UserId)
@@ -198,14 +184,12 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.VoucherId)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Payment).WithMany(p => p.Orders)
                 .HasPrincipalKey(p => p.PaymentId)
                 .HasForeignKey(d => d.PaymentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Order_Payment");
 
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
@@ -217,13 +201,12 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
             entity.HasOne(d => d.Voucher).WithMany(p => p.Orders)
                 .HasPrincipalKey(p => p.VoucherId)
                 .HasForeignKey(d => d.VoucherId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Order_Voucher");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC077C2BFFC4");
+            entity.HasKey(e => e.Id).HasName("PK__OrderDet__3214EC0777ADF9E1");
 
             entity.ToTable("OrderDetail");
 
@@ -251,11 +234,11 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC07DABA6C94");
+            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC07AA664B80");
 
             entity.ToTable("Payment");
 
-            entity.HasIndex(e => e.PaymentId, "UQ__Payment__9B556A39A1AB3F61").IsUnique();
+            entity.HasIndex(e => e.PaymentId, "UQ__Payment__9B556A39B6E71EFD").IsUnique();
 
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentId)
@@ -276,11 +259,11 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__User__3214EC07304A3D4C");
+            entity.HasKey(e => e.Id).HasName("PK__User__3214EC07E9B777BC");
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.UserId, "UQ__User__1788CC4D71265A60").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ__User__1788CC4D379F611B").IsUnique();
 
             entity.Property(e => e.CreatedBy).IsUnicode(false);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
@@ -311,13 +294,13 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<Voucher>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Voucher__3214EC07BE3A70C9");
+            entity.HasKey(e => e.Id).HasName("PK__Voucher__3214EC0789A7AC39");
 
             entity.ToTable("Voucher");
 
-            entity.HasIndex(e => e.VoucherId, "UQ__Voucher__3AEE792029E999A4").IsUnique();
+            entity.HasIndex(e => e.VoucherId, "UQ__Voucher__3AEE792094031DC5").IsUnique();
 
-            entity.HasIndex(e => e.VoucherCode, "UQ__Voucher__7F0ABCA9EB064296").IsUnique();
+            entity.HasIndex(e => e.VoucherCode, "UQ__Voucher__7F0ABCA97D4E58A3").IsUnique();
 
             entity.Property(e => e.CreatedBy).IsUnicode(false);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
