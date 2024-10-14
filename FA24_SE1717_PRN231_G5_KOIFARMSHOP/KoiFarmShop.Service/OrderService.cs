@@ -2,6 +2,7 @@
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Repository;
+using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,7 +17,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string OrderId);
-        Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails, string? voucherId);
+        Task<IBusinessResult> CreateOrderAsync(List<OrderItem> orderDetails, string? voucherId);
         Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status);
     }
 
@@ -57,12 +58,12 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails, string? voucherId)
+        public async Task<IBusinessResult> CreateOrderAsync(List<OrderItem> orderDetails, string? voucherCode)
         {
             try
             {
-                var userId = "S1";
-                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherId);
+                var userId = "USER001";
+                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
             catch (Exception ex)
