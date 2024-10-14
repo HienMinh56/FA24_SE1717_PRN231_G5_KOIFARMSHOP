@@ -17,15 +17,12 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetById(string code);
         Task<IBusinessResult> Create(CreateConsignmentRequest consignment);
         Task<IBusinessResult> Update(string consignmentId, int status);
-        //Task<IBusinessResult> Delete(string code);
-        //Task<IBusinessResult> Save(Consignment consignment);
-        //Task<IBusinessResult> DeleteById(string code);
     }
 
     public class ConsignmentService : IConsignmentService
     {
         private readonly UnitOfWork _unitOfWork;
-        private readonly IFirebaseStorageService _firebaseStorageService;
+
         public ConsignmentService()
         {
             _unitOfWork ??= new UnitOfWork();
@@ -36,6 +33,7 @@ namespace KoiFarmShop.Service
             #region Business Rule
 
             #endregion
+
             try
             {
                 var consignments = await _unitOfWork.ConsignmentRepository.GetAllConsignmentAsync();
@@ -55,6 +53,10 @@ namespace KoiFarmShop.Service
 
         public async Task<IBusinessResult> GetById(string consignmentId)
         {
+            #region Business Rule
+
+            #endregion
+
             try
             {
                 var consignment = await _unitOfWork.ConsignmentRepository.GetConsignmentByIdAsync(consignmentId);

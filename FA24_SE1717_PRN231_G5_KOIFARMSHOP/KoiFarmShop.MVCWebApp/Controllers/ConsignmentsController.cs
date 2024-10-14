@@ -11,6 +11,7 @@ using KoiFarmShop.Service;
 using KoiFarmShop.Common;
 using Newtonsoft.Json;
 using KoiFarmShop.Service.Base;
+using System.Net.Http;
 
 namespace KoiFarmShop.MVCWebApp.Controllers
 {
@@ -18,9 +19,32 @@ namespace KoiFarmShop.MVCWebApp.Controllers
     {
         private readonly FA24_SE1717_PRN231_G5_KOIFARMSHOPContext _context;
 
-        public ConsignmentsController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
+        public ConsignmentsController()
         {
-            _context = context;
+        }
+
+        public async Task<List<Consignment>> GetConsignments()
+        {
+            var consignments = new List<Consignment>();
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Data != null)
+                        {
+                            consignments = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
+                        }
+                    }
+                }
+            }
+
+            return consignments;
         }
 
         // GET: Consignments
@@ -48,145 +72,229 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         }
 
         // GET: Consignments/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string id)
         {
-            if (id == null)
+            using (var httpClient = new HttpClient())
             {
-                return NotFound();
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments/" + id))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Data != null)
+                        {
+                            var data = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
+                            return View(data);
+                        }
+                    }
+                }
             }
 
-            var consignment = await _context.Consignments
-                .Include(c => c.Koi)
-                .Include(c => c.Payment)
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (consignment == null)
-            {
-                return NotFound();
-            }
-
-            return View(consignment);
+            return View(new Consignment());
         }
 
         // GET: Consignments/Create
-        //public IActionResult Create()
-        //{
-        //    ViewData["KoiId"] = new SelectList(_context.KoiFishes, "KoiId", "Breed");
-        //    ViewData["PaymentId"] = new SelectList(_context.Payments, "PaymentId", "PaymentId");
-        //    ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
-        //    return View();
-        //}
+        public async Task<IActionResult> Create()
+        {
+            var Consignment = new Consignment();
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                        if (result is not null)
+                        {
+                            var data = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
+
+
+                            return View();
+                        }
+                    }
+                }
+            }
+            ViewData["ConsignmentId"] = new SelectList(_context.Consignments, "ConsignmentId");
+            return View();
+        }
 
         // POST: Consignments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,ConsignmentId,UserId,KoiId,Type,DealPrice,Method,PaymentId,Status,ConsignmentDate,CreatedDate,CreatedBy,ModifiedDate,ModifiedBy")] Consignment consignment)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(consignment);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["KoiId"] = new SelectList(_context.KoiFishes, "KoiId", "Breed", consignment.KoiId);
-        //    ViewData["PaymentId"] = new SelectList(_context.Payments, "PaymentId", "PaymentId", consignment.PaymentId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", consignment.UserId);
-        //    return View(consignment);
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Consignment consignment)
+        {
+            bool saveStatus = false;
+
+            if (ModelState.IsValid)
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    // Properly send the voucher in the body of the POST request
+                    using (var response = await httpClient.PostAsJsonAsync(Const.APIEndpoint + "Consignments/", consignment))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                            if (result != null && result.Status == Const.SUCCESS_CREATE_CODE)
+                            {
+                                saveStatus = true;
+                            }
+                            else
+                            {
+                                saveStatus = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (saveStatus)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewData["ConsignmentId"] = new SelectList(await this.GetConsignments(), "ConsignmentId", consignment.ConsignmentId);
+                return View(consignment);
+            }
+        }
 
         // GET: Consignments/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Edit(string id)
+        {
+            var consignment = new Consignment();
 
-        //    var consignment = await _context.Consignments.FindAsync(id);
-        //    if (consignment == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    ViewData["KoiId"] = new SelectList(_context.KoiFishes, "KoiId", "Breed", consignment.KoiId);
-        //    ViewData["PaymentId"] = new SelectList(_context.Payments, "PaymentId", "PaymentId", consignment.PaymentId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", consignment.UserId);
-        //    return View(consignment);
-        //}
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments/" + id))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                        
+                        if (result != null && result.Data != null)
+                        {
+                            consignment = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
+                        }
+                    }
+                }
+            }
+            ViewData["ConsignmentId"] = new SelectList(await this.GetConsignments(), "ConsignmentId", consignment.ConsignmentId);
+            return View(consignment);
+        }
 
         // POST: Consignments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,ConsignmentId,UserId,KoiId,Type,DealPrice,Method,PaymentId,Status,ConsignmentDate,CreatedDate,CreatedBy,ModifiedDate,ModifiedBy")] Consignment consignment)
-        //{
-        //    if (id != consignment.Id)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPut]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, Consignment consignment)
+        {
+            bool saveStatus = false;
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(consignment);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!ConsignmentExists(consignment.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["KoiId"] = new SelectList(_context.KoiFishes, "KoiId", "Breed", consignment.KoiId);
-        //    ViewData["PaymentId"] = new SelectList(_context.Payments, "PaymentId", "PaymentId", consignment.PaymentId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", consignment.UserId);
-        //    return View(consignment);
-        //}
+            if (ModelState.IsValid)
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    // Properly send the voucher in the body of the POST request
+                    using (var response = await httpClient.PutAsJsonAsync(Const.APIEndpoint + "Consignments/" + id, consignment))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                            if (result != null && result.Status == Const.SUCCESS_UPDATE_CODE)
+                            {
+                                saveStatus = true;
+                                // Success path logic here
+                                return RedirectToAction(nameof(Index)); // Or another success action
+                            }
+                            else
+                            {
+                                saveStatus = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (saveStatus)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewData["ConsignmentId"] = new SelectList(await this.GetConsignments(), "ConsignmentId", consignment.ConsignmentId);
+                return View(consignment);
+            }
+        }
 
         // GET: Consignments/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Delete(string id)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments/" + id))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
 
-        //    var consignment = await _context.Consignments
-        //        .Include(c => c.Koi)
-        //        .Include(c => c.Payment)
-        //        .Include(c => c.User)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (consignment == null)
-        //    {
-        //        return NotFound();
-        //    }
+                        if (result != null && result.Data != null)
+                        {
+                            var data = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
 
-        //    return View(consignment);
-        //}
+                            return View(data);
+                        }
+                    }
+                }
+            }
+
+            return View(new Consignment());
+        }
 
         // POST: Consignments/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var consignment = await _context.Consignments.FindAsync(id);
-        //    if (consignment != null)
-        //    {
-        //        _context.Consignments.Remove(consignment);
-        //    }
+        [HttpDelete]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            bool deleteStatus = false;
 
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            if (ModelState.IsValid)
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    using (var response = await httpClient.DeleteAsync(Const.APIEndpoint + "Consignments/" + id))
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Status == Const.SUCCESS_DELETE_CODE)
+                        {
+                            deleteStatus = true;
+                        }
+                        else
+                        {
+                            deleteStatus = false;
+                        }
+                    }
+                }
+            }
+
+            if (deleteStatus)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return RedirectToAction(nameof(Delete));
+            }
+        }
     }
 }
