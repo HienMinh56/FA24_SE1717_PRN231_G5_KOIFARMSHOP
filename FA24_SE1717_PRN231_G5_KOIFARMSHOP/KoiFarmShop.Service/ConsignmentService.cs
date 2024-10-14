@@ -17,6 +17,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetById(string code);
         Task<IBusinessResult> Create(CreateConsignmentRequest consignment);
         Task<IBusinessResult> Update(string consignmentId, int status);
+        Task<IBusinessResult> Delete(string consignmentId);
     }
 
     public class ConsignmentService : IConsignmentService
@@ -94,6 +95,21 @@ namespace KoiFarmShop.Service
                 consignment.Status = status;
                 await _unitOfWork.ConsignmentRepository.UpdateAsync(consignment);
                 return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, consignment);
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu có ngoại lệ
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<IBusinessResult> Delete(string consignmentId)
+        {
+            try
+            {
+                var consignment = _unitOfWork.ConsignmentRepository.Get(c => c.ConsignmentId == consignmentId);
+                await _unitOfWork.ConsignmentRepository.RemoveAsync(consignment);
+                return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG, consignment);
             }
             catch (Exception ex)
             {
