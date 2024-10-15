@@ -1,7 +1,9 @@
 ﻿using KoiFarmShop.Common;
+using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
 using KoiFarmShop.Data.Request.KoiFarmShop.Data.Request;
 using KoiFarmShop.Service;
+using KoiFarmShop.Service.Base;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KoiFarmShop.APIService.Controllers
@@ -19,34 +21,30 @@ namespace KoiFarmShop.APIService.Controllers
 
         // POST: api/Payments
         [HttpPost]
-        public async Task<IActionResult> PostPayment(CreatePaymentRequest paymentRequest)
+        public async Task<IBusinessResult> PostPayment(CreatePaymentRequest paymentRequest)
         {
-            var result = await _paymentService.Create(paymentRequest);
-            if (result.Status == Const.SUCCESS_CREATE_CODE)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return await _paymentService.Create(paymentRequest);
+
         }
 
         // GET: api/Payments
         [HttpGet]
-        public async Task<IActionResult> GetPayments()
+        public async Task<IBusinessResult> GetPayments()
         {
-            var result = await _paymentService.GetAll();
-            return Ok(result);
+            return await _paymentService.GetAll();
         }
 
         // GET: api/Payments/{paymentId}
         [HttpGet("{paymentId}")]
-        public async Task<IActionResult> GetPaymentById(string paymentId)
+        public async Task<IBusinessResult> GetPaymentById(string paymentId)
         {
-            var result = await _paymentService.GetById(paymentId);
-            if (result.Status == Const.SUCCESS_READ_CODE)
-            {
-                return Ok(result);
-            }
-            return NotFound(result);
+            return await _paymentService.GetPaymentById(paymentId);
+        }
+
+        [HttpPut("{paymentId}")]
+        public async Task<IBusinessResult> UpdateStatus(string paymentId, int status)
+        {
+            return await _paymentService.UpdateStatusForPayment(paymentId, status);
         }
     }
 }

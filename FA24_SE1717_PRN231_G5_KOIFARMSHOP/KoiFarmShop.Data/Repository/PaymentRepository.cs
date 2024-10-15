@@ -89,5 +89,17 @@ namespace KoiFarmShop.Data.Repository
             }
         }
 
+        public async Task<Payment?> GetPaymentByIdAsync(string paymentId)
+        {
+            var payment = await _context.Payments
+                                        .AsNoTracking()
+                                        .Include(p => p.User)  
+                                        .Include(p => p.Orders)  
+                                        .Include(p => p.Consignments)  
+                                        .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+
+            return payment;
+        }
+     
     }
 }

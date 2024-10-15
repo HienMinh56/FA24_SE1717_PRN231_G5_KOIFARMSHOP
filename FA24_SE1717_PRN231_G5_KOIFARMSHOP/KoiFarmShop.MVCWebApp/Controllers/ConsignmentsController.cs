@@ -177,7 +177,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
-                        
+
                         if (result != null && result.Data != null)
                         {
                             consignment = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());

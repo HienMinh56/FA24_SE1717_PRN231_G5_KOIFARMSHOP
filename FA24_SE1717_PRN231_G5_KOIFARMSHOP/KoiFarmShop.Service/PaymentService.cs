@@ -4,6 +4,7 @@ using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
 using KoiFarmShop.Data.Request.KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,8 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> Create(CreatePaymentRequest paymentRequest);
         Task<IBusinessResult> GetAll();
-        Task<IBusinessResult> GetById(string paymentId);
+        Task<IBusinessResult> GetPaymentById(string paymentId);
+        Task<IBusinessResult> UpdateStatusForPayment(string paymentId, int status);
     }
 
     public class PaymentService : IPaymentService
@@ -53,14 +55,14 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> GetById(string paymentId)
+        public async Task<IBusinessResult> GetPaymentById(string paymentId)
         {
             try
             {
-                var payment = await _unitOfWork.PaymentRepository.GetByIdAsync(paymentId);
+                var payment = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(paymentId);
                 if (payment == null)
                 {
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, "Không tìm thấy Payment", null);
+                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new Payment());
                 }
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, payment);
             }
@@ -69,5 +71,28 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<IBusinessResult> UpdateStatusForPayment(string paymentId, int status)
+        {
+            try
+            {
+                // Lấy thông tin Payment từ repository
+                var payment = _unitOfWork.PaymentRepository.Get(p => p.PaymentId == paymentId);
+
+                if (payment == null)
+                {
+                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, null);
+                }
+                payment.Status = status;
+                var result = await _unitOfWork.PaymentRepository.UpdateAsync(payment);
+
+                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, result);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }
