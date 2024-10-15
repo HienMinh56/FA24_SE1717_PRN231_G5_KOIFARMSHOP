@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace KoiFarmShop.Data.Models;
 
@@ -53,6 +52,7 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
 
         modelBuilder.Entity<Consignment>(entity =>
         {
+
             entity.HasKey(e => e.Id).HasName("PK__Consignm__3214EC075F063410");
 
             entity.ToTable("Consignment");

@@ -15,6 +15,7 @@
                 <tr class="card-header">
                     <th class="card-title text-center">Consignment Id</th>
                     <th class="card-title text-center">Koi Id</th>
+                    <th class="card-title text-center">User Id</th>
                     <th class="card-title text-center">Type</th>
                     <th class="card-title text-center">Deal Price</th>
                     <th class="card-title text-center">Method</th>
@@ -150,6 +151,7 @@
                         html += '<tr>';
                         html += '<td>' + item.consignmentId + '</td>';
                         html += '<td>' + item.koiId + '</td>';
+                        html += '<td>' + item.userId + '</td>';
                         var typeText = "";
                         switch (item.type) {
                             case 1:
@@ -162,7 +164,7 @@
                         html += '<td>' + typeText + '</td>';
                         html += '<td>' + item.dealPrice + '</td>';
                         html += '<td>' + item.method + '</td>';
-                        html += '<td>' + item.paymentId + '</td>';
+                            html += '<td>' + (item.paymentId || 'N/A') + '</td>';
                         var statusText = "";
                         switch (item.status) {
                             case 1:
