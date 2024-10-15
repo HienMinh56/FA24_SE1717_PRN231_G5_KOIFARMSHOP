@@ -1,7 +1,11 @@
-﻿using KoiFarmShop.Common;
+﻿using Azure.Core;
+using KoiFarmShop.Common;
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Service.Base;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace KoiFarmShop.Service
 {
@@ -11,18 +15,20 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetById(string Id);
         Task<IBusinessResult> Save(User user);
         Task<IBusinessResult> DeleteById(string Id);
-        //Task<IBusinessResult> Create(User user);
-        //Task<IBusinessResult> Update(User user);
+
+
     }
 
     public class UserService : IUserService
     {
         private readonly UnitOfWork _unitOfWork;
+        private readonly TokenService _tokenService;
 
         public UserService()
         {
             _unitOfWork ??= new UnitOfWork();
         }
+
 
         public async Task<IBusinessResult> GetAll()
         {
@@ -48,7 +54,7 @@ namespace KoiFarmShop.Service
 
             #endregion
 
-            var user =  _unitOfWork.UserRepository.Get(u => u.UserId == userId);
+            var user = _unitOfWork.UserRepository.Get(u => u.UserId == userId);
 
             if (user == null)
             {
@@ -117,7 +123,7 @@ namespace KoiFarmShop.Service
 
             try
             {
-                var user =  _unitOfWork.UserRepository.Get(u => u.UserId == userId);
+                var user = _unitOfWork.UserRepository.Get(u => u.UserId == userId);
 
                 if (user == null)
                 {
@@ -142,5 +148,7 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+
     }
 }

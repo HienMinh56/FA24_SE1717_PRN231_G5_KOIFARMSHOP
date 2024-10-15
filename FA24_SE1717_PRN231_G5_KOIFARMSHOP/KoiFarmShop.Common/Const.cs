@@ -1,7 +1,9 @@
-﻿namespace KoiFarmShop.Common
+﻿
+namespace KoiFarmShop.Common
 {
     public class Const
     {
+        public static string API_ENDPOINT = "https://localhost:7149/api/";
         #region Error Codes
 
         public static int ERROR_EXCEPTION = -4;
@@ -58,6 +60,13 @@
         public static string USER_INDEX = "UserId";
         public static string VOUCHER = "VOUCH";
         public static string VOUCHER_INDEX = "VoucherId";
+
+        #endregion
+
+        #region Error Login
+
+        public static int ERROR_LOGIN = -5;
+        public static string ERROR_LOGIN_MSG = "Username or password is incorrect";
 
         #endregion
     }

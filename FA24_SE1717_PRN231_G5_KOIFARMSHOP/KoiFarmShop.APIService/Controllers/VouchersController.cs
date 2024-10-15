@@ -54,7 +54,7 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         // DELETE: api/Vouchers/5
-        [HttpDelete]
+        [HttpDelete("{voucherId}")]
         public async Task<IBusinessResult> DeleteVoucher(string voucherId)
         {
             return await _voucherService.DeleteById(voucherId);

@@ -1,10 +1,14 @@
 ﻿using KoiFarmShop.Data.Models;
+using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service;
 using KoiFarmShop.Service.Base;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KoiFarmShop.APIService.Controllers
-{
+{   
+    
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -22,7 +26,9 @@ namespace KoiFarmShop.APIService.Controllers
         //}
 
         // GET: api/Users
+        [Authorize]
         [HttpGet]
+       
         public async Task<IBusinessResult> GetUsers()
         {
             return await _userService.GetAll();
@@ -57,5 +63,7 @@ namespace KoiFarmShop.APIService.Controllers
         {
             return await _userService.DeleteById(userId);
         }
+
+
     }
 }

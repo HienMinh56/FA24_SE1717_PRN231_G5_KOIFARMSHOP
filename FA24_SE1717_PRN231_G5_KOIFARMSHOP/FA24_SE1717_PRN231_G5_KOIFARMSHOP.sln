@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoiFarmShop.Service", "KoiF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoiFarmShop.Common", "KoiFarmShop.Common\KoiFarmShop.Common.csproj", "{6E890DC6-68E4-4FEE-A618-DA0C0A8EA52A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoiFarmShop.APIService", "KoiFarmShop.APIService\KoiFarmShop.APIService.csproj", "{BE5FED92-24AE-4E50-97A5-8A12D7ADF715}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoiFarmShop.APIService", "KoiFarmShop.APIService\KoiFarmShop.APIService.csproj", "{BE5FED92-24AE-4E50-97A5-8A12D7ADF715}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoiFarmShop.MVCProject", "KoiFarmShop.MVCProject\KoiFarmShop.MVCProject.csproj", "{215B55F2-2FBD-44E1-8721-B142DECF995F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{BE5FED92-24AE-4E50-97A5-8A12D7ADF715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE5FED92-24AE-4E50-97A5-8A12D7ADF715}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE5FED92-24AE-4E50-97A5-8A12D7ADF715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{215B55F2-2FBD-44E1-8721-B142DECF995F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{215B55F2-2FBD-44E1-8721-B142DECF995F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{215B55F2-2FBD-44E1-8721-B142DECF995F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{215B55F2-2FBD-44E1-8721-B142DECF995F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

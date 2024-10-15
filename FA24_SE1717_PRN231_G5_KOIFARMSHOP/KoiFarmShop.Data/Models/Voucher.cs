@@ -8,37 +8,30 @@ namespace KoiFarmShop.Data.Models;
 
 public partial class Voucher
 {
-    public int Id { get; set; } // Khóa chính, có thể tự động tăng
+    [Key]
+    public int Id { get; set; }
 
-    [Required(ErrorMessage = "VoucherId is required.")]
-    public string VoucherId { get; set; } // Mã định danh duy nhất cho voucher
+    public string VoucherId { get; set; }
 
-    [Required(ErrorMessage = "VoucherCode is required.")]
-    public string VoucherCode { get; set; } // Mã voucher mà người dùng nhập
+    public string VoucherCode { get; set; }
 
-    [Required(ErrorMessage = "DiscountAmount is required.")]
-    [Range(0, double.MaxValue, ErrorMessage = "DiscountAmount must be a positive value.")]
-    public double DiscountAmount { get; set; } // Số tiền giảm giá
+    public double DiscountAmount { get; set; }
 
-    [Required(ErrorMessage = "MinOrderAmount is required.")]
-    [Range(0, double.MaxValue, ErrorMessage = "MinOrderAmount must be a positive value.")]
-    public double MinOrderAmount { get; set; } // Giá trị đơn hàng tối thiểu để áp dụng voucher
+    public double MinOrderAmount { get; set; }
 
-    [Required(ErrorMessage = "Status is required.")]
-    public int Status { get; set; } // Trạng thái voucher (có thể là 0: không hoạt động, 1: hoạt động)
+    public int Status { get; set; }
 
-    public DateTime? ValidityStartDate { get; set; } // Ngày bắt đầu hiệu lực
+    public DateTime? ValidityStartDate { get; set; }
 
-    public DateTime? ValidityEndDate { get; set; } // Ngày kết thúc hiệu lực
+    public DateTime? ValidityEndDate { get; set; }
 
-    public DateTime? CreatedDate { get; set; } // Ngày tạo voucher
+    public DateTime? CreatedDate { get; set; }
 
-    [Required(ErrorMessage = "CreatedBy is required.")]
-    public string CreatedBy { get; set; } // Người tạo voucher
+    public string CreatedBy { get; set; }
 
-    public DateTime? ModifiedDate { get; set; } // Ngày sửa đổi voucher
+    public DateTime? ModifiedDate { get; set; }
 
-    public string ModifiedBy { get; set; } // Người sửa đổi voucher
+    public string ModifiedBy { get; set; }
 
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>(); // Quan hệ với bảng Order
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
