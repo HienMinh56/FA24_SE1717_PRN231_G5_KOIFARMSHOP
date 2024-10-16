@@ -2,13 +2,10 @@
 using Google.Cloud.Storage.V1;
 using KoiFarmShop.APIService;
 using KoiFarmShop.Data;
-using KoiFarmShop.Data.Models;
 using KoiFarmShop.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OData.Edm;
-using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using System.Text;
 

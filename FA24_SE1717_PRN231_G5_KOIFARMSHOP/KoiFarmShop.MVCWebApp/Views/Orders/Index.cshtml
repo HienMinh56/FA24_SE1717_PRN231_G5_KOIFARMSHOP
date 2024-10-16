@@ -45,8 +45,14 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="voucherId">Voucher Code</label>
-                                <input type="text" class="form-control" id="voucherCode" name="voucherCode" required />
+                                <label for="userId">User ID</label>
+                                <input type="text" class="form-control" id="userId" name="userId" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="voucherCode">Voucher Code</label>
+                                <input type="text" class="form-control" id="voucherCode" name="voucherCode" />
                             </div>
                         </div>
                     </div>
@@ -69,7 +75,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button id="btSave" type="button" class="btn btn-primary">Save</button>
@@ -79,6 +84,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Modal for Updating Orders -->
 <div class="modal" id="updateOrderModal" tabindex="-1" aria-labelledby="updateOrderModalLabel" aria-hidden="true">
@@ -162,6 +168,7 @@
                 });
 
                 var obj = {
+                    userId: $('#userId').val(),
                     orderItems: orderItems,
                     voucherCode: $('#voucherCode').val() || null // Thêm null cho voucher nếu không có
                 };
@@ -181,6 +188,7 @@
                     }
                 });
             });
+
 
 
             // Save button click event for updating orders

@@ -17,7 +17,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string OrderId);
-        Task<IBusinessResult> CreateOrderAsync(List<OrderItem> orderDetails, string? voucherId);
+        Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherId);
         Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status);
     }
 
@@ -58,11 +58,10 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(List<OrderItem> orderDetails, string? voucherCode)
+        public async Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode)
         {
             try
             {
-                var userId = "USER0001";
                 var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
