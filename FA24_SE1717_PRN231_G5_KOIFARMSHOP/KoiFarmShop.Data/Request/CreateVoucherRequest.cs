@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace KoiFarmShop.Data.Request
 {
     public class CreateVoucherRequest
     {
+       
         public string VoucherId { get; set; }
         public string VoucherCode { get; set; }
 
