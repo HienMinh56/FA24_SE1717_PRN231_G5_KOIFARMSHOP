@@ -106,6 +106,42 @@
                                     <input type="text" class="form-control" id="consignmentIdUpdate" readonly />
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="koiIdUpdate">Koi Id</label>
+                                    <input type="text" class="form-control" id="koiIdUpdate" name="koiId" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="userIdUpdate">User Id</label>
+                                    <input type="text" class="form-control" id="userIdUpdate" name="userId" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="typeUpdate">Type</label>
+                                    <select class="form-control" id="typeUpdate" name="type" required>
+                                        <option value="1">Care</option>
+                                        <option value="2">Sale</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="dealPriceUpdate">Deal Price</label>
+                                    <input type="number" class="form-control" id="dealPriceUpdate" name="dealPrice" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="methodUpdate">Method</label>
+                                    <select class="form-control" id="methodUpdate" name="method" required>
+                                        <option value="Online">Online</option>
+                                        <option value="Offline">Offline</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="statusUpdate">Status</label>
@@ -188,7 +224,13 @@
                         }
                         html += '<td>' + statusText + '</td>';
                         html += '<td>' + item.consignmentDate + '</td>';
-                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\', ' + item.status + ')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
+                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\'' 
+                                                                                                  + item.koiId + '\', \''
+                                                                                                  + item.userId + '\', \''
+                                                                                                  + item.type + '\', \''
+                                                                                                  + item.dealPrice + '\', \''
+                                                                                                  + item.method + '\', \''
+                                                                                                  + item.status + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
                         html += '</tr>';
                     });
                     $('.tblConsignments').html(html);
@@ -237,8 +279,13 @@
         }
 
         // Open Edit Modal
-        function editConsignment(consignmentId, status) {
+        function editConsignment(consignmentId, koiId, userId, type, dealPrice, method, status) {
             $("#consignmentIdUpdate").val(consignmentId);
+            $("#koiIdUpdate").val(koiId);
+            $("#userIdUpdate").val(userId);
+            $("#typeUpdate").val(type);
+            $("#dealPriceUpdate").val(dealPrice);
+            $("#methodUpdate").val(method);
             $("#statusUpdate").val(status);
             $("#consignmentModalLabel").html("Update Consignment");
             $('#consignmentModal').modal('show');
@@ -248,12 +295,21 @@
 
         // Update Consignment
         function updateConsignment() {
-            var consignmentId = $("#consignmentIdUpdate").val();
-            var status = $("#statusUpdate").val();
+            var formData = {
+                consignmentId: $("#consignmentIdUpdate").val(),
+                koiId: $("#koiIdUpdate").val(),
+                userId: $("#userIdUpdate").val(),
+                type: $("#typeUpdate").val(),
+                dealPrice: $("#dealPriceUpdate").val(),
+                method: $("#methodUpdate").val(),
+                status: $("#statusUpdate").val()
+            }
 
             $.ajax({
-                url: "https://localhost:7149/api/Consignments/" + consignmentId + "?status=" + status,
+                url: "https://localhost:7149/api/Consignments",
                 type: "PUT",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(formData),
                 success: function (result) {
                     if (result.status >= 1) {
                         $('#consignmentModal').modal('hide');

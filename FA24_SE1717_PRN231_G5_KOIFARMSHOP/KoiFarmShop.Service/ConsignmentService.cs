@@ -1,4 +1,5 @@
-﻿using KoiFarmShop.Common;
+﻿using Google.Apis.Storage.v1.Data;
+using KoiFarmShop.Common;
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
@@ -16,7 +17,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetAll();
         Task<IBusinessResult> GetById(string code);
         Task<IBusinessResult> Create(CreateConsignmentRequest consignment);
-        Task<IBusinessResult> Update(string consignmentId, int status);
+        Task<IBusinessResult> Update(UpdateConsignmentRequest consignment);
         Task<IBusinessResult> DeleteById(string consignmentId);
     }
 
@@ -87,22 +88,28 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> Update(string consignmentId, int status)
+        public async Task<IBusinessResult> Update(UpdateConsignmentRequest consignment)
         {
             try
             {
-                var consignment = _unitOfWork.ConsignmentRepository.Get(c => c.ConsignmentId == consignmentId);
+                var consignmentTmp = _unitOfWork.ConsignmentRepository.Get(c => c.ConsignmentId == consignment.ConsignmentId);
 
-                if (consignment == null)
+                if (consignmentTmp == null)
                 {
                     return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, null);
                 }
+                consignmentTmp.UserId = consignment.UserId;
+                consignmentTmp.KoiId = consignment.KoiId;
+                consignmentTmp.Type = consignment.Type;
+                consignmentTmp.DealPrice = consignment.DealPrice;
+                consignmentTmp.Method = consignment.Method;
+                consignmentTmp.Status = consignment.Status;
+                consignmentTmp.ModifiedDate = DateTime.Now;
+                consignmentTmp.ModifiedBy = consignment.UserId;
 
-                consignment.Status = status;
+                var result = await _unitOfWork.ConsignmentRepository.UpdateAsync(consignmentTmp);
 
-                var result = await _unitOfWork.ConsignmentRepository.UpdateAsync(consignment);
-
-                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, result);
+                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, consignmentTmp);
             }
             catch (Exception ex)
             {
