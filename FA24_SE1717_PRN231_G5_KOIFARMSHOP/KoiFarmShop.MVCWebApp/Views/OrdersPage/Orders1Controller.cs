@@ -133,7 +133,6 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                     }
                 }
             }
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
             
             return View(new List<Order>());
         }
@@ -142,6 +141,7 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
         {
             using (var httpClient = new HttpClient())
             {
+                // Lấy thông tin đơn hàng
                 using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders/" + id))
                 {
                     if (response.IsSuccessStatusCode)
@@ -151,8 +151,24 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
 
                         if (result != null && result.Data != null)
                         {
-                            var data = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
-                            return View(data);
+                            var order = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
+
+                            // Lấy danh sách chi tiết đơn hàng
+                            using (var detailsResponse = await httpClient.GetAsync(Const.APIEndpoint + "OrderDetails/" + id))
+                            {
+                                if (detailsResponse.IsSuccessStatusCode)
+                                {
+                                    var detailsContent = await detailsResponse.Content.ReadAsStringAsync();
+                                    var detailsResult = JsonConvert.DeserializeObject<BusinessResult>(detailsContent);
+
+                                    if (detailsResult != null && detailsResult.Data != null)
+                                    {
+                                        order.OrderDetails = JsonConvert.DeserializeObject<List<OrderDetail>>(detailsResult.Data.ToString());
+                                    }
+                                }
+                            }
+
+                            return View(order);
                         }
                     }
                 }
@@ -160,6 +176,7 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
 
             return View(new Order());
         }
+
 
         public async Task<IActionResult> Create()
         {
@@ -234,6 +251,9 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
             }
 
             // Nếu có lỗi hoặc ModelState không hợp lệ, trả lại view với Model và thông báo lỗi
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName", userId);
+            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode", voucherCode);
+            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId", koiId);
             return View(order);
         }
 
@@ -241,11 +261,11 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
 
         public async Task<IActionResult> Edit(string id)
         {
-            var order = new Order();
+            var updateOrderRequest = new UpdateOrderRequest();
 
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders/" + id ))
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders/" + id))
                 {
                     if (response.IsSuccessStatusCode)
                     {
@@ -254,19 +274,32 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
 
                         if (result != null && result.Data != null)
                         {
-                            order = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
+                            var order = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
+                            // Chuyển đổi từ Order sang UpdateOrderRequest
+                            updateOrderRequest.OrderId = order.OrderId;
+                            updateOrderRequest.Status = order.Status;
+                            updateOrderRequest.VoucherId = order.VoucherId;
+                            updateOrderRequest.UserId = order.UserId; // Thêm UserId
                         }
+                    }
+                    else
+                    {
+                        return NotFound();
                     }
                 }
             }
+
             ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
             ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
-            return View(order);
+
+            return View(updateOrderRequest);
         }
 
-        [HttpPut]
+
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, Order order)
+        public async Task<IActionResult> Edit(string id, UpdateOrderRequest updateOrderRequest)
         {
             bool saveStatus = false;
 
@@ -274,8 +307,8 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
             {
                 using (var httpClient = new HttpClient())
                 {
-                    // Properly send the voucher in the body of the POST request
-                    using (var response = await httpClient.PutAsJsonAsync(Const.APIEndpoint + "Orders/" + id, order))
+                    // Send the updateOrderRequest model in the PUT request
+                    using (var response = await httpClient.PutAsJsonAsync(Const.APIEndpoint + "Orders", updateOrderRequest))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -285,28 +318,29 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                             if (result != null && result.Status == Const.SUCCESS_UPDATE_CODE)
                             {
                                 saveStatus = true;
-                                // Success path logic here
-                                return RedirectToAction(nameof(Index)); // Or another success action
+                                return RedirectToAction(nameof(Index));
                             }
                             else
                             {
                                 saveStatus = false;
                             }
                         }
+                        
+
                     }
                 }
             }
+            
 
-            if (saveStatus)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                ViewData["OrderId"] = new SelectList(await this.GetOrders(), "OrderId", order.OrderId);
-                return View(order);
-            }
+            // Reload dropdowns if there is an error
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
+            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
+
+            return View(updateOrderRequest);
         }
+
+
+
 
         public async Task<IActionResult> Delete(string id)
         {

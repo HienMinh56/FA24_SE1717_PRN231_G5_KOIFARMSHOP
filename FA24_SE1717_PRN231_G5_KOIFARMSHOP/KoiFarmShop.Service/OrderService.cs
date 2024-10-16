@@ -18,7 +18,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string OrderId);
         Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherId);
-        Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status);
+        Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest);
     }
 
     public class OrderService : IOrderService
@@ -72,12 +72,38 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status)
+        public async Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest)
         {
             try
             {
-                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == OrderId);
-                order.Status = status;
+                var order =  _unitOfWork.OrderRepository.Get(o => o.OrderId == orderRequest.OrderId);
+                if (order == null)
+                {
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Order not found");
+                }
+
+                order.Status = orderRequest.Status;
+                order.UserId = orderRequest.UserId;
+                order.ModifiedDate = DateTime.Now;
+                order.ModifiedBy = orderRequest.UserId;
+
+                if (!string.IsNullOrEmpty(orderRequest.VoucherId))
+                {
+                    var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderRequest.VoucherId && v.ValidityStartDate <= DateTime.Now && v.ValidityEndDate >= DateTime.Now);
+                    if (voucher == null)
+                    {
+                        throw new Exception("Invalid or expired voucher.");
+                    }
+
+                    if (voucher.MinOrderAmount <= order.TotalAmount)
+                        order.TotalAmount = order.TotalAmount - (int)voucher.DiscountAmount;
+                    else
+                    {
+                        throw new Exception("Min amount is not invalid");
+                    }
+                    order.VoucherId = voucher.VoucherId;
+                }
+
                 await _unitOfWork.OrderRepository.UpdateAsync(order);
                 return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG);
             }
@@ -87,6 +113,7 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
 
 
 

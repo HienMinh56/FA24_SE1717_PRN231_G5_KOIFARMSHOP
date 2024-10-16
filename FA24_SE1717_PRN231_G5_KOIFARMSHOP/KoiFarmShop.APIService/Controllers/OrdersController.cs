@@ -64,10 +64,10 @@ namespace KoiFarmShop.APIService.Controllers
             return BadRequest(result);
         }
 
-        [HttpPut("{OrderId}")]
-        public async Task<ActionResult<IBusinessResult>> UpdateOrder(string OrderId, int status)
+        [HttpPut]
+        public async Task<ActionResult<IBusinessResult>> UpdateOrder(UpdateOrderRequest orderRequest)
         {
-            var result = await _orderService.UpdateOrderAsync(OrderId, status);
+            var result = await _orderService.UpdateOrderAsync(orderRequest);
             if (result.Status == 1)
             {
                 return Ok(result);
