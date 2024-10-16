@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<table class="table table-striped table-bordered table-hover">
+<table class="table table-striped table-bVouchered table-hover">
     <thead>
         <tr class="card-header">
             <th class="card-title text-center">VoucherId</th>
@@ -39,6 +39,12 @@
                     </div>
                 <div class="modal-body">
                     <!-- Add form fields here -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="voucherId" class="form-label">Voucher Id</label>
+                            <input type="text" class="form-control" id="voucherId" required>
+                        </div>
+                    </div>
                     <div class="row mb-3">
 
                         <div class="col-4">
@@ -73,14 +79,51 @@
                         </div>
                     </div>
                 </div>
-                    <div class="modal-footer">
-                        <button id="btSave" type="button" class="btn btn-primary" onclick="saveData();">Save</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
+            <div class="modal-footer">
+                <button id="btSave" type="button" class="btn btn-primary" onclick="saveData();">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
             }
         </div>
     </div>
 </div>
+
+
+
+<div class="modal" id="updateVoucherModal" tabindex="-1" aria-labelledby="updateVoucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateVoucherModalLabel">Update Voucher Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="updateOrderId">Voucher ID</label>
+                            <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="updateStatus">Status</label>
+                            <select class="form-control" id="updateStatus" name="updateStatus" required>
+                                <option value="1">Active</option>
+                                <option value="0">InActive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btUpdate" type="button" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section scripts {
         <script type="text/javascript">
@@ -107,8 +150,13 @@
                             html += '<td>$' + item.minOrderAmount+ '</td>';
                             html += '<td>' + item.validityStartDate + '</td>';
                             html += '<td>' + item.validityEndDate + '</td>';
-                            html += '<td>' + item.status + '</td>';
-                            html += '</tr>'; // Closing tag for each row
+                            html += '<td>' + getStatusText (item.status) + '</td>';
+                            html += '<td>' +
+                            '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(' + item.voucherId + ') ">Update</button> ' +
+                            '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(' + item.voucherId + '); ">Details</button>' +
+                            '<button type="button" class="btn btn-danger" onclick="deleteVoucher(' + item.voucherId + ');">delete</button> '
+                            '</td>'; // Closing tag for each row
+                            html += '</tr>';
                         });
                         $('.tblBanks').html(html);
                     },
@@ -117,24 +165,27 @@
                     }
                 });
             }
-
-            function add() {
-                $("#VoucherModalLabel").html("Add New");
-                $('#VoucherModal').modal('show');
-            }
+        function add() {
+            $("#VoucherModalLabel").html("Add New");
+            $('#VoucherModal').modal('show');
+        }
+        function add() {
+            $("#VoucherModalLabel").html("Add New");
+            $('#VoucherModal').modal('show');
+        }
 
         function saveData() {
             var obj = {
-                voucherId :"222222",
+                voucherId: $('#voucherId').val(),
                 voucherCode: $('#voucherCode').val(),
                 discountAmount: $('#discountAmount').val(),
-                minOrderAmount: $('#minOrderAmount').val(),
+                minVoucherAmount: $('#minOrderAmount').val(),
                 validityStartDate: $('#validityStartDate').val(),
                 validityEndDate: $('#validityEndDate').val(),
                 status: $('#status').val(),
-                createdDate: "2024-10-16T09:45:01.002Z",
+                createdDate: new Date().toISOString(),
                 createdBy: "string",
-                modifiedDate: "2024-10-16T09:45:01.002Z",
+                modifiedDate: new Date().toISOString(),
                 modifiedBy: "string"
             };
 
@@ -158,5 +209,27 @@
                 }
             });
         }
+        function getStatusText(statusCode) {
+            switch (statusCode) {
+                case 1: return 'Active';
+                default: return 'Inactive';
+            }
+        }
+        function deleteVoucher(voucherId) {
+            if (confirm("Bạn có chắc chắn muốn xóa voucher này?")) {
+                $.ajax({
+                    url: 'https://localhost:7149/api/Vouchers/' + voucherId,
+                    type: "DELETE",
+                    success: function (result) {
+                        alert(result.message);
+                        loadData(); // Reload the data
+                    },
+                    error: function (xhr, error) {
+                        alert("Error: " + xhr.statusText);
+                    }
+                });
+            }
+        }
+        
         </script>
 }
