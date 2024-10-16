@@ -62,7 +62,7 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var userId = "USER001";
+                var userId = "USER0001";
                 var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
