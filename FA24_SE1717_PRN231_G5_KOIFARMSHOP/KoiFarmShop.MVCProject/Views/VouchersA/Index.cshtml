@@ -27,48 +27,52 @@
     </tbody>
 </table>
 
-<div class="modal" id="bankModal" tabindex="-1" aria-labelledby="bankModalLabel" aria-hidden="true">
+<div class="modal" id="VoucherModal" tabindex="-1" aria-labelledby="VoucherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
             {
                 @Html.AntiForgeryToken()
                     <div class="modal-header">
-                        <h5 class="modal-title" id="bankModalLabel">Bank</h5>
+                    <h5 class="modal-title" id="VoucherModalLabel">Voucher</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <!-- Add form fields here -->
-                        <div class="row mb-3">
-                            <div class="col-4">
-                                <label for="voucherCode" class="form-label">Voucher Code</label>
-                                <input type="text" class="form-control" id="voucherCode" required>
-                            </div>
-                            <div class="col-4">
-                                <label for="discountAmount" class="form-label">Discount Amount</label>
-                                <input type="number" class="form-control" id="discountAmount" required>
-                            </div>
-                            <div class="col-4">
-                                <label for="minOrderAmount" class="form-label">Min Order Amount</label>
-                                <input type="number" class="form-control" id="minOrderAmount" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-4">
-                                <label for="voucherCode" class="form-label">ValidityStartDate</label>
-                                <input type="text" class="form-control" id="voucherCode" required>
-                            </div>
-                            <div class="col-4">
-                                <label for="discountAmount" class="form-label">ValidityEndDate</label>
-                                <input type="number" class="form-control" id="discountAmount" required>
-                            </div>
-                            <div class="col-4">
-                                <label for="minOrderAmount" class="form-label">Status</label>
-                                <input type="number" class="form-control" id="minOrderAmount" required>
-                            </div>
-                        </div>
+                <div class="modal-body">
+                    <!-- Add form fields here -->
+                    <div class="row mb-3">
 
+                        <div class="col-4">
+                            <label for="voucherCode" class="form-label">Voucher Code</label>
+                            <input type="text" class="form-control" id="voucherCode" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="discountAmount" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" id="discountAmount" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="minOrderAmount" class="form-label">Min Order Amount</label>
+                            <input type="number" class="form-control" id="minOrderAmount" required>
+                        </div>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="validityStartDate" class="form-label">Validity Start Date</label>
+                            <input type="date" class="form-control" id="validityStartDate" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="validityEndDate" class="form-label">Validity End Date</label>
+                            <input type="date" class="form-control" id="validityEndDate" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" required>
+                                <option value="" disabled selected>Select status</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                     <div class="modal-footer">
                         <button id="btSave" type="button" class="btn btn-primary" onclick="saveData();">Save</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -99,8 +103,10 @@
                             html += '<tr>';
                             html += '<td>' + item.voucherId + '</td>';
                             html += '<td>' + item.voucherCode + '</td>';
-                            html += '<td>$' + item.discountAmount.toFixed(2) + '</td>';
-                            html += '<td>$' + item.minOrderAmount.toFixed(2) + '</td>';
+                            html += '<td>$' + item.discountAmount + '</td>';
+                            html += '<td>$' + item.minOrderAmount+ '</td>';
+                            html += '<td>' + item.validityStartDate + '</td>';
+                            html += '<td>' + item.validityEndDate + '</td>';
                             html += '<td>' + item.status + '</td>';
                             html += '</tr>'; // Closing tag for each row
                         });
@@ -113,15 +119,44 @@
             }
 
             function add() {
-                $("#bankModalLabel").html("Add New");
-                $('#bankModal').modal('show');
+                $("#VoucherModalLabel").html("Add New");
+                $('#VoucherModal').modal('show');
             }
 
-            function saveData() {
-                // Function to save data (to be implemented)
-                // Here, you would collect data from the modal fields and send it to the server
-                alert("Save functionality not implemented yet.");
-                $('#bankModal').modal('hide'); // Close modal after save
-            }
+        function saveData() {
+            var obj = {
+                voucherId :"222222",
+                voucherCode: $('#voucherCode').val(),
+                discountAmount: $('#discountAmount').val(),
+                minOrderAmount: $('#minOrderAmount').val(),
+                validityStartDate: $('#validityStartDate').val(),
+                validityEndDate: $('#validityEndDate').val(),
+                status: $('#status').val(),
+                createdDate: "2024-10-16T09:45:01.002Z",
+                createdBy: "string",
+                modifiedDate: "2024-10-16T09:45:01.002Z",
+                modifiedBy: "string"
+            };
+
+            $.ajax({
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                url: "https://localhost:7149/api/Vouchers",
+                type: "POST",
+                data: JSON.stringify(obj), // Use 'obj' instead of 'formData'
+                success: function (result) {
+                    if (result.status >= 1) {
+                        $('#VoucherModal').modal('hide');
+                        loadData(); // Reload the data to show the new entry
+                    }
+                    alert(result.message);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
         </script>
 }
