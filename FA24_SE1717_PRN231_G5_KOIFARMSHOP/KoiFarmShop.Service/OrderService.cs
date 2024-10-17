@@ -119,12 +119,18 @@ namespace KoiFarmShop.Service
             try
             {
                 var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == orderId && o.Status !=2);
+                var orderDetails = _unitOfWork.OrderDetailRepository.GetList(od => od.OrderId == orderId);
                 if (order == null)
                 {
                     return new BusinessResult(Const.ERROR_EXCEPTION, "Order not found or it have done");
                 }
-                order.Status = 4;
-                await _unitOfWork.OrderRepository.UpdateAsync(order);
+                //order.Status = 4;
+                foreach (var item in orderDetails)
+                {
+                    await _unitOfWork.OrderDetailRepository.RemoveAsync(item);
+                }
+                await _unitOfWork.OrderRepository.RemoveAsync(order);
+                
                 return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG);
             }
             catch (Exception ex)
