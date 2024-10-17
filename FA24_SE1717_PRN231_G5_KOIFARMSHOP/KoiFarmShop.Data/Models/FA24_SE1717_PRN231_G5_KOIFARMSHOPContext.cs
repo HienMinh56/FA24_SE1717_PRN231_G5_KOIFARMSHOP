@@ -46,7 +46,6 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
         .AddJsonFile("appsettings.json", true, true).Build();
         return configuration["ConnectionStrings:DefaultConnection"];
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
