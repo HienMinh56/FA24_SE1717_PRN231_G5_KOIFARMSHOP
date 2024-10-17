@@ -1,6 +1,6 @@
 ﻿<div class="row">
     <div class="col-md-10">
-        <h3 class="display-8">Bank List</h3>
+        <h3 class="display-8">Voucher List</h3>
     </div>
     <div class="col-md-2 text-end">
         <button type="button" class="btn btn-primary" onclick="add();">
@@ -90,6 +90,58 @@
 
 
 
+
+<div class="modal" id="VoucherdetailModal" tabindex="-1" aria-labelledby="VoucherdetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VoucherdetailModalLabel">Voucher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add form fields here -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="voucherdetailId" class="form-label">Voucher Id</label>
+                            <input type="text" class="form-control" id="voucherdetailId" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="statusdetail" class="form-label">Status</label>
+                            <input type="text" class="form-label" id="statusdetail" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+
+                        <div class="col-4">
+                            <label for="voucherdetailCode" class="form-label">Voucher Code</label>
+                            <input type="text" class="form-control" id="voucherdetailCode" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="discountdetailAmount" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" id="discountdetailAmount" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="minOrderdetailAmount" class="form-label">Min Order Amount</label>
+                            <input type="number" class="form-control" id="minOrderdetailAmount" readonly>
+                        </div>
+                    </div>
+     
+                </div>
+                <div class="modal-footer">
+              
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
 <div class="modal" id="updateVoucherModal" tabindex="-1" aria-labelledby="updateVoucherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -98,12 +150,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="updateOrderId">Voucher ID</label>
+                            <label for="updateVoucherId">Voucher ID</label>
                             <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" readonly />
                         </div>
+                    </div>
+                    <div class="col-4">
+                        <label for="voucherupCode" class="form-label">Voucher Code</label>
+                        <input type="text" class="form-control" id="voucherupCode" required>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
@@ -115,14 +171,16 @@
                         </div>
                     </div>
                 </div>
+
             </div>
             <div class="modal-footer">
-                <button id="btUpdate" type="button" class="btn btn-primary">Save</button>
+                <button id="btUpdate" type="button" class="btn btn-primary" onclick="updateData()">Save</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
 
 
 @section scripts {
@@ -152,9 +210,9 @@
                             html += '<td>' + item.validityEndDate + '</td>';
                             html += '<td>' + getStatusText (item.status) + '</td>';
                             html += '<td>' +
-                            '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(' + item.voucherId + ') ">Update</button> ' +
-                            '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(' + item.voucherId + '); ">Details</button>' +
-                            '<button type="button" class="btn btn-danger" onclick="deleteVoucher(' + item.voucherId + ');">delete</button> '
+                            '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(\'' + item.voucherId + '\') ">Update</button> ' +
+                            '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(\'' + item.voucherId + '\'); ">Details</button>' +
+                            '<button type="button" class="btn btn-danger" onclick="deleteVoucher(\'' + item.voucherId + '\');">Delete</button>'
                             '</td>'; // Closing tag for each row
                             html += '</tr>';
                         });
@@ -169,9 +227,40 @@
             $("#VoucherModalLabel").html("Add New");
             $('#VoucherModal').modal('show');
         }
-        function add() {
-            $("#VoucherModalLabel").html("Add New");
-            $('#VoucherModal').modal('show');
+        function updateVoucher(voucherId) {
+            $("#updateVoucherModalLabel").html("update");
+            $('#updateVoucherId').val(voucherId);
+            $('#updateVoucherModal').modal('show');
+        }
+        function detailVoucher(voucherId) {
+            $("#VoucherdetailModalLabel").html("Detail");
+            $('#detailVoucherId').val(voucherId);
+            loadDetail(voucherId);
+            $('#VoucherdetailModal').modal('show');
+        
+        }
+        function loadDetail(voucherId){
+            $.ajax({
+                url: 'https://localhost:7149/api/Vouchers/'+voucherId,
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var voucher = result.data;
+                    $('#voucherdetailId').val(voucher.voucherId);
+                    $('#voucherdetailCode').val(voucher.voucherCode);
+                    $('#discountdetailAmount').val(voucher.discountAmount);
+                    $('#minOrderdetailAmount').val(voucher.minOrderAmount);
+                    $('#validitydetailStartDate').val(voucher.validityStartDate);
+                    $('#validitydetailEndDate').val(voucher.validityEndDate);
+                    $('#statusdetail').val(getStatusText(voucher.status));
+                    $('#VoucherdetailModal').modal('show');
+
+                },
+                error: function (xhr, error) {
+                    alert("Error: " + xhr.statusText);
+                }
+            });
         }
 
         function saveData() {
@@ -179,7 +268,7 @@
                 voucherId: $('#voucherId').val(),
                 voucherCode: $('#voucherCode').val(),
                 discountAmount: $('#discountAmount').val(),
-                minVoucherAmount: $('#minOrderAmount').val(),
+                minOrderAmount: $('#minOrderAmount').val(),
                 validityStartDate: $('#validityStartDate').val(),
                 validityEndDate: $('#validityEndDate').val(),
                 status: $('#status').val(),
@@ -195,7 +284,7 @@
                     'Content-Type': 'application/json; charset=utf-8'
                 },
                 url: "https://localhost:7149/api/Vouchers",
-                type: "POST",
+                type: "PUT",
                 data: JSON.stringify(obj), // Use 'obj' instead of 'formData'
                 success: function (result) {
                     if (result.status >= 1) {
@@ -218,7 +307,7 @@
         function deleteVoucher(voucherId) {
             if (confirm("Bạn có chắc chắn muốn xóa voucher này?")) {
                 $.ajax({
-                    url: 'https://localhost:7149/api/Vouchers/' + voucherId,
+                    url: 'https://localhost:7149/api/Vouchers/'+voucherId,
                     type: "DELETE",
                     success: function (result) {
                         alert(result.message);
@@ -230,6 +319,36 @@
                 });
             }
         }
-        
+
+        function updateData() {
+            var obj = {
+                voucherId: $('#updateVoucherId').val(),
+                status: $('#updateStatus').val(),
+                voucherCode: $('#voucherupCode').val(),
+                
+                createdBy: "string",
+                modifiedDate: new Date().toISOString(),
+                modifiedBy: "string"
+            };
+            $.ajax({
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                url: "https://localhost:7149/api/Vouchers",
+                type: "POST",
+                data: JSON.stringify(obj), // Use 'obj' instead of 'formData'
+                success: function (result) {
+                    if (result.status >= 1) {
+                        $('#updateVoucherModal').modal('hide');
+                        loadData(); // Reload the data to show the new entry
+                    }
+                    alert(result.message);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
         </script>
 }
