@@ -88,39 +88,42 @@
 
 <!-- Modal for Updating Orders -->
 <div class="modal" id="updateOrderModal" tabindex="-1" aria-labelledby="updateOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateOrderModalLabel">Update Order Status</h5>
+                <h5 class="modal-title" id="updateOrderModalLabel">Update Order</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="updateOrderId">Order ID</label>
-                            <input type="text" class="form-control" id="updateOrderId" name="updateOrderId" readonly />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="updateStatus">Status</label>
-                            <select class="form-control" id="updateStatus" name="updateStatus" required>
-                                <option value="1">Pending</option>
-                                <option value="2">Completed</option>
-                                <option value="3">Canceled</option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="updateOrderId">Order ID</label>
+                    <input type="text" class="form-control" id="updateOrderId" name="orderId" readonly />
+                </div>
+                <div class="form-group">
+                    <label for="userId">User ID</label>
+                    <input type="text" class="form-control" id="userId" name="userId"/>
+                </div>
+                <div class="form-group">
+                    <label for="voucherId">Voucher ID</label>
+                    <input type="text" class="form-control" id="voucherId" name="voucherId" />
+                </div>
+                <div class="form-group">
+                    <label for="updateStatus">Status</label>
+                    <select class="form-select" id="updateStatus" name="status">
+                        <option value="1">Pending</option>
+                        <option value="2">Completed</option>
+                        <option value="3">Canceled</option>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btUpdate" type="button" class="btn btn-primary">Save</button>
+                <button id="btUpdate" type="button" class="btn btn-primary">Update</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal for Order Details -->
 <div class="modal" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
@@ -195,8 +198,31 @@
             $('#btUpdate').click(function () {
                 var orderId = $('#updateOrderId').val();
                 var status = $('#updateStatus').val();
-                updateOrderStatus(orderId, status);
+                var voucherId = $('#voucherId').val() || null; // Thêm null cho voucher nếu không có
+
+                var updateObj = {
+                    orderId: orderId,
+                    status: parseInt(status), // Chuyển đổi status thành số
+                    voucherId: voucherId,
+                    userId: $('#userId').val() // Lấy userId từ trường input
+                };
+
+                $.ajax({
+                    url: 'https://localhost:7149/api/Orders',
+                    type: "PUT",
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify(updateObj),
+                    success: function (result) {
+                        alert(result.message);
+                        $('#updateOrderModal').modal('hide');
+                        loadData(); // Refresh the data after update
+                    },
+                    error: function (xhr, error) {
+                        alert(xhr.statusText);
+                    }
+                });
             });
+
         });
         function add() {
             $('#orderModal').modal('show'); // Hiển thị modal
@@ -224,6 +250,7 @@
                         html += '<td>' +
                             '<button type="button" class="btn btn-warning btn-update" data-id="' + item.orderId + '">Update</button> ' +
                             '<button type="button" class="btn btn-info btn-detail" data-id="' + item.orderId + '">Details</button>' +
+                            '<button type="button" class="btn btn-danger btn-delete" data-id="' + item.orderId + '">Delete</button>'
                             '</td>';
                         html += '</tr>';
                     });
@@ -240,15 +267,49 @@
         function bindActionButtons() {
             $('.btn-update').click(function () {
                 var orderId = $(this).data('id');
-                $('#updateOrderId').val(orderId);
-                $('#updateOrderModal').modal('show');
+                $.ajax({
+                    url: 'https://localhost:7149/api/Orders/' + orderId,
+                    type: "GET",
+                    contentType: "application/json;charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        $('#updateOrderId').val(result.data.orderId);
+                        $('#updateStatus').val(result.data.status); // Cập nhật status
+                        $('#voucherId').val(result.data.voucherId || ''); // Cập nhật voucherId nếu có
+                        $('#updateOrderModal').modal('show'); // Hiển thị modal
+                    },
+                    error: function (xhr, error) {
+                        alert(xhr.statusText);
+                    }
+                });
             });
+
 
             $('.btn-detail').click(function () {
                 var orderId = $(this).data('id');
                 loadOrderDetails(orderId);
             });
+            $('.btn-delete').click(function () {
+                var orderId = $(this).data('id');
+                deleteOrder(orderId); // Gọi hàm deleteOrder
+            });
         }
+        function deleteOrder(orderId) {
+            if (confirm("Are you sure you want to delete this order?")) {
+                $.ajax({
+                    url: 'https://localhost:7149/api/Orders/' + orderId,
+                    type: "DELETE",
+                    success: function (result) {
+                        alert(result.message);
+                        loadData(); // Refresh the data after deletion
+                    },
+                    error: function (xhr, error) {
+                        alert(xhr.statusText);
+                    }
+                });
+            }
+        }
+
         function addOrderItem() {
             var itemCount = $('.order-item').length; // Đếm số lượng mục hiện tại
             var newItemId = itemCount + 1; // Tạo ID mới cho mục
@@ -313,30 +374,13 @@
             getOrderDetail(orderId);
         });
 
-        // Function to update order status
-        function updateOrderStatus(orderId, status) {
-            $.ajax({
-                url: 'https://localhost:7149/api/Orders/' + orderId + '?status=' + status,
-                type: "PUT", // Sử dụng phương thức GET
-                success: function (result) {
-                    alert(result.message);
-                    $('#updateOrderModal').modal('hide');
-                    loadData();
-                },
-                error: function (xhr, error) {
-                    console.log(xhr.responseText); // Hiển thị thông báo lỗi từ API
-                    alert(xhr.statusText);
-                }
-            });
-        }
-
-
         // Function to get status text based on status code
         function getStatusText(statusCode) {
             switch (statusCode) {
                 case 1: return 'Pending';
                 case 2: return 'Completed';
                 case 3: return 'Canceled';
+                case 4: return 'Deleted';
                 default: return 'Unknown';
             }
         }
