@@ -11,42 +11,24 @@ using System.Threading.Tasks;
 
 namespace KoiFarmShop.Service
 {
-
-    public interface ITokenService
+    public class TokenService(IConfiguration configuration)
     {
-        string GenerateAccessToken(string accountId, string role);
+        private readonly IConfiguration _configuration = configuration;
 
-        string GenerateRefreshToken();
-
-        ClaimsPrincipal GetClaimsPrincipalFromExpiredToken(string expiredAccessToken);
-    }
-    public class TokenService : ITokenService
-    {
-        private readonly IConfiguration _configuration;
-
-        public TokenService(IConfiguration configuration)
+        public string GenerateAccessToken(string accountId)
         {
-            _configuration = configuration;
-        }
-
-        public string GenerateAccessToken(string accountId, string role)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwtsetting:Key"]!));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtAuth:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>(){
-                new(ClaimTypes.Role, role),
-
                 new("aid", accountId)
             };
 
             var token = new JwtSecurityToken(
-
-                issuer: _configuration["Jwtsetting:Issuer"],
-                audience: _configuration["Jwtsetting:Audience"],
+                issuer: _configuration["JwtAuth:Issuer"],
+                audience: _configuration["JwtAuth:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwtsetting:ExpiryMinutes"])),
-
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials
             );
 
@@ -68,12 +50,10 @@ namespace KoiFarmShop.Service
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwtsetting:Key"]!)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtAuth:Key"]!)),
                 ValidateLifetime = false,
-                ValidAudience = _configuration["Jwtsetting:Audience"],
-                ValidIssuer = _configuration["Jwtsetting:Issuer"]
-
+                ValidAudience = _configuration["JwtAuth:Audience"],
+                ValidIssuer = _configuration["JwtAuth:Issuer"]
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

@@ -18,5 +18,7 @@ namespace KoiFarmShop.Data.Request
         public double? DealPrice { get; set; }
 
         public string Method { get; set; }
+
+        public int Status { get; set; }
     }
 }

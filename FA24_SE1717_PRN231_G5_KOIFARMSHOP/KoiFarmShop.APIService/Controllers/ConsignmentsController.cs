@@ -37,6 +37,14 @@ namespace KoiFarmShop.APIService.Controllers
             return await _consignmentService.GetById(consignmentId);
         }
 
+        // PUT: api/Consignments/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut]
+        public async Task<IBusinessResult> PutConsignment(string consignmentId, int status)
+        {
+            return await _consignmentService.Update(consignmentId, status);
+        }
+
         // POST: api/Consignments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -45,18 +53,11 @@ namespace KoiFarmShop.APIService.Controllers
             return await _consignmentService.Create(consignment);
         }
 
-        // PUT: api/Consignments/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut]
-        public async Task<IBusinessResult> PutConsignment(UpdateConsignmentRequest consignment)
-        {
-            return await _consignmentService.Update(consignment);
-        }
-
-        [HttpDelete("{consignmentId}")]
-        public async Task<IBusinessResult> DeleteConsignment(string consignmentId)
-        {
-            return await _consignmentService.DeleteById(consignmentId);
-        }
+        // DELETE: api/Consignments/5
+        //[HttpDelete("{consignmentId}")]
+        //public async Task<IBusinessResult> DeleteConsignment(string consignmentId)
+        //{
+        //    return await _consignmentService.DeleteById(consignmentId);
+        //}
     }
 }

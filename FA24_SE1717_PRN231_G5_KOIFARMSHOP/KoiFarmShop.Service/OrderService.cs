@@ -2,7 +2,6 @@
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Repository;
-using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,10 +15,9 @@ namespace KoiFarmShop.Service
     public interface IOrderService
     {
         Task<IBusinessResult> GetOrders();
-        Task<IBusinessResult> GetOrderById(string orderId);
-        Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherId);
-        Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest);
-        Task<IBusinessResult> DeleteOrderAsync(string orderId);
+        Task<IBusinessResult> GetOrderById(string OrderId);
+        Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails);
+        Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status);
     }
 
     public class OrderService : IOrderService
@@ -45,11 +43,11 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> GetOrderById(string orderId)
+        public async Task<IBusinessResult> GetOrderById(string OrderId)
         {
             try
             {
-                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == orderId);
+                var order =  _unitOfWork.OrderRepository.Get(o => o.OrderId == OrderId);
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, order);
             }
             catch (Exception ex)
@@ -59,11 +57,13 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode)
+        public async Task<IBusinessResult> CreateOrderAsync(List<(string koiId, int quantity)> orderDetails)
         {
             try
             {
-                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode);
+                var userId = "S1";
+                var voucherId = "VOU123";
+               var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherId);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
             catch (Exception ex)
@@ -73,37 +73,12 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest)
+        public async Task<IBusinessResult> UpdateOrderAsync(string OrderId, int status)
         {
             try
             {
-                var order =  _unitOfWork.OrderRepository.Get(o => o.OrderId == orderRequest.OrderId);
-                if (order == null)
-                {
-                    return new BusinessResult(Const.ERROR_EXCEPTION, "Order not found");
-                }
-
-                order.Status = orderRequest.Status;
-                order.ModifiedDate = DateTime.Now;
-                order.ModifiedBy = orderRequest.UserId;
-
-                if (!string.IsNullOrEmpty(orderRequest.VoucherId))
-                {
-                    var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderRequest.VoucherId && v.ValidityStartDate <= DateTime.Now && v.ValidityEndDate >= DateTime.Now);
-                    if (voucher == null)
-                    {
-                        throw new Exception("Invalid or expired voucher.");
-                    }
-
-                    if (voucher.MinOrderAmount <= order.TotalAmount)
-                        order.TotalAmount = order.TotalAmount - (int)voucher.DiscountAmount;
-                    else
-                    {
-                        throw new Exception("Min amount is not invalid");
-                    }
-                    order.VoucherId = voucher.VoucherId;
-                }
-
+                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == OrderId);
+                order.Status = status;
                 await _unitOfWork.OrderRepository.UpdateAsync(order);
                 return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG);
             }
@@ -114,31 +89,6 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> DeleteOrderAsync(string orderId)
-        {
-            try
-            {
-                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == orderId && o.Status !=2);
-                var orderDetails = _unitOfWork.OrderDetailRepository.GetList(od => od.OrderId == orderId);
-                if (order == null)
-                {
-                    return new BusinessResult(Const.ERROR_EXCEPTION, "Order not found or it have done");
-                }
-                //order.Status = 4;
-                foreach (var item in orderDetails)
-                {
-                    await _unitOfWork.OrderDetailRepository.RemoveAsync(item);
-                }
-                await _unitOfWork.OrderRepository.RemoveAsync(order);
-                
-                return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG);
-            }
-            catch (Exception ex)
-            {
-                // Trả về lỗi nếu có ngoại lệ
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
 
 
     }

@@ -26,7 +26,7 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var orderDetails = _unitOfWork.OrderDetailRepository.GetList(o => o.OrderId == orderId);
+                var orderDetails = _unitOfWork.OrderDetailRepository.Get(o => o.OrderId == orderId);
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, orderDetails);
             }
             catch (Exception ex)

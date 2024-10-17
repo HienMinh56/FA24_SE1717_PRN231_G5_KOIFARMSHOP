@@ -1,5 +1,4 @@
-﻿using Google.Apis.Storage.v1.Data;
-using KoiFarmShop.Common;
+﻿using KoiFarmShop.Common;
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
@@ -17,14 +16,16 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetAll();
         Task<IBusinessResult> GetById(string code);
         Task<IBusinessResult> Create(CreateConsignmentRequest consignment);
-        Task<IBusinessResult> Update(UpdateConsignmentRequest consignment);
-        Task<IBusinessResult> DeleteById(string consignmentId);
+        Task<IBusinessResult> Update(string consignmentId, int status);
+        //Task<IBusinessResult> Delete(string code);
+        //Task<IBusinessResult> Save(Consignment consignment);
+        //Task<IBusinessResult> DeleteById(string code);
     }
 
     public class ConsignmentService : IConsignmentService
     {
         private readonly UnitOfWork _unitOfWork;
-
+        private readonly IFirebaseStorageService _firebaseStorageService;
         public ConsignmentService()
         {
             _unitOfWork ??= new UnitOfWork();
@@ -35,7 +36,6 @@ namespace KoiFarmShop.Service
             #region Business Rule
 
             #endregion
-
             try
             {
                 var consignments = await _unitOfWork.ConsignmentRepository.GetAllConsignmentAsync();
@@ -55,10 +55,6 @@ namespace KoiFarmShop.Service
 
         public async Task<IBusinessResult> GetById(string consignmentId)
         {
-            #region Business Rule
-
-            #endregion
-
             try
             {
                 var consignment = await _unitOfWork.ConsignmentRepository.GetConsignmentByIdAsync(consignmentId);
@@ -88,54 +84,18 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> Update(UpdateConsignmentRequest consignment)
-        {
-            try
-            {
-                var consignmentTmp = _unitOfWork.ConsignmentRepository.Get(c => c.ConsignmentId == consignment.ConsignmentId);
-
-                if (consignmentTmp == null)
-                {
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, null);
-                }
-                consignmentTmp.UserId = consignment.UserId;
-                consignmentTmp.KoiId = consignment.KoiId;
-                consignmentTmp.Type = consignment.Type;
-                consignmentTmp.DealPrice = consignment.DealPrice;
-                consignmentTmp.Method = consignment.Method;
-                consignmentTmp.Status = consignment.Status;
-                consignmentTmp.ModifiedDate = DateTime.Now;
-                consignmentTmp.ModifiedBy = consignment.UserId;
-
-                var result = await _unitOfWork.ConsignmentRepository.UpdateAsync(consignmentTmp);
-
-                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, consignmentTmp);
-            }
-            catch (Exception ex)
-            {
-                // Trả về lỗi nếu có ngoại lệ
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
-
-        public async Task<IBusinessResult> DeleteById(string consignmentId)
+        public async Task<IBusinessResult> Update(string consignmentId, int status)
         {
             try
             {
                 var consignment = _unitOfWork.ConsignmentRepository.Get(c => c.ConsignmentId == consignmentId);
-                if (consignment == null)
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new Consignment());
-                else
-                {                    
-                    var result = await _unitOfWork.ConsignmentRepository.RemoveAsync(consignment);
-                    if (result)
-                        return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG, consignment);
-                    else
-                        return new BusinessResult(Const.FAIL_DELETE_CODE, Const.FAIL_DELETE_MSG, consignment);
-                }
+                consignment.Status = status;
+                await _unitOfWork.ConsignmentRepository.UpdateAsync(consignment);
+                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, consignment);
             }
             catch (Exception ex)
             {
+                // Trả về lỗi nếu có ngoại lệ
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
