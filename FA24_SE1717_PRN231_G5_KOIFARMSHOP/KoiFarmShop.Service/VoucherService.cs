@@ -43,7 +43,7 @@ namespace KoiFarmShop.Service
             else
             {
                 var simplifiedVouchers = vouchers
-                    .Select(v => new { 
+                    .Select(v => new {
                         VoucherId = v.VoucherId,
                         VoucherCode = v.VoucherCode,
                         DiscountAmount = v.DiscountAmount,
@@ -55,7 +55,7 @@ namespace KoiFarmShop.Service
                         CreatedBy = v.CreatedBy,
                         ModifiedDate = DateTime.Now,
                         ModifiedBy = v.ModifiedBy,
-                        
+
                     })
                     .ToList();
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, simplifiedVouchers);
@@ -97,19 +97,53 @@ namespace KoiFarmShop.Service
                     #region Business Rule
 
                     #endregion
-                    voucherTmp.VoucherCode = voucher.VoucherCode;
-                    voucherTmp.VoucherId = voucher.VoucherId;
-                    
-                    voucherTmp.CreatedDate = voucher.CreatedDate;
-                    voucherTmp.CreatedBy = voucher.CreatedBy;
-                    voucherTmp.DiscountAmount = voucher.DiscountAmount;
-                    voucherTmp.MinOrderAmount = voucher.MinOrderAmount;
-                    voucherTmp.ModifiedBy = voucher.ModifiedBy;
-                    voucherTmp.ModifiedDate = voucher.ModifiedDate;
-                    voucherTmp.Status = voucher.Status;
-                    voucherTmp.ValidityEndDate = voucher.ValidityEndDate;
-                    voucherTmp.ValidityStartDate = voucher.ValidityStartDate;
-                    
+
+
+                    if (voucherTmp.VoucherCode != null)
+                    {
+                        voucherTmp.VoucherCode = voucher.VoucherCode;
+                    }
+
+                    // Update all other properties only if they are not null
+                    if (voucher.CreatedDate is not null)
+                    {
+                        voucherTmp.CreatedDate = voucher.CreatedDate;
+                    }
+                    if (voucher.CreatedBy != null)
+                    {
+                        voucherTmp.CreatedBy = voucher.CreatedBy;
+                    }
+                    if (voucher.DiscountAmount != null && voucher.DiscountAmount != 0)
+                    {
+                        voucherTmp.DiscountAmount = voucher.DiscountAmount;
+                    }
+                    if (voucher.MinOrderAmount != null && voucher.MinOrderAmount != 0)
+                    {
+                        voucherTmp.MinOrderAmount = voucher.MinOrderAmount;
+                    }
+                    if (voucher.ModifiedBy != null)
+                    {
+                        voucherTmp.ModifiedBy = voucher.ModifiedBy;
+                    }
+                    if (voucher.ModifiedDate != null)
+                    {
+                        voucherTmp.ModifiedDate = voucher.ModifiedDate;
+                    }
+                    if (voucher.Status != null)
+                    {
+
+                        voucherTmp.Status = voucher.Status;
+
+                    }
+                    if (voucher.ValidityEndDate != null)
+                    {
+                        voucherTmp.ValidityEndDate = voucher.ValidityEndDate;
+                    }
+                    if (voucher.ValidityStartDate != null)
+                    {
+                        voucherTmp.ValidityStartDate = voucher.ValidityStartDate;
+                    }
+
                     result = await _unitOfWork.VoucherRepository.UpdateAsync(voucherTmp);
 
                     if (result > 0)
@@ -136,7 +170,7 @@ namespace KoiFarmShop.Service
                         CreatedBy = voucher.CreatedBy,
                         ModifiedDate = voucher.ModifiedDate,
                         ModifiedBy = voucher.ModifiedBy
-                        
+
 
                     });
 

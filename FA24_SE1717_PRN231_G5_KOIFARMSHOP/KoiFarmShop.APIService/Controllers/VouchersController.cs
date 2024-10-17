@@ -40,7 +40,7 @@ namespace KoiFarmShop.APIService.Controllers
         // PUT: api/Vouchers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<IBusinessResult> PutVoucher( CreateVoucherRequest voucher)
+        public async Task<IBusinessResult> PutVoucher(CreateVoucherRequest voucher)
         {
             return await _voucherService.Save(voucher);
         }
@@ -54,7 +54,7 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         // DELETE: api/Vouchers/5
-        [HttpDelete]
+        [HttpDelete("{voucherId}")]
         public async Task<IBusinessResult> DeleteVoucher(string voucherId)
         {
             return await _voucherService.DeleteById(voucherId);
