@@ -82,6 +82,7 @@ builder.Services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
 builder.Services.AddSingleton(opt => StorageClient.Create(GoogleCredential.FromFile("..\\..\\koi-farm-shop-2832f-firebase-adminsdk-fpbxb-0525379f3e.json")));
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
