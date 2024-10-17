@@ -19,16 +19,21 @@
                 <span asp-validation-for="OrderId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" readonly /> <!-- UserId là trường chỉ đọc -->
+                <label asp-for="UserId" class="control-label">User Update</label>
+                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
                 <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
+                <select asp-for="Status" class="form-control">
+                    <option value="1">Pending</option>
+                    <option value="2">Completed</option>
+                    <option value="3">Canceled</option>
+                </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="VoucherId" class="control-label"></label>
                 <select asp-for="VoucherId" class="form-control" asp-items="ViewBag.VoucherId"></select>

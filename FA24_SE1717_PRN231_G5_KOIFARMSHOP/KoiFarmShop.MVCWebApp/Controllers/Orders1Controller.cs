@@ -11,7 +11,7 @@ using KoiFarmShop.Service.Base;
 using Newtonsoft.Json;
 using KoiFarmShop.Data.Request;
 
-namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
+namespace KoiFarmShop.MVCWebApp.Controllers
 {
     public class Orders1Controller : Controller
     {
@@ -40,7 +40,7 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                     }
                 }
             }
-            
+
             return orders;
         }
         public async Task<List<User>> GetUsers()
@@ -133,7 +133,7 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                     }
                 }
             }
-            
+
             return View(new List<Order>());
         }
 
@@ -193,15 +193,15 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                         {
                             var data = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
 
-                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-                            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
-                            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+                            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "FullName");
+                            ViewData["VoucherId"] = new SelectList(await GetVouchers(), "VoucherId", "VoucherCode");
+                            ViewData["KoiId"] = new SelectList(await GetKoiFishes(), "KoiId", "KoiId");
                             return View();
                         }
                     }
                 }
             }
-            
+
             return View();
         }
 
@@ -251,9 +251,9 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
             }
 
             // Nếu có lỗi hoặc ModelState không hợp lệ, trả lại view với Model và thông báo lỗi
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName", userId);
-            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode", voucherCode);
-            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId", koiId);
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "FullName", userId);
+            ViewData["VoucherId"] = new SelectList(await GetVouchers(), "VoucherId", "VoucherCode", voucherCode);
+            ViewData["KoiId"] = new SelectList(await GetKoiFishes(), "KoiId", "KoiId", koiId);
             return View(order);
         }
 
@@ -279,7 +279,6 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                             updateOrderRequest.OrderId = order.OrderId;
                             updateOrderRequest.Status = order.Status;
                             updateOrderRequest.VoucherId = order.VoucherId;
-                            updateOrderRequest.UserId = order.UserId; // Thêm UserId
                         }
                     }
                     else
@@ -289,8 +288,8 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "FullName");
+            ViewData["VoucherId"] = new SelectList(await GetVouchers(), "VoucherId", "VoucherCode");
 
             return View(updateOrderRequest);
         }
@@ -325,16 +324,16 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
                                 saveStatus = false;
                             }
                         }
-                        
+
 
                     }
                 }
             }
-            
+
 
             // Reload dropdowns if there is an error
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "FullName");
+            ViewData["VoucherId"] = new SelectList(await GetVouchers(), "VoucherId", "VoucherCode");
 
             return View(updateOrderRequest);
         }
@@ -346,62 +345,65 @@ namespace KoiFarmShop.MVCWebApp.Views.OrdersPage
         {
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders/" + id))
+                // Retrieve order information
+                var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders/" + id);
+                if (response.IsSuccessStatusCode)
                 {
-                    if (response.IsSuccessStatusCode)
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                    if (result != null && result.Data != null)
                     {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                        var order = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
 
-                        if (result != null && result.Data != null)
+                        // Retrieve order details
+                        var detailsResponse = await httpClient.GetAsync(Const.APIEndpoint + "OrderDetails/" + id);
+                        if (detailsResponse.IsSuccessStatusCode)
                         {
-                            var data = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
+                            var detailsContent = await detailsResponse.Content.ReadAsStringAsync();
+                            var detailsResult = JsonConvert.DeserializeObject<BusinessResult>(detailsContent);
 
-                            return View(data);
+                            if (detailsResult != null && detailsResult.Data != null)
+                            {
+                                order.OrderDetails = JsonConvert.DeserializeObject<List<OrderDetail>>(detailsResult.Data.ToString());
+                            }
                         }
+
+                        return View(order);
                     }
                 }
             }
 
-            return View(new Order());
+            // If not successful, redirect to a list or error page
+            return RedirectToAction(nameof(Index));
         }
 
+
+
+
         // POST: Consignments/Delete/5
-        [HttpDelete]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            bool deleteStatus = false;
-
-            if (ModelState.IsValid)
+            using (var httpClient = new HttpClient())
             {
-                using (var httpClient = new HttpClient())
+                var response = await httpClient.DeleteAsync(Const.APIEndpoint + "Orders/" + id);
+                if (response.IsSuccessStatusCode)
                 {
-                    using (var response = await httpClient.DeleteAsync(Const.APIEndpoint + "Orders/" + id))
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<BusinessResult>(content);
 
-                        if (result != null && result.Status == Const.SUCCESS_DELETE_CODE)
-                        {
-                            deleteStatus = true;
-                        }
-                        else
-                        {
-                            deleteStatus = false;
-                        }
+                    if (result != null && result.Status == Const.SUCCESS_DELETE_CODE)
+                    {
+                        return RedirectToAction(nameof(Index));
                     }
                 }
             }
 
-            if (deleteStatus)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                return RedirectToAction(nameof(Delete));
-            }
+            // If delete fails, show the delete view again
+            return RedirectToAction(nameof(Delete), new { id });
         }
+
     }
 }
