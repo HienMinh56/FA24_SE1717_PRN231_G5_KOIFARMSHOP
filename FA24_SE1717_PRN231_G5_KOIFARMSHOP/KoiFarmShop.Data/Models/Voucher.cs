@@ -2,11 +2,13 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace KoiFarmShop.Data.Models;
 
 public partial class Voucher
 {
+
     public int Id { get; set; }
 
     public string VoucherId { get; set; }
