@@ -154,15 +154,11 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
                         if (result is not null)
                         {
-                            var consignment = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
-
-                            consignmentTmp.UserId = consignment.UserId;
-                            consignmentTmp.KoiId = consignment.KoiId;
-                            consignmentTmp.Type = consignment.Type;
-                            consignmentTmp.DealPrice = consignment.DealPrice;
-                            consignmentTmp.Method = consignment.Method;
+                            // Deserialize result.Data as a list of Consignments
+                            var consignments = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
                         }
                     }
                     else
@@ -189,7 +185,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 using (var httpClient = new HttpClient())
                 {
                     // Properly send the voucher in the body of the POST request
-                    using (var response = await httpClient.PostAsJsonAsync(Const.APIEndpoint + "Consignments/", consignment))
+                    using (var response = await httpClient.PostAsJsonAsync(Const.APIEndpoint + "Consignments", consignment))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -200,11 +196,18 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             {
                                 saveStatus = true;
                                 return RedirectToAction(nameof(Index));
+
                             }
                             else
                             {
                                 saveStatus = false;
+                                ModelState.AddModelError("", "Failed to create the consignment. Please try again later.");
                             }
+                        }
+                        else
+                        {
+                            // Thêm lỗi vào ModelState nếu phản hồi từ API không thành công
+                            ModelState.AddModelError("", "An error occurred while communicating with the server.");
                         }
                     }
                 }
@@ -255,7 +258,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         }
 
         // POST: Consignments/Edit/5
-        [HttpPut]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, UpdateConsignmentRequest consignment)
         {
@@ -266,7 +269,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 using (var httpClient = new HttpClient())
                 {
                     // Properly send the voucher in the body of the POST request
-                    using (var response = await httpClient.PutAsJsonAsync(Const.APIEndpoint + "Consignments/" + id, consignment))
+                    using (var response = await httpClient.PutAsJsonAsync(Const.APIEndpoint + "Consignments", consignment))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -282,12 +285,19 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             else
                             {
                                 saveStatus = false;
+                                ModelState.AddModelError("", "Failed to edit the consignment. Please try again later.");
                             }
+                        }
+                        else
+                        {
+                            // Thêm lỗi vào ModelState nếu phản hồi từ API không thành công
+                            ModelState.AddModelError("", "An error occurred while communicating with the server.");
                         }
                     }
                 }
             }
 
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
             ViewData["ConsignmentId"] = new SelectList(await GetConsignments(), "ConsignmentId", consignment.ConsignmentId);
             return View(consignment);
         }
@@ -297,62 +307,48 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments/" + id))
+                // Retrieve consignment information
+                var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments/" + id);
+                if (response.IsSuccessStatusCode)
                 {
-                    if (response.IsSuccessStatusCode)
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                    if (result != null && result.Data != null)
                     {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                        var consignment = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
 
-                        if (result != null && result.Data != null)
-                        {
-                            var data = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
-
-                            return View(data);
-                        }
+                        return View(consignment);
                     }
                 }
             }
 
-            return View(new Consignment());
+            // If not successful, redirect to a list or error page
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Consignments/Delete/5
-        [HttpDelete]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            bool deleteStatus = false;
-
-            if (ModelState.IsValid)
+            using (var httpClient = new HttpClient())
             {
-                using (var httpClient = new HttpClient())
+                var response = await httpClient.DeleteAsync(Const.APIEndpoint + "Consignments/" + id);
+                if (response.IsSuccessStatusCode)
                 {
-                    using (var response = await httpClient.DeleteAsync(Const.APIEndpoint + "Consignments/" + id))
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<BusinessResult>(content);
 
-                        if (result != null && result.Status == Const.SUCCESS_DELETE_CODE)
-                        {
-                            deleteStatus = true;
-                        }
-                        else
-                        {
-                            deleteStatus = false;
-                        }
+                    if (result != null && result.Status == Const.SUCCESS_DELETE_CODE)
+                    {
+                        return RedirectToAction(nameof(Index));
                     }
                 }
             }
 
-            if (deleteStatus)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                return RedirectToAction(nameof(Delete));
-            }
+            // If delete fails, show the delete view again
+            return RedirectToAction(nameof(Delete), new { id });
         }
     }
 }
