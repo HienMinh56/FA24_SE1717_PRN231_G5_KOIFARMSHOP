@@ -47,10 +47,10 @@ namespace KoiFarmShop.APIService.Controllers
 
         // PUT: api/Consignments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{consignmentId}")]
-        public async Task<IBusinessResult> PutConsignment(string consignmentId, int status)
+        [HttpPut]
+        public async Task<IBusinessResult> PutConsignment(UpdateConsignmentRequest consignment)
         {
-            return await _consignmentService.Update(consignmentId, status);
+            return await _consignmentService.Update(consignment);
         }
 
         [HttpDelete("{consignmentId}")]

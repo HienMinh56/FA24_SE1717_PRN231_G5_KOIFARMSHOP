@@ -32,6 +32,6 @@ namespace KoiFarmShop.Data.Request
 
         public string Description { get; set; }
 
-        public IFormFileCollection Image { get; set; }
+        public IFormFileCollection? Image { get; set; }
     }
 }

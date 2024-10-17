@@ -1,10 +1,10 @@
-﻿@model IEnumerable<KoiFarmShop.Data.Models.Order>
+﻿@model IEnumerable<KoiFarmShop.Data.Models.Consignment>
 
 @{
-    ViewData["Title"] = "View";
+    ViewData["Title"] = "Index";
 }
 
-<h1>View</h1>
+<h1>Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -13,16 +13,22 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.OrderId)
+                @Html.DisplayNameFor(model => model.ConsignmentId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
+                @Html.DisplayNameFor(model => model.Type)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                @Html.DisplayNameFor(model => model.DealPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Method)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ConsignmentDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedDate)
@@ -37,13 +43,13 @@
                 @Html.DisplayNameFor(model => model.ModifiedBy)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Koi)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Payment)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Voucher)
+                @Html.DisplayNameFor(model => model.User.UserId)
             </th>
             <th></th>
         </tr>
@@ -52,16 +58,22 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.OrderId)
+                @Html.DisplayFor(modelItem => item.ConsignmentId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TotalAmount)
+                @Html.DisplayFor(modelItem => item.Type)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
+                @Html.DisplayFor(modelItem => item.DealPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Method)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConsignmentDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedDate)
@@ -76,18 +88,18 @@
                 @Html.DisplayFor(modelItem => item.ModifiedBy)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Koi.KoiId)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Payment.PaymentId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.User.Email)
+                @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Voucher.VoucherCode)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.ConsignmentId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ConsignmentId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ConsignmentId">Delete</a>
             </td>
         </tr>
 }
