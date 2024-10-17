@@ -1,5 +1,4 @@
-﻿@page
-@model KoiFarmShop.MVCWebApp.Views.Vouchers.CreateModel
+﻿@model KoiFarmShop.Data.Models.Voucher
 
 @{
     ViewData["Title"] = "Create";
@@ -11,62 +10,62 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post">
+        <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Voucher.VoucherId" class="control-label"></label>
-                <input asp-for="Voucher.VoucherId" class="form-control" />
-                <span asp-validation-for="Voucher.VoucherId" class="text-danger"></span>
+                <label asp-for="VoucherId" class="control-label"></label>
+                <input asp-for="VoucherId" class="form-control" />
+                <span asp-validation-for="VoucherId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.VoucherCode" class="control-label"></label>
-                <input asp-for="Voucher.VoucherCode" class="form-control" />
-                <span asp-validation-for="Voucher.VoucherCode" class="text-danger"></span>
+                <label asp-for="VoucherCode" class="control-label"></label>
+                <input asp-for="VoucherCode" class="form-control" />
+                <span asp-validation-for="VoucherCode" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.DiscountAmount" class="control-label"></label>
-                <input asp-for="Voucher.DiscountAmount" class="form-control" />
-                <span asp-validation-for="Voucher.DiscountAmount" class="text-danger"></span>
+                <label asp-for="DiscountAmount" class="control-label"></label>
+                <input asp-for="DiscountAmount" class="form-control" />
+                <span asp-validation-for="DiscountAmount" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.MinOrderAmount" class="control-label"></label>
-                <input asp-for="Voucher.MinOrderAmount" class="form-control" />
-                <span asp-validation-for="Voucher.MinOrderAmount" class="text-danger"></span>
+                <label asp-for="MinOrderAmount" class="control-label"></label>
+                <input asp-for="MinOrderAmount" class="form-control" />
+                <span asp-validation-for="MinOrderAmount" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.Status" class="control-label"></label>
-                <input asp-for="Voucher.Status" class="form-control" />
-                <span asp-validation-for="Voucher.Status" class="text-danger"></span>
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.ValidityStartDate" class="control-label"></label>
-                <input asp-for="Voucher.ValidityStartDate" class="form-control" />
-                <span asp-validation-for="Voucher.ValidityStartDate" class="text-danger"></span>
+                <label asp-for="ValidityStartDate" class="control-label"></label>
+                <input asp-for="ValidityStartDate" class="form-control" />
+                <span asp-validation-for="ValidityStartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.ValidityEndDate" class="control-label"></label>
-                <input asp-for="Voucher.ValidityEndDate" class="form-control" />
-                <span asp-validation-for="Voucher.ValidityEndDate" class="text-danger"></span>
+                <label asp-for="ValidityEndDate" class="control-label"></label>
+                <input asp-for="ValidityEndDate" class="form-control" />
+                <span asp-validation-for="ValidityEndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.CreatedDate" class="control-label"></label>
-                <input asp-for="Voucher.CreatedDate" class="form-control" />
-                <span asp-validation-for="Voucher.CreatedDate" class="text-danger"></span>
+                <label asp-for="CreatedDate" class="control-label"></label>
+                <input asp-for="CreatedDate" class="form-control" />
+                <span asp-validation-for="CreatedDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.CreatedBy" class="control-label"></label>
-                <input asp-for="Voucher.CreatedBy" class="form-control" />
-                <span asp-validation-for="Voucher.CreatedBy" class="text-danger"></span>
+                <label asp-for="CreatedBy" class="control-label"></label>
+                <input asp-for="CreatedBy" class="form-control" />
+                <span asp-validation-for="CreatedBy" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.ModifiedDate" class="control-label"></label>
-                <input asp-for="Voucher.ModifiedDate" class="form-control" />
-                <span asp-validation-for="Voucher.ModifiedDate" class="text-danger"></span>
+                <label asp-for="ModifiedDate" class="control-label"></label>
+                <input asp-for="ModifiedDate" class="form-control" />
+                <span asp-validation-for="ModifiedDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Voucher.ModifiedBy" class="control-label"></label>
-                <input asp-for="Voucher.ModifiedBy" class="form-control" />
-                <span asp-validation-for="Voucher.ModifiedBy" class="text-danger"></span>
+                <label asp-for="ModifiedBy" class="control-label"></label>
+                <input asp-for="ModifiedBy" class="form-control" />
+                <span asp-validation-for="ModifiedBy" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -76,9 +75,11 @@
 </div>
 
 <div>
-    <a asp-page="Index">Back to List</a>
+    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
