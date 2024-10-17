@@ -1,7 +1,6 @@
 ﻿using KoiFarmShop.Common;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
-using KoiFarmShop.Data.Request.KoiFarmShop.Data.Request;
 using KoiFarmShop.Service;
 using KoiFarmShop.Service.Base;
 using Microsoft.AspNetCore.Mvc;
@@ -41,10 +40,17 @@ namespace KoiFarmShop.APIService.Controllers
             return await _paymentService.GetPaymentById(paymentId);
         }
 
-        [HttpPut("{paymentId}")]
-        public async Task<IBusinessResult> UpdateStatus(string paymentId, int status)
+        [HttpPut]
+        public async Task<IBusinessResult> PutPayment(UpdatePaymentRequest payment)
         {
-            return await _paymentService.UpdateStatusForPayment(paymentId, status);
+            return await _paymentService.Update(payment);
+
+        }
+
+        [HttpDelete("{paymentId}")]
+        public async Task<IBusinessResult> DeletePayment(string paymentId)
+        {
+            return await _paymentService.DeleteById(paymentId);
         }
     }
 }

@@ -2,7 +2,6 @@
 using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
-using KoiFarmShop.Data.Request.KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,7 +16,9 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> Create(CreatePaymentRequest paymentRequest);
         Task<IBusinessResult> GetAll();
         Task<IBusinessResult> GetPaymentById(string paymentId);
-        Task<IBusinessResult> UpdateStatusForPayment(string paymentId, int status);
+        Task<IBusinessResult> Update(UpdatePaymentRequest payment);
+        Task<IBusinessResult> DeleteById(string paymentId);
+
     }
 
     public class PaymentService : IPaymentService
@@ -72,21 +73,46 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> UpdateStatusForPayment(string paymentId, int status)
+        public async Task<IBusinessResult> Update(UpdatePaymentRequest payment)
         {
             try
             {
-                // Lấy thông tin Payment từ repository
-                var payment = _unitOfWork.PaymentRepository.Get(p => p.PaymentId == paymentId);
+                var paymentEntity = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(payment.PaymentId);
 
-                if (payment == null)
+                if (paymentEntity == null)
                 {
                     return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, null);
                 }
-                payment.Status = status;
-                var result = await _unitOfWork.PaymentRepository.UpdateAsync(payment);
 
-                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, result);
+                paymentEntity.UserId = payment.UserId;
+                paymentEntity.Status = payment.Status;
+                paymentEntity.Amount = payment.Amount;
+
+                var result = await _unitOfWork.PaymentRepository.UpdateAsync(paymentEntity);
+
+                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, paymentEntity);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<IBusinessResult> DeleteById(string paymentId)
+        {
+            try
+            {
+                var payment = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(paymentId);
+                if (payment == null)
+                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new Consignment());
+                else
+                {
+                    var result = await _unitOfWork.PaymentRepository.RemoveAsync(payment);
+                    if (result)
+                        return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG, payment);
+                    else
+                        return new BusinessResult(Const.FAIL_DELETE_CODE, Const.FAIL_DELETE_MSG, payment);
+                }
             }
             catch (Exception ex)
             {

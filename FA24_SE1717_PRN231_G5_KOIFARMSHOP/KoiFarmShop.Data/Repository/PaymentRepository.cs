@@ -1,7 +1,7 @@
 ﻿using KoiFarmShop.Data.Base;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
-using KoiFarmShop.Data.Request.KoiFarmShop.Data.Request;
+using KoiFarmShop.Data.Request;
 using Microsoft.EntityFrameworkCore;
 
 namespace KoiFarmShop.Data.Repository
@@ -13,13 +13,13 @@ namespace KoiFarmShop.Data.Repository
             _context = context;
         }
 
-        // Hàm tạo Payment với thông tin từ Order hoặc Consignment
         public async Task<Payment> CreatePaymentAsync(CreatePaymentRequest createPaymentRequest)
         {
             try
             {
                 string userId = string.Empty;
                 double amount = 0;
+                string paymentId;
 
                 if (createPaymentRequest.Type == 1) // Type 1: Order
                 {
@@ -29,20 +29,23 @@ namespace KoiFarmShop.Data.Repository
 
                     if (order == null)
                     {
-                        throw new Exception("Order không tồn tại.");
+                        throw new Exception("Order not found.");
                     }
 
                     userId = order.UserId;
                     amount = order.TotalAmount;
 
-                    // Gán PaymentId
-                    order.PaymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
+                    paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
+                    order.PaymentId = paymentId;
+
+                    // Cập nhật order
+                    _context.Orders.Update(order); // Thêm dòng này để cập nhật Order
                 }
                 else if (createPaymentRequest.Type == 2) // Type 2: Consignment
                 {
                     if (string.IsNullOrEmpty(createPaymentRequest.ConsignmentId))
                     {
-                        throw new Exception("ConsignmentId không thể để trống khi Type là 2.");
+                        throw new Exception("Type 2 input ConsignmentId");
                     }
 
                     var consignment = await _context.Consignments
@@ -51,22 +54,22 @@ namespace KoiFarmShop.Data.Repository
 
                     if (consignment == null)
                     {
-                        throw new Exception("Consignment không tồn tại.");
+                        throw new Exception("Consignment not found.");
                     }
 
                     userId = consignment.UserId;
                     amount = consignment.DealPrice ?? 0; // DealPrice null = 0
 
-                    // Gán PaymentId
-                    consignment.PaymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
+                    paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
+                    consignment.PaymentId = paymentId;
+
+                    // Cập nhật consignment
+                    _context.Consignments.Update(consignment);
                 }
                 else
                 {
                     throw new Exception("Type không hợp lệ.");
                 }
-
-                // Tạo PaymentId
-                string paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
 
                 var payment = new Payment
                 {
@@ -85,7 +88,7 @@ namespace KoiFarmShop.Data.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception($"Đã xảy ra lỗi khi tạo Payment: {ex.Message}", ex);
+                throw ex;
             }
         }
 
