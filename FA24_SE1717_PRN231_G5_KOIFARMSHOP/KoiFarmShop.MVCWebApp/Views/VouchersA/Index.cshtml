@@ -1,0 +1,354 @@
+﻿<div class="row">
+    <div class="col-md-10">
+        <h3 class="display-8">Voucher List</h3>
+    </div>
+    <div class="col-md-2 text-end">
+        <button type="button" class="btn btn-primary" onclick="add();">
+            Add
+        </button>
+    </div>
+</div>
+
+<table class="table table-striped table-bVouchered table-hover">
+    <thead>
+        <tr class="card-header">
+            <th class="card-title text-center">VoucherId</th>
+            <th class="card-title text-center">VoucherCode</th>
+            <th class="card-title text-center">DiscountAmount</th>
+            <th class="card-title text-center">MinOrderAmount</th>
+            <th class="card-title text-center">ValidityStartDate</th>
+            <th class="card-title text-center">ValidityEndDate</th>
+            <th class="card-title text-center">Status</th>
+
+        </tr>
+    </thead>
+    <tbody class="tblBanks">
+        <!-- Rows will be populated here -->
+    </tbody>
+</table>
+
+<div class="modal" id="VoucherModal" tabindex="-1" aria-labelledby="VoucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VoucherModalLabel">Voucher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add form fields here -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="voucherId" class="form-label">Voucher Id</label>
+                            <input type="text" class="form-control" id="voucherId" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+
+                        <div class="col-4">
+                            <label for="voucherCode" class="form-label">Voucher Code</label>
+                            <input type="text" class="form-control" id="voucherCode" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="discountAmount" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" id="discountAmount" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="minOrderAmount" class="form-label">Min Order Amount</label>
+                            <input type="number" class="form-control" id="minOrderAmount" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="validityStartDate" class="form-label">Validity Start Date</label>
+                            <input type="date" class="form-control" id="validityStartDate" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="validityEndDate" class="form-label">Validity End Date</label>
+                            <input type="date" class="form-control" id="validityEndDate" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" required>
+                                <option value="" disabled selected>Select status</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btSave" type="button" class="btn btn-primary" onclick="saveData();">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal" id="VoucherdetailModal" tabindex="-1" aria-labelledby="VoucherdetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VoucherdetailModalLabel">Voucher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add form fields here -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="voucherdetailId" class="form-label">Voucher Id</label>
+                            <input type="text" class="form-control" id="voucherdetailId" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="statusdetail" class="form-label">Status</label>
+                            <input type="text" class="form-label" id="statusdetail" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+
+                        <div class="col-4">
+                            <label for="voucherdetailCode" class="form-label">Voucher Code</label>
+                            <input type="text" class="form-control" id="voucherdetailCode" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="discountdetailAmount" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" id="discountdetailAmount" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="minOrderdetailAmount" class="form-label">Min Order Amount</label>
+                            <input type="number" class="form-control" id="minOrderdetailAmount" readonly>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal" id="updateVoucherModal" tabindex="-1" aria-labelledby="updateVoucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateVoucherModalLabel">Update Voucher Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="updateVoucherId">Voucher ID</label>
+                            <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" readonly />
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label for="voucherupCode" class="form-label">Voucher Code</label>
+                        <input type="text" class="form-control" id="voucherupCode" required>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="updateStatus">Status</label>
+                            <select class="form-control" id="updateStatus" name="updateStatus" required>
+                                <option value="1">Active</option>
+                                <option value="0">InActive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btUpdate" type="button" class="btn btn-primary" onclick="updateData()">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts {
+    <script type="text/javascript">
+            $(document).ready(function () {
+                loadData();
+            });
+
+            function loadData() {
+                alert("Loading data...");
+
+                $.ajax({
+                    url: 'https://localhost:7149/api/Vouchers',
+                    type: "GET",
+                    contentType: "application/json;charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var vouchers = result.data;
+                        var html = '';
+                        $.each(vouchers, function (key, item) {
+                            html += '<tr>';
+                            html += '<td>' + item.voucherId + '</td>';
+                            html += '<td>' + item.voucherCode + '</td>';
+                            html += '<td>$' + item.discountAmount + '</td>';
+                            html += '<td>$' + item.minOrderAmount+ '</td>';
+                            html += '<td>' + item.validityStartDate + '</td>';
+                            html += '<td>' + item.validityEndDate + '</td>';
+                            html += '<td>' + getStatusText (item.status) + '</td>';
+                            html += '<td>' +
+                            '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(\'' + item.voucherId + '\') ">Update</button> ' +
+                            '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(\'' + item.voucherId + '\'); ">Details</button>' +
+                            '<button type="button" class="btn btn-danger" onclick="deleteVoucher(\'' + item.voucherId + '\');">Delete</button>'
+                            '</td>'; // Closing tag for each row
+                            html += '</tr>';
+                        });
+                        $('.tblBanks').html(html);
+                    },
+                    error: function (xhr, error) {
+                        alert("Error: " + xhr.statusText);
+                    }
+                });
+            }
+        function add() {
+            $("#VoucherModalLabel").html("Add New");
+            $('#VoucherModal').modal('show');
+        }
+        function updateVoucher(voucherId) {
+            $("#updateVoucherModalLabel").html("update");
+            $('#updateVoucherId').val(voucherId);
+            $('#updateVoucherModal').modal('show');
+        }
+        function detailVoucher(voucherId) {
+            $("#VoucherdetailModalLabel").html("Detail");
+            $('#detailVoucherId').val(voucherId);
+            loadDetail(voucherId);
+            $('#VoucherdetailModal').modal('show');
+
+        }
+        function loadDetail(voucherId){
+            $.ajax({
+                url: 'https://localhost:7149/api/Vouchers/'+voucherId,
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var voucher = result.data;
+                    $('#voucherdetailId').val(voucher.voucherId);
+                    $('#voucherdetailCode').val(voucher.voucherCode);
+                    $('#discountdetailAmount').val(voucher.discountAmount);
+                    $('#minOrderdetailAmount').val(voucher.minOrderAmount);
+                    $('#validitydetailStartDate').val(voucher.validityStartDate);
+                    $('#validitydetailEndDate').val(voucher.validityEndDate);
+                    $('#statusdetail').val(getStatusText(voucher.status));
+                    $('#VoucherdetailModal').modal('show');
+
+                },
+                error: function (xhr, error) {
+                    alert("Error: " + xhr.statusText);
+                }
+            });
+        }
+
+        function saveData() {
+            var obj = {
+                voucherId: $('#voucherId').val(),
+                voucherCode: $('#voucherCode').val(),
+                discountAmount: $('#discountAmount').val(),
+                minOrderAmount: $('#minOrderAmount').val(),
+                validityStartDate: $('#validityStartDate').val(),
+                validityEndDate: $('#validityEndDate').val(),
+                status: $('#status').val(),
+                createdDate: new Date().toISOString(),
+                createdBy: "string",
+                modifiedDate: new Date().toISOString(),
+                modifiedBy: "string"
+            };
+
+            $.ajax({
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                url: "https://localhost:7149/api/Vouchers",
+                type: "PUT",
+                data: JSON.stringify(obj), // Use 'obj' instead of 'formData'
+                success: function (result) {
+                    if (result.status >= 1) {
+                        $('#VoucherModal').modal('hide');
+                        loadData(); // Reload the data to show the new entry
+                    }
+                    alert(result.message);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
+        function getStatusText(statusCode) {
+            switch (statusCode) {
+                case 1: return 'Active';
+                default: return 'Inactive';
+            }
+        }
+        function deleteVoucher(voucherId) {
+            if (confirm("Bạn có chắc chắn muốn xóa voucher này?")) {
+                $.ajax({
+                    url: 'https://localhost:7149/api/Vouchers/'+voucherId,
+                    type: "DELETE",
+                    success: function (result) {
+                        alert(result.message);
+                        loadData(); // Reload the data
+                    },
+                    error: function (xhr, error) {
+                        alert("Error: " + xhr.statusText);
+                    }
+                });
+            }
+        }
+
+        function updateData() {
+            var obj = {
+                voucherId: $('#updateVoucherId').val(),
+                status: $('#updateStatus').val(),
+                voucherCode: $('#voucherupCode').val(),
+
+                createdBy: "string",
+                modifiedDate: new Date().toISOString(),
+                modifiedBy: "string"
+            };
+            $.ajax({
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                url: "https://localhost:7149/api/Vouchers",
+                type: "POST",
+                data: JSON.stringify(obj), // Use 'obj' instead of 'formData'
+                success: function (result) {
+                    if (result.status >= 1) {
+                        $('#updateVoucherModal').modal('hide');
+                        loadData(); // Reload the data to show the new entry
+                    }
+                    alert(result.message);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
+    </script>
+}
