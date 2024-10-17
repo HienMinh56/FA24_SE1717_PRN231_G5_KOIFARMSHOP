@@ -88,13 +88,13 @@
                 @Html.DisplayFor(modelItem => item.ModifiedBy)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Koi.KoiId)
+                @Html.DisplayFor(modelItem => item.KoiId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Payment.PaymentId)
+                @Html.DisplayFor(modelItem => item.PaymentId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.User.UserName)
+                @Html.DisplayFor(modelItem => item.UserId)
             </td>
             <td>
                     <a asp-action="Edit" asp-route-id="@item.ConsignmentId">Edit</a> |

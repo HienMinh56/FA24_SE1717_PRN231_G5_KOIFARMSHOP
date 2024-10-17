@@ -38,7 +38,7 @@ namespace KoiFarmShop.Service
 
             try
             {
-                var consignments = await _unitOfWork.ConsignmentRepository.GetAllConsignmentAsync();
+                var consignments = await _unitOfWork.ConsignmentRepository.GetAllAsync();
                 if (consignments == null)
                 {
                     return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new List<Consignment>());
