@@ -118,7 +118,7 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == orderId && o.Status !=2);
+                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == orderId);
                 var orderDetails = _unitOfWork.OrderDetailRepository.GetList(od => od.OrderId == orderId);
                 if (order == null)
                 {
