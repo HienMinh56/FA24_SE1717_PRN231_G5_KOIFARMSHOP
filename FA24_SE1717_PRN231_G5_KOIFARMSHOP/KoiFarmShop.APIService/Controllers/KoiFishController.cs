@@ -9,12 +9,14 @@ using KoiFarmShop.Data.Models;
 using KoiFarmShop.Service.Base;
 using KoiFarmShop.Service;
 using KoiFarmShop.Data.Request;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace KoiFarmShop.APIService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class KoiFishController : ControllerBase
+    public class KoiFishController : ODataController
     {
         private readonly IKoiFishService _koiFishService;
 
@@ -37,14 +39,14 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpPut]
-        public async Task<IBusinessResult> PutKoiFish(UpdateKoiFishRequest updateKoiFishRequest)
+        public async Task<IBusinessResult> PutKoiFish([FromBody] UpdateKoiFishRequest updateKoiFishRequest)
         {
             var result = await _koiFishService.Update(updateKoiFishRequest);
             return result;
         }
 
         [HttpPost]
-        public async Task<IBusinessResult> PostKoiFish(CreateKoiFishRequest koiFish)
+        public async Task<IBusinessResult> PostKoiFish([FromBody] CreateKoiFishRequest koiFish)
         {
             var result = await _koiFishService.Create(koiFish);
             return result;
@@ -55,6 +57,18 @@ namespace KoiFarmShop.APIService.Controllers
         {
             var result = await _koiFishService.DeleteById(id);
             return result;
+        }
+
+        [EnableQuery]
+        [HttpGet("odata")]
+        public async Task<IQueryable<KoiFish>> GetKoiFishesOData()
+        {
+            var koiFishes = await _koiFishService.GetAllOData();
+            if (koiFishes == null)
+            {
+                return new List<KoiFish>().AsQueryable();
+            }
+            return koiFishes;
         }
     }
 }

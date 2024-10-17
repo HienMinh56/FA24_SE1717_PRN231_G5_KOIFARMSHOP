@@ -1,5 +1,6 @@
 ﻿using KoiFarmShop.Data.Base;
 using KoiFarmShop.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,12 @@ namespace KoiFarmShop.Data.Repository
         }
 
         public OrderDetailRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
+        public List<OrderDetail> GetOrderDetailsByOrderId(string orderId)
+        {
+            return _context.OrderDetails
+                .Where(od => od.OrderId == orderId)
+                .ToList();
+        }
+
     }
 }

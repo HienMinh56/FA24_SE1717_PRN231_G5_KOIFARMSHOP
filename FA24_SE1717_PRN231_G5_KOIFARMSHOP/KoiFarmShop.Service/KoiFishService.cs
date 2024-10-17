@@ -3,12 +3,6 @@ using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KoiFarmShop.Service
 {
@@ -21,7 +15,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> Delete(string code);
         Task<IBusinessResult> Save(KoiFish koiFish);
         Task<IBusinessResult> DeleteById(string code);
-        
+        Task<IQueryable<KoiFish>> GetAllOData();
     }
     public class KoiFishService : IKoiFishService
     {
@@ -41,10 +35,7 @@ namespace KoiFarmShop.Service
             //3.create new image entities with koiId of koifish created as foreign key
             //4.check if new image entity was created. if wasn't, remove koifish entity created from DB and return failed message.
             #endregion
-            if (createKoiFishRequest.Image is null)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, "You need attached an image when create a koifish");
-            }
+            
 
             var koiFishs = await _unitOfWork.KoiFishRepository.GetAllOrderedByKoiId();
             var Id = koiFishs.Count + 1;
@@ -74,27 +65,30 @@ namespace KoiFarmShop.Service
 
             try
             {
-                string ImageId;
-                List<Image> images;
-                int iId;
-                foreach (var image in createKoiFishRequest.Image)
+                if (createKoiFishRequest.Image is not null)
                 {
-                    images = await _unitOfWork.ImageRepository.GetAllOrderByImageId();
-                    iId = images.Count + 1;
-                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"{Const.IMAGE}{iId.ToString("D4")}") is not null)
+                    string ImageId;
+                    List<Image> images;
+                    int iId;
+                    foreach (var image in createKoiFishRequest.Image)
                     {
-                        iId = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, iId, Const.IMAGE, Const.IMAGE_INDEX);
-                    }
+                        images = await _unitOfWork.ImageRepository.GetAllOrderByImageId();
+                        iId = images.Count + 1;
+                        if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"{Const.IMAGE}{iId.ToString("D4")}") is not null)
+                        {
+                            iId = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, iId, Const.IMAGE, Const.IMAGE_INDEX);
+                        }
 
-                    ImageId = $"{Const.IMAGE}{iId.ToString("D4")}";
-                    await _unitOfWork.ImageRepository.CreateAsync(new Image
-                    {
-                        ImageId = ImageId,
-                        KoiId = KoiId,
-                        Url = await _firebaseStorageService.UploadImageAsync(image),
-                        CreatedDate = DateTime.Now,
-                        CreatedBy = "Admin"
-                    });
+                        ImageId = $"{Const.IMAGE}{iId.ToString("D4")}";
+                        await _unitOfWork.ImageRepository.CreateAsync(new Image
+                        {
+                            ImageId = ImageId,
+                            KoiId = KoiId,
+                            Url = await _firebaseStorageService.UploadImageAsync(image),
+                            CreatedDate = DateTime.Now,
+                            CreatedBy = "Admin"
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -172,8 +166,6 @@ namespace KoiFarmShop.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
-
-
         }
 
         public async Task<IBusinessResult> GetById(string code)
@@ -277,7 +269,7 @@ namespace KoiFarmShop.Service
                 Image? image;
                 foreach (var url in updateKoiFishRequest.RemovedImage)
                 {
-                    if ((image = await _unitOfWork.ImageRepository.GetImageByUrl(url)) is not null)
+                    if ((image = await _unitOfWork.ImageRepository.GetImageByUrl(url)) is not null && image.KoiId == koiFish.KoiId)
                     {
                         await _firebaseStorageService.DeleteImageAsync(_firebaseStorageService.ExtractImageNameFromUrl(url));
                         await _unitOfWork.ImageRepository.RemoveAsync(image);
@@ -319,39 +311,48 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG, new KoiFish());
             }
         }
-/*
-        public bool CheckEmpty(string code)
-        {
-            if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == code) is not null)
-            {
-                return false;   
-            }
-            return true;
-
-        }
-        public async Task<int> FindEmptyPositionWithBinarySearch(List<KoiFish> koiFishs, int low, int high)
-        {
-//            var Id = $"KOI{current.ToString("D3")}";
-            var mid = (low + high) / 2;
-            var Id = $"KOIFISH{mid.ToString("D3")}";
-
-            if (CheckEmpty(Id))
-            {
-                return mid;
-            }
-            else
-            {
-                var index = koiFishs.FindIndex(k => k.KoiId == Id) + 1;
-                if (index < mid)
+        /*
+                public bool CheckEmpty(string code)
                 {
-                    return await FindEmptyPositionWithBinarySearch(koiFishs, low, mid);
+                    if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == code) is not null)
+                    {
+                        return false;   
+                    }
+                    return true;
+
                 }
-                else
+                public async Task<int> FindEmptyPositionWithBinarySearch(List<KoiFish> koiFishs, int low, int high)
                 {
-                    return await FindEmptyPositionWithBinarySearch(koiFishs, mid, high);
+        //            var Id = $"KOI{current.ToString("D3")}";
+                    var mid = (low + high) / 2;
+                    var Id = $"KOIFISH{mid.ToString("D3")}";
+
+                    if (CheckEmpty(Id))
+                    {
+                        return mid;
+                    }
+                    else
+                    {
+                        var index = koiFishs.FindIndex(k => k.KoiId == Id) + 1;
+                        if (index < mid)
+                        {
+                            return await FindEmptyPositionWithBinarySearch(koiFishs, low, mid);
+                        }
+                        else
+                        {
+                            return await FindEmptyPositionWithBinarySearch(koiFishs, mid, high);
+                        }
+                    }
                 }
+        */
+        public async Task<IQueryable<KoiFish>> GetAllOData()
+        {
+            var koifishes = await _unitOfWork.KoiFishRepository.GetAllWithImages();
+            if (koifishes == null)
+            {
+                return new List<KoiFish>().AsQueryable();
             }
+            return koifishes.AsQueryable();
         }
-*/
     }
 }

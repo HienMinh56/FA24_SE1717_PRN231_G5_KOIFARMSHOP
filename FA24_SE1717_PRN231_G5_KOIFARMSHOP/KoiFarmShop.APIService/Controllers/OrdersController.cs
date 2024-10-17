@@ -50,11 +50,10 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<IBusinessResult>> CreateOrder([FromBody] List<CreateOrderRequest> request)
+        public async Task<ActionResult<IBusinessResult>> CreateOrder([FromBody] OrderCreateRequest request)
         {
-            var orderItems = request.Select(x => (x.KoiId, x.Quantity)).ToList();
             // Call the service to create the order
-            var result = await _orderService.CreateOrderAsync(orderItems);
+            var result = await _orderService.CreateOrderAsync(request.UserId,request.OrderItems, request.VoucherCode);
 
             // Check the result and return the appropriate response
             if (result.Status == 1)
@@ -65,10 +64,21 @@ namespace KoiFarmShop.APIService.Controllers
             return BadRequest(result);
         }
 
-        [HttpPut("{OrderId}")]
-        public async Task<ActionResult<IBusinessResult>> UpdateOrder(string OrderId, int status)
+        [HttpPut]
+        public async Task<ActionResult<IBusinessResult>> UpdateOrder(UpdateOrderRequest orderRequest)
         {
-            var result = await _orderService.UpdateOrderAsync(OrderId, status);
+            var result = await _orderService.UpdateOrderAsync(orderRequest);
+            if (result.Status == 1)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
+        [HttpDelete("{orderId}")]
+        public async Task<ActionResult<IBusinessResult>> DeleteOrder(string orderId)
+        {
+            var result = await _orderService.DeleteOrderAsync(orderId);
             if (result.Status == 1)
             {
                 return Ok(result);

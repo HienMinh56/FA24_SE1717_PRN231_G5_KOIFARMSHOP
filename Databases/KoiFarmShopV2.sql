@@ -72,7 +72,7 @@ CREATE TABLE [Order] (
   [TotalAmount] [float] NOT NULL,
   [Quantity] [int] NOT NULL,
   [Status] [int] NOT NULL,
-  [VoucherId] [varchar] (50) NOT NULL,
+  [VoucherId] [varchar] (50) NULL,
   [CreatedDate] [datetime] NULL,
   [CreatedBy] [varchar] (max) NULL,
   [ModifiedDate] [datetime] NULL,

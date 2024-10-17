@@ -3,7 +3,11 @@ namespace KoiFarmShop.Common
 {
     public class Const
     {
+
         public static string API_ENDPOINT = "https://localhost:7149/api/";
+
+        public static string APIEndpoint = "https://localhost:7149/api/";
+
         #region Error Codes
 
         public static int ERROR_EXCEPTION = -4;

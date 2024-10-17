@@ -1,0 +1,31 @@
+﻿@model KoiFarmShop.Data.Models.Order
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h4>Order Details</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Koi ID</th>
+            <th>Price</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.KoiId</td>
+                <td>@item.Price</td>
+                <td>@item.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.OrderId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
