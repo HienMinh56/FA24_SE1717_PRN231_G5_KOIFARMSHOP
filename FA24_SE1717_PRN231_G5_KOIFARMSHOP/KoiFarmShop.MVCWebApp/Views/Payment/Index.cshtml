@@ -1,0 +1,268 @@
+﻿@{
+    ViewData["Title"] = "Payments";
+}
+
+<div class="row">
+    <div class="col-md-10">
+        <h3 class="display-8">Payments List</h3>
+    </div>
+    <div class="col-md-2 text-end">
+        <button type="button" class="btn btn-primary" onclick="openAddPaymentModal();">
+            Add
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="card-header">
+                    <th class="card-title text-center">Payment Id</th>
+                    <th class="card-title text-center">User Id</th>
+                    <th class="card-title text-center">Amount</th>
+                    <th class="card-title text-center">Type</th>
+                    <th class="card-title text-center">Status</th>
+                    <th class="card-title text-center">Payment Date</th>
+                    <th class="card-title text-center">Function</th>
+                </tr>
+            </thead>
+            <tbody class="tblPayments">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Add Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add Section -->
+                    <div id="paymentItemsSection" class="payment-item">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="type">Type</label>
+                                    <select class="form-control" id="type" name="type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="1">Order</option>
+                                        <option value="2">Consignment</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="orderId">Order Id</label>
+                                    <input type="text" class="form-control" id="orderId" name="orderId" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="consignmentId">Consignment Id</label>
+                                    <input type="text" class="form-control" id="consignmentId" name="consignmentId" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="amount">Amount</label>
+                                    <input type="number" class="form-control" id="amount" name="amount" readonly required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="btSave" type="button" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateStatusModalLabel">Update Payment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="paymentIdUpdate" />
+                <div class="form-group">
+                    <label for="statusUpdate">Status</label>
+                    <select class="form-control" id="statusUpdate" required>
+                        <option value="">Select Status</option>
+                        <option value="1">Success</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btUpdateStatus" type="button" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadPayments();
+        });
+
+        // Load Payments Function
+        function loadPayments() {
+            $.ajax({
+                url: "https://localhost:7149/api/Payments",
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var html = '';
+                    $.each(result.data, function (key, item) {
+                        html += '<tr>';
+                        html += '<td>' + item.paymentId + '</td>';
+                        html += '<td>' + item.userId + '</td>';
+                        html += '<td>' + item.amount + '</td>';
+                        html += '<td>' + (item.type === 1 ? 'Order' : 'Consignment') + '</td>';
+                        var statusText = item.status === 2 ? "Pending" : (item.status === 1 ? "Success" : "Cancelled");
+                        html += '<td>' + statusText + '</td>';
+                        html += '<td>' + new Date(item.createdDate).toLocaleDateString() + '</td>';
+                        html += '<td><button class="btn btn-warning" onclick="openUpdateStatusModal(\'' + item.paymentId + '\', ' + item.status + ')">Update Status</button> <button class="btn btn-danger" onclick="deletePayment(\'' + item.paymentId + '\')">Delete</button></td>';
+                        html += '</tr>';
+                    });
+                    $('.tblPayments').html(html);
+                },
+                error: function (xhr) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
+
+        // Open Add Modal
+        function openAddPaymentModal() {
+            $("#paymentModalLabel").html("Add Payment");
+            $('#paymentModal').modal('show');
+            $('#paymentItemsSection').show();
+            clearPaymentFields();
+        }
+
+        // Clear Payment Fields
+        function clearPaymentFields() {
+            $('#amount').val('');
+            $('#type').val('');
+            $('#orderId').val('');
+            $('#consignmentId').val('');
+        }
+
+        // Add Payment
+        $('#btSave').on('click', function () {
+            var type = $('#type').val();
+            var orderId = $('#orderId').val();
+            var consignmentId = $('#consignmentId').val();
+
+            // Validation: Either OrderId or ConsignmentId must be filled based on the type
+            if (type == "1" && !orderId) {
+                alert("Order Id is required for Type 1 (Order).");
+                return;
+            } else if (type == "2" && !consignmentId) {
+                alert("Consignment Id is required for Type 2 (Consignment).");
+                return;
+            }
+
+            // Set formData
+            var formData = {
+                type: type,
+                orderId: orderId,
+                consignmentId: consignmentId,
+                userId: $('#userId').val(),
+                amount: 0 // Placeholder, will be filled from the server
+            };
+
+            // Call to API to create payment
+            $.ajax({
+                url: "https://localhost:7149/api/Payments",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(formData),
+                success: function (result) {
+                    if (result.status >= 1) {
+                        $('#paymentModal').modal('hide');
+                        loadPayments(); // Reload Data
+                    }
+                    alert(result.message);
+                },
+                error: function (xhr) {
+                    alert(xhr.statusText);
+                }
+            });
+        });
+
+        // Open Update Status Modal
+        function openUpdateStatusModal(paymentId, currentStatus) {
+            $("#updateStatusModalLabel").html("Update Payment Status");
+            $('#paymentIdUpdate').val(paymentId);
+            $('#statusUpdate').val(currentStatus);
+            $('#updateStatusModal').modal('show');
+        }
+
+        // Update Payment Status
+        $('#btUpdateStatus').on('click', function () {
+            var paymentId = $('#paymentIdUpdate').val();
+            var status = $('#statusUpdate').val();
+
+            if (!status) {
+                alert("Please select a status.");
+                return;
+            }
+
+            $.ajax({
+                url: "https://localhost:7149/api/Payments/" + paymentId + "?status=" + status,
+                type: "PUT",
+                success: function (result) {
+                    if (result.status >= 1) {
+                        $('#updateStatusModal').modal('hide');
+                        loadPayments();
+                    }
+                    alert(result.message);
+                },
+                error: function (xhr) {
+                    alert(xhr.statusText);
+                }
+            });
+        });
+
+        // Delete Payment Function
+        function deletePayment(paymentId) {
+            if (confirm("Are you sure you want to delete this payment?")) {
+                $.ajax({
+                    url: "https://localhost:7149/api/Payments/" + paymentId,
+                    type: "DELETE",
+                    contentType: "application/json;charset=utf-8",
+                    success: function (result) {
+                        if (result.status >= 1) {
+                            loadPayments(); // Reload Data
+                        }
+                        alert(result.message);
+                    },
+                    error: function (xhr) {
+                        alert(xhr.statusText);
+                    }
+                });
+            }
+        }
+    </script>
+}

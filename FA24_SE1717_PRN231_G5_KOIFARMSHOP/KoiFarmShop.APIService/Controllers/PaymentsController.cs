@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using KoiFarmShop.Common;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Data.Request;
+using KoiFarmShop.Service;
+using KoiFarmShop.Service.Base;
+using Microsoft.AspNetCore.Mvc;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -13,95 +11,46 @@ namespace KoiFarmShop.APIService.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly FA24_SE1717_PRN231_G5_KOIFARMSHOPContext _context;
+        private readonly IPaymentService _paymentService;
 
-        public PaymentsController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
+        public PaymentsController(IPaymentService paymentService)
         {
-            _context = context;
+            _paymentService = paymentService;
+        }
+
+        // POST: api/Payments
+        [HttpPost]
+        public async Task<IBusinessResult> PostPayment(CreatePaymentRequest paymentRequest)
+        {
+            return await _paymentService.Create(paymentRequest);
+
         }
 
         // GET: api/Payments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Payment>>> GetPayments()
+        public async Task<IBusinessResult> GetPayments()
         {
-            return await _context.Payments.ToListAsync();
+            return await _paymentService.GetAll();
         }
 
-        // GET: api/Payments/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Payment>> GetPayment(int id)
+        // GET: api/Payments/{paymentId}
+        [HttpGet("{paymentId}")]
+        public async Task<IBusinessResult> GetPaymentById(string paymentId)
         {
-            var payment = await _context.Payments.FindAsync(id);
-
-            if (payment == null)
-            {
-                return NotFound();
-            }
-
-            return payment;
+            return await _paymentService.GetPaymentById(paymentId);
         }
 
-        // PUT: api/Payments/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPayment(int id, Payment payment)
+        [HttpPut]
+        public async Task<IBusinessResult> PutPayment(UpdatePaymentRequest payment)
         {
-            if (id != payment.Id)
-            {
-                return BadRequest();
-            }
+            return await _paymentService.Update(payment);
 
-            _context.Entry(payment).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PaymentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
-        // POST: api/Payments
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Payment>> PostPayment(Payment payment)
+        [HttpDelete("{paymentId}")]
+        public async Task<IBusinessResult> DeletePayment(string paymentId)
         {
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPayment", new { id = payment.Id }, payment);
-        }
-
-        // DELETE: api/Payments/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePayment(int id)
-        {
-            var payment = await _context.Payments.FindAsync(id);
-            if (payment == null)
-            {
-                return NotFound();
-            }
-
-            _context.Payments.Remove(payment);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool PaymentExists(int id)
-        {
-            return _context.Payments.Any(e => e.Id == id);
+            return await _paymentService.DeleteById(paymentId);
         }
     }
 }

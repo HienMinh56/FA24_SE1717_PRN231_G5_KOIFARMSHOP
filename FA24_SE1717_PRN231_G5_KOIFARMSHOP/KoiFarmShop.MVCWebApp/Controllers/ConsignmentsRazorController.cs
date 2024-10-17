@@ -235,7 +235,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         if (result != null && result.Data != null)
                         {
                             var consignment = JsonConvert.DeserializeObject<Consignment>(result.Data.ToString());
-                            
+
                             consignmentTmp.ConsignmentId = consignment.ConsignmentId;
                             consignmentTmp.UserId = consignment.UserId;
                             consignmentTmp.KoiId = consignment.KoiId;
@@ -251,7 +251,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     }
                 }
             }
-            
+
             ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
             ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
             return View(consignmentTmp);
