@@ -16,6 +16,8 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> Save(KoiFish koiFish);
         Task<IBusinessResult> DeleteById(string code);
         Task<IQueryable<KoiFish>> GetAllOData();
+        Task<IBusinessResult> Search(QueryKoiFishRequest request);
+
     }
     public class KoiFishService : IKoiFishService
     {
@@ -353,6 +355,19 @@ namespace KoiFarmShop.Service
                 return new List<KoiFish>().AsQueryable();
             }
             return koifishes.AsQueryable();
+        }
+
+        public async Task<IBusinessResult> Search(QueryKoiFishRequest request)
+        {
+            try
+            {
+                var result = await _unitOfWork.KoiFishRepository.SearchKoiFish(request);
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, result);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message, new List<KoiFish>());
+            }
         }
     }
 }
