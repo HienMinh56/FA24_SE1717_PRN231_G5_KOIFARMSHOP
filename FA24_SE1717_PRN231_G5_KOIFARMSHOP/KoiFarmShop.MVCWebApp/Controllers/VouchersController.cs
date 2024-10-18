@@ -10,6 +10,7 @@ using KoiFarmShop.Common;
 using KoiFarmShop.Service.Base;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using KoiFarmShop.Data.Request;
 
 namespace KoiFarmShop.MVCWebApp.Controllers
 {
@@ -146,7 +147,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // GET: Vouchers/Edit/5
         public async Task<IActionResult> Edit(string? id)
         {
-            var Voucher = new Voucher();
+            var voucher = new CreateVoucherRequest();
             using (var httpClient = new HttpClient())
             {
                 using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Vouchers/" + id))
@@ -174,7 +175,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,VoucherId,VoucherCode,DiscountAmount,MinOrderAmount,Status,ValidityStartDate,ValidityEndDate,CreatedDate,CreatedBy,ModifiedDate,ModifiedBy")] Voucher voucher)
+        public async Task<IActionResult> Edit(string id,  CreateVoucherRequest voucher)
         {
             if (ModelState.IsValid)
             {
