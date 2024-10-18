@@ -2,52 +2,76 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace KoiFarmShop.Data.Models;
 
+[DataContract]
 public partial class KoiFish
 {
+    [DataMember]
     public int Id { get; set; }
-
+    
+    [DataMember]
     public string KoiId { get; set; }
 
+    [DataMember]
     public string KoiName { get; set; }
 
+    [DataMember]
     public string Origin { get; set; }
 
+    [DataMember]
     public string Gender { get; set; }
 
+    [DataMember]
     public int Age { get; set; }
 
+    [DataMember]
     public double Size { get; set; }
 
+    [DataMember]
     public string Breed { get; set; }
 
+    [DataMember]
     public string Type { get; set; }
 
+    [DataMember]
     public double Price { get; set; }
 
+    [DataMember]
     public int Quantity { get; set; }
 
+    [DataMember]
     public int OwnerType { get; set; }
 
+    [DataMember]
     public string Description { get; set; }
 
+    [DataMember]
     public DateTime? CreatedDate { get; set; }
 
+    [DataMember]
     public string CreatedBy { get; set; }
 
+    [DataMember]
     public DateTime? ModifiedDate { get; set; }
 
+    [DataMember]
     public string ModifiedBy { get; set; }
 
+    [DataMember]
     public DateTime? DeletedDate { get; set; }
 
+    [DataMember]
     public string DeletedBy { get; set; }
 
+    [DataMember]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
 
+    [DataMember]
     public virtual ICollection<Image> Images { get; set; } = new List<Image>();
 
+    [DataMember]
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 }

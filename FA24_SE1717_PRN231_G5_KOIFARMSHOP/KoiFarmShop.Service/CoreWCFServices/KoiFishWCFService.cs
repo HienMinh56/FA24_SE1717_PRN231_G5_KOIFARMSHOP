@@ -4,6 +4,7 @@ using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
+using System.Linq;
 
 namespace KoiFarmShop.Service.CoreWCFServices
 {
@@ -11,332 +12,176 @@ namespace KoiFarmShop.Service.CoreWCFServices
     public interface IKoiFishWCFService
     {
         [OperationContract]
-        Task<IBusinessResult> GetAll();
-        
+        List<KoiFish> GetAll();
+
         [OperationContract]
-        Task<IBusinessResult> GetById(string code);
-        
+        KoiFish GetById(string code);
+
         [OperationContract]
-        Task<IBusinessResult> Create(CreateKoiFishRequest koiFish);
-        
-        [OperationContract] 
-        Task<IBusinessResult> Update(UpdateKoiFishRequest koiFish);
-        
-        [OperationContract] 
-        Task<IBusinessResult> Delete(string code);
-        
-        [OperationContract] 
-        Task<IBusinessResult> Save(KoiFish koiFish);
-        
-        [OperationContract] 
-        Task<IBusinessResult> DeleteById(string code);
-        
-        [OperationContract] 
-        Task<IQueryable<KoiFish>> GetAllOData();
+        KoiFish Create(CreateKoiFishRequest koiFish);
+
+        //[OperationContract]
+        //KoiFish Update(UpdateKoiFishRequest koiFish);
+
+        [OperationContract]
+        KoiFish Delete(string code);
+
+        [OperationContract]
+        KoiFish Save(KoiFish koiFish);
+
+        [OperationContract]
+        KoiFish DeleteById(string code);
+
+        [OperationContract]
+        IQueryable<KoiFish> GetAllOData();
     }
 
     public class KoiFishWCFService : IKoiFishWCFService
     {
         private readonly UnitOfWork _unitOfWork;
-        private readonly IFirebaseStorageService _firebaseStorageService;
-        public KoiFishWCFService(IFirebaseStorageService firebaseStorageService)
+        public KoiFishWCFService()
         {
             _unitOfWork ??= new UnitOfWork();
-            _firebaseStorageService = firebaseStorageService;
         }
 
-        public async Task<IBusinessResult> Create(CreateKoiFishRequest createKoiFishRequest)
+        public KoiFish Create(CreateKoiFishRequest createKoiFishRequest)
         {
-            #region Business rule
-            //1.create a new koifish entity and add it into database
-            //2.check if new koifish was create. if wasn't, return failed message.
-            //3.create new image entities with koiId of koifish created as foreign key
-            //4.check if new image entity was created. if wasn't, remove koifish entity created from DB and return failed message.
-            #endregion
-            if (createKoiFishRequest.Image is null)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, "You need attached an image when create a koifish");
-            }
-
-            var koiFishs = await _unitOfWork.KoiFishRepository.GetAllOrderedByKoiId();
+            var koiFishs = _unitOfWork.KoiFishRepository.GetAll();
             var Id = koiFishs.Count + 1;
-            if (_unitOfWork.KoiFishRepository.Get(k => k.KoiId == $"{Const.KOIFISH}{Id.ToString("D4")}") is not null)
-            {
-                Id = await _unitOfWork.KoiFishRepository.FindEmptyPositionWithBinarySearch(koiFishs, 1, Id, Const.KOIFISH, Const.KOIFISH_INDEX);
-            }
 
             var KoiId = $"{Const.KOIFISH}{Id.ToString("D4")}";
-            await _unitOfWork.KoiFishRepository.CreateAsync(new KoiFish
+            _unitOfWork.KoiFishRepository.Create(new KoiFish
             {
                 KoiId = KoiId,
                 KoiName = createKoiFishRequest.KoiName,
                 Origin = createKoiFishRequest.Origin,
-                Gender = createKoiFishRequest.Gender, // Male or Female
+                Gender = createKoiFishRequest.Gender,
                 Age = createKoiFishRequest.Age,
                 Size = createKoiFishRequest.Size,
                 Breed = createKoiFishRequest.Breed,
-                Type = createKoiFishRequest.Type, // 'Imported Purebred', 'F1', 'Vietnamese Purebred'
+                Type = createKoiFishRequest.Type,
                 Price = createKoiFishRequest.Price,
                 Quantity = createKoiFishRequest.Quantity,
                 OwnerType = createKoiFishRequest.OwnerType,
                 Description = createKoiFishRequest.Description,
                 CreatedDate = DateTime.Now,
-                CreatedBy = "Admin" // fix cung truoc, se sua lai sau khi them authen
+                CreatedBy = "Admin"
             });
 
-            try
-            {
-                string ImageId;
-                List<Image> images;
-                int iId;
-                foreach (var image in createKoiFishRequest.Image)
-                {
-                    images = await _unitOfWork.ImageRepository.GetAllOrderByImageId();
-                    iId = images.Count + 1;
-                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"{Const.IMAGE}{iId.ToString("D4")}") is not null)
-                    {
-                        iId = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, iId, Const.IMAGE, Const.IMAGE_INDEX);
-                    }
-
-                    ImageId = $"{Const.IMAGE}{iId.ToString("D4")}";
-                    await _unitOfWork.ImageRepository.CreateAsync(new Image
-                    {
-                        ImageId = ImageId,
-                        KoiId = KoiId,
-                        Url = await _firebaseStorageService.UploadImageAsync(image),
-                        CreatedDate = DateTime.Now,
-                        CreatedBy = "Admin"
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                await DeleteById(KoiId);
-                return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG, ex.Message);
-            }
-
-
-            var result = await _unitOfWork.KoiFishRepository.GetByIdWithImages(KoiId);
+            var result = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == KoiId);
             if (result is null)
             {
-                return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG, new KoiFish());
-            }
-
-            if (result.Images is not null)
-            {
-                return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG, result);
+                return new KoiFish();
             }
             else
             {
-                await DeleteById(KoiId);
-                return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG, new KoiFish());
+                return result;
             }
         }
 
-        public Task<IBusinessResult> Delete(string code)
+        public KoiFish Delete(string code)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IBusinessResult> DeleteById(string id)
+        public KoiFish DeleteById(string id)
         {
             try
             {
                 var koifish = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == id);
-                var images = (await _unitOfWork.ImageRepository.GetAllOrderByImageId()).Where(i => i.KoiId == id).ToList();
+
                 if (koifish == null)
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new KoiFish());
+                    return new KoiFish();
                 else
                 {
-                    foreach (var image in images)
-                    {
-                        await _firebaseStorageService.DeleteImageAsync(_firebaseStorageService.ExtractImageNameFromUrl(image.Url));
-                        await _unitOfWork.ImageRepository.RemoveAsync(image);
-                    }
-                    var result = await _unitOfWork.KoiFishRepository.RemoveAsync(koifish);
-                    if (result)
-                        return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG, koifish);
-                    else
-                        return new BusinessResult(Const.FAIL_DELETE_CODE, Const.FAIL_DELETE_MSG, koifish);
+                    var result = _unitOfWork.KoiFishRepository.Remove(koifish);
+                    return koifish;
                 }
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new KoiFish();
             }
         }
 
-        public async Task<IBusinessResult> GetAll()
+        public List<KoiFish> GetAll()
         {
-            #region Business Rule
-
-            #endregion
-            try
-            {
-                var koifishes = await _unitOfWork.KoiFishRepository.GetAllWithImages();
-                if (koifishes == null)
-                {
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new List<KoiFish>());
-                }
-                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, koifishes);
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+            var koifishes = _unitOfWork.KoiFishRepository.GetAll();
+            return koifishes;
         }
 
-        public async Task<IBusinessResult> GetById(string code)
+        public KoiFish GetById(string code)
         {
-            try
+            var koifish = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == code);
+            if (koifish == null)
             {
-                var koifish = await _unitOfWork.KoiFishRepository.GetByIdWithImages(code);
-                if (koifish == null)
-                {
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new KoiFish());
-                }
-                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, koifish);
+                return new KoiFish();
             }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+            return koifish;
         }
 
-        public async Task<IBusinessResult> Save(KoiFish koiFish)
+        public KoiFish Save(KoiFish koiFish)
         {
-            try
+            var koiFishTmp = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == koiFish.KoiId);
+
+            if (koiFishTmp != null)
             {
-                int result = -1;
-
-                var koiFishTmp = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == koiFish.KoiId);
-
-                if (koiFishTmp != null)
-                {
-                    #region Business Rule
-                    #endregion
-                    result = await _unitOfWork.KoiFishRepository.UpdateAsync(koiFish);
-
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG);
-                    }
-                    else
-                    {
-                        return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
-                    }
-                }
-                else
-                {
-                    #region Business Rule
-                    #endregion
-
-                    result = await _unitOfWork.KoiFishRepository.CreateAsync(koiFish);
-
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
-                    }
-                    else
-                    {
-                        return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
-
-        public async Task<IBusinessResult> Update(UpdateKoiFishRequest updateKoiFishRequest)
-        {
-            #region Business rule
-            //1. check if koifish that is gonna updated is already existed in DB
-            //2. if not, return failed message: the koifish doesn't exist.
-            //3. else, get the koifish entity, update inputted properties, and save the changes
-            //4. check if there are any images user want to delete, if there are, delete these images from DB and firebase
-            //5. check if there are any images user want to add, if there are, add these images from DB and firebase.
-            //6. save these changes. if success, return success message, else, return fail message
-            #endregion
-
-            var koiFish = await _unitOfWork.KoiFishRepository.GetByIdWithDetail(updateKoiFishRequest.KoiId);
-            if (koiFish is null)
-            {
-                return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new KoiFish());
+                _unitOfWork.KoiFishRepository.Update(koiFish);
+                return koiFish;
             }
             else
             {
-                koiFish.KoiName = updateKoiFishRequest.KoiName is null ? koiFish.KoiName : updateKoiFishRequest.KoiName;
-                koiFish.Origin = updateKoiFishRequest.Origin is null ? koiFish.Origin : updateKoiFishRequest.Origin;
-                koiFish.Gender = updateKoiFishRequest.Gender is null ? koiFish.Gender : updateKoiFishRequest.Gender; // Male or Female
-                koiFish.Age = updateKoiFishRequest.Age == 0 ? koiFish.Age : updateKoiFishRequest.Age;
-                koiFish.Size = updateKoiFishRequest.Size == 0 ? koiFish.Size : updateKoiFishRequest.Size;
-                koiFish.Breed = updateKoiFishRequest.Breed is null ? koiFish.Breed : updateKoiFishRequest.Breed;
-                koiFish.Type = updateKoiFishRequest.Type is null ? koiFish.Type : updateKoiFishRequest.Type; // 'Imported Purebred', 'F1', 'Vietnamese Purebred'
-                koiFish.Price = updateKoiFishRequest.Price == 0 ? koiFish.Price : updateKoiFishRequest.Price;
-                koiFish.Quantity = updateKoiFishRequest.Quantity == 0 ? koiFish.Quantity : updateKoiFishRequest.Quantity;
-                koiFish.OwnerType = updateKoiFishRequest.OwnerType == 0 ? koiFish.OwnerType : updateKoiFishRequest.OwnerType;
-                koiFish.Description = updateKoiFishRequest.Description is null ? koiFish.Description : updateKoiFishRequest.Description;
-                koiFish.ModifiedDate = DateTime.UtcNow;
-                koiFish.ModifiedBy = "Admin"; // fix cung truoc, se sua lai sau khi them authen
-            }
-
-            if (updateKoiFishRequest.RemovedImage is not [])
-            {
-                Image? image;
-                foreach (var url in updateKoiFishRequest.RemovedImage)
-                {
-                    if ((image = await _unitOfWork.ImageRepository.GetImageByUrl(url)) is not null)
-                    {
-                        await _firebaseStorageService.DeleteImageAsync(_firebaseStorageService.ExtractImageNameFromUrl(url));
-                        await _unitOfWork.ImageRepository.RemoveAsync(image);
-                    }
-                }
-            }
-            if (updateKoiFishRequest.AddedImage is not null)
-            {
-                string ImageId;
-                List<Image> images;
-                int id;
-                foreach (var image in updateKoiFishRequest.AddedImage)
-                {
-                    images = await _unitOfWork.ImageRepository.GetAllOrderByImageId();
-                    id = images.Count + 1;
-                    if (_unitOfWork.ImageRepository.Get(i => i.ImageId == $"{Const.IMAGE}{id.ToString("D4")}") is not null)
-                    {
-                        id = await _unitOfWork.ImageRepository.FindEmptyPositionWithBinarySearch(images, 1, id, Const.IMAGE, Const.IMAGE_INDEX);
-                    }
-
-                    ImageId = $"{Const.IMAGE}{id.ToString("D4")}";
-                    await _unitOfWork.ImageRepository.CreateAsync(new Image
-                    {
-                        ImageId = ImageId,
-                        KoiId = updateKoiFishRequest.KoiId,
-                        Url = await _firebaseStorageService.UploadImageAsync(image),
-                        CreatedDate = DateTime.Now,
-                        CreatedBy = "Admin"
-                    });
-                }
-            }
-
-            if (await _unitOfWork.KoiFishRepository.UpdateAsync(koiFish) > 0)
-            {
-                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, koiFish);
-            }
-            else
-            {
-                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG, new KoiFish());
+                _unitOfWork.KoiFishRepository.Create(koiFish);
+                return koiFish;
             }
         }
-        public async Task<IQueryable<KoiFish>> GetAllOData()
+
+        //public KoiFish Update(UpdateKoiFishRequest updateKoiFishRequest)
+        //{
+        //    var koiFish = _unitOfWork.KoiFishRepository.GetByIdWithDetail(updateKoiFishRequest.KoiId);
+        //    if (koiFish is null)
+        //    {
+        //        return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new KoiFish());
+        //    }
+        //    else
+        //    {
+        //        koiFish.KoiName = updateKoiFishRequest.KoiName ?? koiFish.KoiName;
+        //        koiFish.Origin = updateKoiFishRequest.Origin ?? koiFish.Origin;
+        //        koiFish.Gender = updateKoiFishRequest.Gender ?? koiFish.Gender;
+        //        koiFish.Age = updateKoiFishRequest.Age == 0 ? koiFish.Age : updateKoiFishRequest.Age;
+        //        koiFish.Size = updateKoiFishRequest.Size == 0 ? koiFish.Size : updateKoiFishRequest.Size;
+        //        koiFish.Breed = updateKoiFishRequest.Breed ?? koiFish.Breed;
+        //        koiFish.Type = updateKoiFishRequest.Type ?? koiFish.Type;
+        //        koiFish.Price = updateKoiFishRequest.Price == 0 ? koiFish.Price : updateKoiFishRequest.Price;
+        //        koiFish.Quantity = updateKoiFishRequest.Quantity == 0 ? koiFish.Quantity : updateKoiFishRequest.Quantity;
+        //        koiFish.OwnerType = updateKoiFishRequest.OwnerType ?? koiFish.OwnerType;
+        //        koiFish.Description = updateKoiFishRequest.Description ?? koiFish.Description;
+        //        koiFish.UpdatedDate = DateTime.Now;
+        //        koiFish.UpdatedBy = "Admin";
+
+        //        try
+        //        {
+        //            var result = _unitOfWork.KoiFishRepository.Update(koiFish);
+        //            if (result > 0)
+        //            {
+        //                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, koiFish);
+        //            }
+        //            else
+        //            {
+        //                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG, koiFish);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //        }
+        //    }
+        //}
+
+        public IQueryable<KoiFish> GetAllOData()
         {
-            var koifishes = await _unitOfWork.KoiFishRepository.GetAllWithImages();
-            if (koifishes == null)
-            {
-                return new List<KoiFish>().AsQueryable();
-            }
-            return koifishes.AsQueryable();
+            return _unitOfWork.KoiFishRepository.GetAll().AsQueryable();
         }
     }
 }
+

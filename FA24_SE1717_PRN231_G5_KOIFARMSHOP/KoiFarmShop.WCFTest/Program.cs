@@ -23,7 +23,7 @@ app.UseServiceModel(builder =>
     // Enable metadata publishing (for WSDL generation)
     var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
     serviceMetadataBehavior.HttpGetEnabled = true;
-    serviceMetadataBehavior.HttpsGetEnabled = true;  // Adjust as needed
+    serviceMetadataBehavior.HttpsGetEnabled = false;  // Adjust as needed
 });
 
 app.Run();
