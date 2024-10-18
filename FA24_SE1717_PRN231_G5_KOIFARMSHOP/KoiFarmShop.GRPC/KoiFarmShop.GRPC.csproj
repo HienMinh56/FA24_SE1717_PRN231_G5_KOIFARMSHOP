@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KoiFarmShop.Data\KoiFarmShop.Data.csproj" />
+    <ProjectReference Include="..\KoiFarmShop.Service\KoiFarmShop.Service.csproj" />
+	<Protobuf Include="Protos\KoiFish.proto" GrpcServices="Server" />
+  </ItemGroup>
+
+</Project>
