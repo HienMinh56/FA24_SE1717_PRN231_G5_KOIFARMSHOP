@@ -10,6 +10,7 @@ using KoiFarmShop.Common;
 using KoiFarmShop.Service.Base;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using KoiFarmShop.Data.Request;
 
 namespace KoiFarmShop.MVCWebApp.Controllers
 {
@@ -75,7 +76,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // GET: Vouchers/Create
         public async Task<IActionResult> Create()
         {
-            var Voucher = new Voucher();
+            var Voucher = new CreateVoucherRequest();
             using (var httpClient = new HttpClient())
             {
                 using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Vouchers"))
@@ -86,7 +87,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
                         if (result is not null)
                         {
-                            var vouchers = JsonConvert.DeserializeObject<List<Voucher>>(result.Data.ToString());
+                            var vouchers = JsonConvert.DeserializeObject<List<CreateVoucherRequest>>(result.Data.ToString());
                             ViewData["VoucherCode"] = new SelectList(vouchers, "VoucherCode", "voucherCode");
 
                             return View();
@@ -103,7 +104,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,VoucherId,VoucherCode,DiscountAmount,MinOrderAmount,Status,ValidityStartDate,ValidityEndDate,CreatedDate,CreatedBy,ModifiedDate,ModifiedBy")] Voucher voucher)
+        public async Task<IActionResult> Create(CreateVoucherRequest voucher)
         {
             if (ModelState.IsValid)
             {
@@ -124,7 +125,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             }
                             else if (result is not null && result.Data != null)
                             {
-                                var data = JsonConvert.DeserializeObject<Voucher>(result.Data.ToString());
+                                var data = JsonConvert.DeserializeObject<CreateVoucherRequest>(result.Data.ToString());
 
                                 return View(data); // Display the returned voucher data
                             }
@@ -146,7 +147,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // GET: Vouchers/Edit/5
         public async Task<IActionResult> Edit(string? id)
         {
-            var Voucher = new Voucher();
+            var Voucher = new CreateVoucherRequest();
             using (var httpClient = new HttpClient())
             {
                 using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Vouchers/" + id))
@@ -157,7 +158,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
                         if (result is not null)
                         {
-                            var data = JsonConvert.DeserializeObject<Voucher>(result.Data.ToString());
+                            var data = JsonConvert.DeserializeObject<CreateVoucherRequest>(result.Data.ToString());
 
 
                             return View(data);
@@ -174,7 +175,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,VoucherId,VoucherCode,DiscountAmount,MinOrderAmount,Status,ValidityStartDate,ValidityEndDate,CreatedDate,CreatedBy,ModifiedDate,ModifiedBy")] Voucher voucher)
+        public async Task<IActionResult> Edit(string id, CreateVoucherRequest voucher)
         {
             if (ModelState.IsValid)
             {
@@ -195,7 +196,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             }
                             else if (result is not null && result.Data != null)
                             {
-                                var data = JsonConvert.DeserializeObject<Voucher>(result.Data.ToString());
+                                var data = JsonConvert.DeserializeObject<CreateVoucherRequest>(result.Data.ToString());
 
                                 return View(data); // Display the returned voucher data
                             }

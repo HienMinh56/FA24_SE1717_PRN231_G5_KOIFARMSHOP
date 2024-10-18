@@ -9,6 +9,7 @@ namespace KoiFarmShop.Data.Request
     public class CreateVoucherRequest
     {
         public string VoucherId { get; set; }
+
         public string VoucherCode { get; set; }
 
         public double DiscountAmount { get; set; }
