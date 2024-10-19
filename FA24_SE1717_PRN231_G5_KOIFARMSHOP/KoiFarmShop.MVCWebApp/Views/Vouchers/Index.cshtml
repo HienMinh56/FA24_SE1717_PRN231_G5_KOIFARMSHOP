@@ -33,18 +33,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.ValidityEndDate)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ModifiedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ModifiedBy)
-            </th>
+
             <th></th>
         </tr>
     </thead>
@@ -74,17 +63,7 @@
                     @Html.DisplayFor(modelItem => item.ValidityEndDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.CreatedDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedBy)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ModifiedDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ModifiedBy)
-                </td>
+
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.VoucherId">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.VoucherId">Details</a> |

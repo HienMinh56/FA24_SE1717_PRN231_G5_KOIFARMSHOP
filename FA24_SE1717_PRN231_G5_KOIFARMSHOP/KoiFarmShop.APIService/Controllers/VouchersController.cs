@@ -42,7 +42,7 @@ namespace KoiFarmShop.APIService.Controllers
         [HttpPut]
         public async Task<IBusinessResult> PutVoucher(CreateVoucherRequest voucher)
         {
-            return await _voucherService.Save(voucher, HttpContext.User);
+            return await _voucherService.Save(voucher);
         }
 
         // POST: api/Vouchers
@@ -50,7 +50,7 @@ namespace KoiFarmShop.APIService.Controllers
         [HttpPost]
         public async Task<IBusinessResult> PostVoucher(CreateVoucherRequest voucher)
         {
-            return await _voucherService.Save(voucher, HttpContext.User);
+            return await _voucherService.Save(voucher);
         }
 
         // DELETE: api/Vouchers/5

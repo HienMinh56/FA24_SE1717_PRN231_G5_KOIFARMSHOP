@@ -16,7 +16,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetAll();
         Task<IBusinessResult> GetById(string Id);
-        Task<IBusinessResult> Save(CreateVoucherRequest voucher, ClaimsPrincipal claims);
+        Task<IBusinessResult> Save(CreateVoucherRequest voucher);
         Task<IBusinessResult> DeleteById(string Id);
 
 
@@ -81,14 +81,14 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> Save(CreateVoucherRequest voucher, ClaimsPrincipal claims)
+        public async Task<IBusinessResult> Save(CreateVoucherRequest voucher)
         {
             #region Business rule
 
             #endregion
 
-            var accountId = claims.FindFirst("aid")?.Value;
-            var account = _unitOfWork.UserRepository.Get(u => u.Id == int.Parse(accountId));
+            //var accountId = claims.FindFirst("aid")?.Value;
+            //var account = _unitOfWork.UserRepository.Get(u => u.Id == int.Parse(accountId));
             try
             {
                 int result = -1;
@@ -119,7 +119,7 @@ namespace KoiFarmShop.Service
 
                     voucherTmp.ModifiedDate = DateTime.Now;
 
-                    voucherTmp.ModifiedBy = account.UserName;
+                    
 
                     if (voucher.Status != null)
                     {
@@ -157,9 +157,9 @@ namespace KoiFarmShop.Service
                         ValidityStartDate = voucher.ValidityStartDate,
                         ValidityEndDate = voucher.ValidityEndDate,
                         CreatedDate = DateTime.Now,
-                        CreatedBy = account.UserName,
+                        CreatedBy = "User",
                         ModifiedDate = DateTime.Now,
-                        ModifiedBy = account.UserName
+                        ModifiedBy = "User"
 
 
                     });
