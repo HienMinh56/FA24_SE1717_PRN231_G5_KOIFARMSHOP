@@ -15,10 +15,8 @@ var app = builder.Build();
 app.UseServiceModel(builder =>
 {
     builder.AddService<KoiFishWCFService>();
-    builder.AddService<VoucherWCFService>();
 
     builder.AddServiceEndpoint<KoiFishWCFService, IKoiFishWCFService>(new BasicHttpBinding(), "/KoiFishWCFService.svc");
-    builder.AddServiceEndpoint<VoucherWCFService, IVoucherWCFService>(new BasicHttpBinding(), "/VoucherWCFService.svc");
 
     // Enable metadata publishing (for WSDL generation)
     var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
