@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+option csharp_namespace = "KoiFarmShop.GRPC.Protos";
+
+service KoiFishGRPCService {
+  rpc GetKoiFish (GetKoiFishByIdRequest) returns (KoiFishResponse);
+  rpc GetKoiFishes (EmptyRequest) returns (stream KoiFishResponse);
+  rpc AddKoiFish (stream CreateKoiFishRequest) returns (KoiFishReply);
+  rpc UpdateKoiFish (UpdateKoiFishRequest) returns (KoiFishReply);
+  rpc DeleteKoiFish (UpdateKoiFishRequest) returns (KoiFishReply);
+}
+
+message GetKoiFishByIdRequest {
+  string koiId = 1;
+}
+
+message CreateKoiFishRequest {
+  string KoiName = 1;
+  string Origin = 2;
+  string Gender = 3;
+  int32 Age = 4;
+  double Size = 5;
+  string Breed = 6;
+  string Type = 7;
+  double Price = 8;
+  int32 Quantity = 9;
+  int32 OwnerType = 10;
+  string Description = 11;
+}
+
+message UpdateKoiFishRequest {
+  string koiId = 1;
+  string KoiName = 2;
+  string Origin = 3;
+  string Gender = 4;
+  int32 Age = 5;
+  double Size = 6;
+  string Breed = 7;
+  string Type = 8;
+  double Price = 9;
+  int32 Quantity = 10;
+  int32 OwnerType = 11;
+  string Description = 12;
+}
+
+message KoiFishResponse {
+  string koiId = 1;
+  string KoiName = 2;
+  string Origin = 3;
+  string Gender = 4;
+  int32 Age = 5;
+  double Size = 6;
+  string Breed = 7;
+  string Type = 8;
+  double Price = 9;
+  int32 Quantity = 10;
+  int32 OwnerType = 11;
+  string Description = 12;
+}
+
+message KoiFishReply {
+  string message = 1;
+}
+
+message EmptyRequest {}
