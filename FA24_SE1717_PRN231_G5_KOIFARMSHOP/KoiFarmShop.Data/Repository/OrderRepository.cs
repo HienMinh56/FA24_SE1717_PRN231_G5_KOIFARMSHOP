@@ -18,7 +18,7 @@ namespace KoiFarmShop.Data.Repository
 
         public OrderRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
 
-        public async Task<Order> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode, DateTime createTime, string createBy)
+        public async Task<Order> CreateOrderAsync(OrderCreateRequest orderCreateRequest)
         {
             try
             {
@@ -30,16 +30,16 @@ namespace KoiFarmShop.Data.Repository
                 var order = new Order
                 {
                     OrderId = orderId,
-                    UserId = userId,
+                    UserId = orderCreateRequest.UserId,
                     Status = 1, 
-                    CreatedDate = createTime,
-                    CreatedBy = createBy,
+                    CreatedDate = orderCreateRequest.CreateTime,
+                    CreatedBy = orderCreateRequest.CreateBy,
                 };
 
                 double totalAmount = 0;
                 int totalQuantity = 0;
 
-                foreach (var item in orderDetails)
+                foreach (var item in orderCreateRequest.OrderItems)
                 {
                     var koi = await _context.KoiFishes
                         .Where(k => k.DeletedBy == null && k.KoiId == item.KoiId)
@@ -63,9 +63,9 @@ namespace KoiFarmShop.Data.Repository
                     totalQuantity += item.Quantity;
                     
                     order.OrderDetails.Add(orderDetail);
-                    if (!string.IsNullOrEmpty(voucherCode))
+                    if (!string.IsNullOrEmpty(orderCreateRequest.VoucherCode))
                     {
-                        var voucher = await _context.Vouchers.FirstOrDefaultAsync(v => v.VoucherCode == voucherCode && v.ValidityStartDate <= DateTime.Now && v.ValidityEndDate >= DateTime.Now);
+                        var voucher = await _context.Vouchers.FirstOrDefaultAsync(v => v.VoucherCode == orderCreateRequest.VoucherCode && v.ValidityStartDate <= DateTime.Now && v.ValidityEndDate >= DateTime.Now);
                         if (voucher == null)
                         {
                             throw new Exception("Invalid or expired voucher.");

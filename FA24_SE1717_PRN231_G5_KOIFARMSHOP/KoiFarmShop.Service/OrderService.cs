@@ -17,7 +17,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string orderId);
-        Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherId, DateTime createTime, string createBy);
+        Task<IBusinessResult> CreateOrderAsync(OrderCreateRequest orderCreateRequest);
         Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest);
         Task<IBusinessResult> DeleteOrderAsync(string orderId);
     }
@@ -59,11 +59,11 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode, DateTime createTime, string createBy)
+        public async Task<IBusinessResult> CreateOrderAsync(OrderCreateRequest orderCreateRequest)
         {
             try
             {
-                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode, createTime, createBy);
+                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(orderCreateRequest);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
             catch (Exception ex)
