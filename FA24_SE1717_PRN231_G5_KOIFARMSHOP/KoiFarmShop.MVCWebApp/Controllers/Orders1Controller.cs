@@ -177,7 +177,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             return View(new Order());
         }
 
-
+        [HttpGet("Orders/Create")]
         public async Task<IActionResult> Create()
         {
             var order = new Order();
@@ -205,9 +205,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("Orders/Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string userId, string koiId, int quantity, string voucherCode)
+        public async Task<IActionResult> Create(string userId, string koiId, int quantity, string voucherCode, string createBy, DateTime createTime)
         {
             var order = new OrderCreateRequest
             {
@@ -220,7 +220,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 Quantity = quantity
             }
         },
-                VoucherCode = voucherCode
+                VoucherCode = voucherCode,
+                CreateBy = createBy,
+                CreateTime = createTime
             };
 
             if (ModelState.IsValid)
@@ -244,18 +246,18 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     }
                     else
                     {
-                        // Thêm lỗi vào ModelState nếu phản hồi từ API không thành công
                         ModelState.AddModelError("", "An error occurred while communicating with the server.");
                     }
                 }
             }
 
-            // Nếu có lỗi hoặc ModelState không hợp lệ, trả lại view với Model và thông báo lỗi
             ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "FullName", userId);
             ViewData["VoucherId"] = new SelectList(await GetVouchers(), "VoucherId", "VoucherCode", voucherCode);
             ViewData["KoiId"] = new SelectList(await GetKoiFishes(), "KoiId", "KoiId", koiId);
             return View(order);
         }
+
+
 
 
 
@@ -296,6 +298,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, UpdateOrderRequest updateOrderRequest)
@@ -304,6 +307,10 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                // Gán giá trị cho ModifiedBy và ModifiedDate
+                updateOrderRequest.ModifiedBy = updateOrderRequest.ModifiedBy; // Hoặc một giá trị xác định người dùng
+                updateOrderRequest.ModifiedDate = updateOrderRequest.ModifiedDate;
+
                 using (var httpClient = new HttpClient())
                 {
                     // Send the updateOrderRequest model in the PUT request
@@ -324,12 +331,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                                 saveStatus = false;
                             }
                         }
-
-
                     }
                 }
             }
-
 
             // Reload dropdowns if there is an error
             ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "FullName");
@@ -337,6 +341,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
             return View(updateOrderRequest);
         }
+
 
 
 

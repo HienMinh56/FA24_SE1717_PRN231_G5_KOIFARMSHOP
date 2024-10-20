@@ -56,6 +56,20 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="createBy">Created By</label>
+                                <input type="text" class="form-control" id="createBy" name="createBy" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="createTime">Created Time</label>
+                                <input type="datetime-local" class="form-control" id="createTime" name="createTime" required />
+                            </div>
+                        </div>
+                    </div>
                     <div id="orderItemsSection">
                         <div class="row order-item">
                             <div class="col-md-4">
@@ -116,6 +130,15 @@
                     </select>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="modifiedBy">Modified By</label>
+                <input type="text" class="form-control" id="modifiedBy" name="modifiedBy" required />
+            </div>
+            <div class="form-group">
+                <label for="modifiedDate">Modified Date</label>
+                <input type="datetime-local" class="form-control" id="modifiedDate" name="modifiedDate" required />
+            </div>
+
             <div class="modal-footer">
                 <button id="btUpdate" type="button" class="btn btn-primary">Update</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -146,6 +169,8 @@
                     </tbody>
                 </table>
             </div>
+            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
@@ -173,7 +198,9 @@
                 var obj = {
                     userId: $('#userId').val(),
                     orderItems: orderItems,
-                    voucherCode: $('#voucherCode').val() || null // Thêm null cho voucher nếu không có
+                    voucherCode: $('#voucherCode').val() || null,
+                    createBy: $('#createBy').val(),
+                    createTime: $('#createTime').val()
                 };
 
                 $.ajax({
@@ -194,17 +221,20 @@
 
 
 
+
             // Save button click event for updating orders
             $('#btUpdate').click(function () {
                 var orderId = $('#updateOrderId').val();
                 var status = $('#updateStatus').val();
-                var voucherId = $('#voucherId').val() || null; // Thêm null cho voucher nếu không có
+                var voucherId = $('#voucherId').val() || null;
 
                 var updateObj = {
                     orderId: orderId,
-                    status: parseInt(status), // Chuyển đổi status thành số
+                    status: parseInt(status),
                     voucherId: voucherId,
-                    userId: $('#userId').val() // Lấy userId từ trường input
+                    userId: $('#userId').val(),
+                    modifiedBy: $('#modifiedBy').val(),
+                    modifiedDate: $('#modifiedDate').val()
                 };
 
                 $.ajax({
@@ -215,13 +245,14 @@
                     success: function (result) {
                         alert(result.message);
                         $('#updateOrderModal').modal('hide');
-                        loadData(); // Refresh the data after update
+                        loadData();
                     },
                     error: function (xhr, error) {
                         alert(xhr.statusText);
                     }
                 });
             });
+
 
         });
         function add() {

@@ -12,5 +12,7 @@ namespace KoiFarmShop.Data.Request
         public int Status { get; set; }
         public string? VoucherId { get; set; }
         public string UserId { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public string ModifiedBy { get; set; }
     }
 }

@@ -11,5 +11,7 @@ namespace KoiFarmShop.Data.Request
         public string UserId { get; set; }
         public List<OrderItem> OrderItems { get; set; }
         public string? VoucherCode { get; set; }
+        public DateTime CreateTime { get; set; }
+        public string CreateBy { get; set; }
     }
 }

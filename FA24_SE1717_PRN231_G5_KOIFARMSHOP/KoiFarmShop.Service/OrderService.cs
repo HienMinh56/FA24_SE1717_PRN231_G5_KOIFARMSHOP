@@ -17,7 +17,7 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string orderId);
-        Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherId);
+        Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherId, DateTime createTime, string createBy);
         Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest);
         Task<IBusinessResult> DeleteOrderAsync(string orderId);
     }
@@ -59,11 +59,11 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode)
+        public async Task<IBusinessResult> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode, DateTime createTime, string createBy)
         {
             try
             {
-                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode);
+                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(userId, orderDetails, voucherCode, createTime, createBy);
                 return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
             }
             catch (Exception ex)
@@ -84,8 +84,8 @@ namespace KoiFarmShop.Service
                 }
 
                 order.Status = orderRequest.Status;
-                order.ModifiedDate = DateTime.Now;
-                order.ModifiedBy = orderRequest.UserId;
+                order.ModifiedDate = orderRequest.ModifiedDate;
+                order.ModifiedBy = orderRequest.ModifiedBy;
 
                 if (!string.IsNullOrEmpty(orderRequest.VoucherId))
                 {

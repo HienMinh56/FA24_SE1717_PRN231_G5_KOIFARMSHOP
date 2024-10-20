@@ -18,7 +18,7 @@ namespace KoiFarmShop.Data.Repository
 
         public OrderRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
 
-        public async Task<Order> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode)
+        public async Task<Order> CreateOrderAsync(string userId, List<OrderItem> orderDetails, string? voucherCode, DateTime createTime, string createBy)
         {
             try
             {
@@ -32,8 +32,8 @@ namespace KoiFarmShop.Data.Repository
                     OrderId = orderId,
                     UserId = userId,
                     Status = 1, 
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = userId,
+                    CreatedDate = createTime,
+                    CreatedBy = createBy,
                 };
 
                 double totalAmount = 0;
