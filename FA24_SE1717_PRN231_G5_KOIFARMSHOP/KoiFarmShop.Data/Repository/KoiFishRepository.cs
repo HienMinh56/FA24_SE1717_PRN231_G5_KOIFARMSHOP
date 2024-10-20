@@ -1,5 +1,6 @@
 ﻿using KoiFarmShop.Data.Base;
 using KoiFarmShop.Data.Models;
+using KoiFarmShop.Data.Request;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,25 @@ namespace KoiFarmShop.Data.Repository
                 .OrderBy(k => k.KoiId)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<List<KoiFish>> SearchKoiFish(QueryKoiFishRequest request)
+        {
+            var query = _context.KoiFishes
+                .AsNoTracking();
+
+            query = request.KoiName is null ? query : query.Where(q => q.KoiName.Contains(request.KoiName));
+            query = request.Origin is null ? query : query.Where(q => q.Origin.Contains(request.Origin));
+            query = request.Gender is null ? query : query.Where(q => q.Gender.Equals(request.Gender));
+            query = request.Age == 0 ? query : query.Where(q => q.Age == request.Age);
+            query = request.Size == 0 ? query : query.Where(q => q.Size == request.Size);
+            query = request.Breed is null ? query : query.Where(q => q.Breed.Contains(request.Breed));
+            query = request.Type is null ? query : query.Where(q => q.Type.Equals(request.Type));
+            query = request.Price == 0 ? query : query.Where(q => q.Price == request.Price);
+            query = request.Quantity == 0 ? query : query.Where(q => q.Quantity == request.Quantity);
+
+            var result = await query.ToListAsync();
+            return result;
         }
     }
 }

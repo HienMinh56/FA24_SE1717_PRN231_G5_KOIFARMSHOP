@@ -70,5 +70,11 @@ namespace KoiFarmShop.APIService.Controllers
             }
             return koiFishes;
         }
+
+        [HttpGet("serach")]
+        public async Task<IBusinessResult> SearchKoiFish([FromQuery] QueryKoiFishRequest request)
+        {
+            return await _koiFishService.Search(request);
+        }
     }
 }

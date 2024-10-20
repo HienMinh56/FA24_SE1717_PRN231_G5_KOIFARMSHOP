@@ -6,6 +6,7 @@ using KoiFarmShop.Service.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -86,6 +87,8 @@ namespace KoiFarmShop.Service
 
             #endregion
 
+            //var accountId = claims.FindFirst("aid")?.Value;
+            //var account = _unitOfWork.UserRepository.Get(u => u.Id == int.Parse(accountId));
             try
             {
                 int result = -1;
@@ -104,15 +107,7 @@ namespace KoiFarmShop.Service
                         voucherTmp.VoucherCode = voucher.VoucherCode;
                     }
 
-                    // Update all other properties only if they are not null
-                    if (voucher.CreatedDate is not null)
-                    {
-                        voucherTmp.CreatedDate = voucher.CreatedDate;
-                    }
-                    if (voucher.CreatedBy != null)
-                    {
-                        voucherTmp.CreatedBy = voucher.CreatedBy;
-                    }
+
                     if (voucher.DiscountAmount != null && voucher.DiscountAmount != 0)
                     {
                         voucherTmp.DiscountAmount = voucher.DiscountAmount;
@@ -121,19 +116,14 @@ namespace KoiFarmShop.Service
                     {
                         voucherTmp.MinOrderAmount = voucher.MinOrderAmount;
                     }
-                    if (voucher.ModifiedBy != null)
-                    {
-                        voucherTmp.ModifiedBy = voucher.ModifiedBy;
-                    }
-                    if (voucher.ModifiedDate != null)
-                    {
-                        voucherTmp.ModifiedDate = voucher.ModifiedDate;
-                    }
+
+                    voucherTmp.ModifiedDate = DateTime.Now;
+
+                    
+
                     if (voucher.Status != null)
                     {
-
                         voucherTmp.Status = voucher.Status;
-
                     }
                     if (voucher.ValidityEndDate != null)
                     {
@@ -166,10 +156,10 @@ namespace KoiFarmShop.Service
                         Status = voucher.Status,
                         ValidityStartDate = voucher.ValidityStartDate,
                         ValidityEndDate = voucher.ValidityEndDate,
-                        CreatedDate = voucher.CreatedDate,
-                        CreatedBy = voucher.CreatedBy,
-                        ModifiedDate = voucher.ModifiedDate,
-                        ModifiedBy = voucher.ModifiedBy
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "User",
+                        ModifiedDate = DateTime.Now,
+                        ModifiedBy = "User"
 
 
                     });
