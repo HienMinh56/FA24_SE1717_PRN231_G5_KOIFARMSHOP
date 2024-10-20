@@ -184,7 +184,6 @@
         $(document).ready(function () {
             loadData();
 
-            // Save button click event for adding orders
             $('#btSave').click(function () {
                 var orderItems = [];
                 $('.order-item').each(function () {
@@ -222,7 +221,6 @@
 
 
 
-            // Save button click event for updating orders
             $('#btUpdate').click(function () {
                 var orderId = $('#updateOrderId').val();
                 var status = $('#updateStatus').val();
@@ -256,10 +254,9 @@
 
         });
         function add() {
-            $('#orderModal').modal('show'); // Hiển thị modal
+            $('#orderModal').modal('show'); 
         }
 
-        // Function to load data
         function loadData() {
             $.ajax({
                 url: 'https://localhost:7149/api/Orders',
@@ -294,7 +291,6 @@
             });
         }
 
-        // Function to bind actions for Update and Details buttons
         function bindActionButtons() {
             $('.btn-update').click(function () {
                 var orderId = $(this).data('id');
@@ -305,9 +301,9 @@
                     dataType: "json",
                     success: function (result) {
                         $('#updateOrderId').val(result.data.orderId);
-                        $('#updateStatus').val(result.data.status); // Cập nhật status
-                        $('#voucherId').val(result.data.voucherId || ''); // Cập nhật voucherId nếu có
-                        $('#updateOrderModal').modal('show'); // Hiển thị modal
+                        $('#updateStatus').val(result.data.status); x
+                        $('#voucherId').val(result.data.voucherId || ''); 
+                        $('#updateOrderModal').modal('show'); 
                     },
                     error: function (xhr, error) {
                         alert(xhr.statusText);
@@ -322,7 +318,7 @@
             });
             $('.btn-delete').click(function () {
                 var orderId = $(this).data('id');
-                deleteOrder(orderId); // Gọi hàm deleteOrder
+                deleteOrder(orderId); 
             });
         }
         function deleteOrder(orderId) {
@@ -332,7 +328,7 @@
                     type: "DELETE",
                     success: function (result) {
                         alert(result.message);
-                        loadData(); // Refresh the data after deletion
+                        loadData(); 
                     },
                     error: function (xhr, error) {
                         alert(xhr.statusText);
@@ -342,10 +338,9 @@
         }
 
         function addOrderItem() {
-            var itemCount = $('.order-item').length; // Đếm số lượng mục hiện tại
-            var newItemId = itemCount + 1; // Tạo ID mới cho mục
+            var itemCount = $('.order-item').length; 
+            var newItemId = itemCount + 1; 
 
-            // Tạo một dòng mới cho mục đơn hàng
             var newItemHtml = `
                 <div class="row order-item">
                     <div class="col-md-4">
@@ -365,16 +360,13 @@
                     </div>
                 </div>`;
 
-            // Thêm dòng mới vào phần danh sách mục đơn hàng
             $('#orderItemsSection').append(newItemHtml);
         }
 
-        // Hàm để xóa mục đơn hàng
         function removeOrderItem(button) {
-            $(button).closest('.order-item').remove(); // Xóa dòng mục đơn hàng
+            $(button).closest('.order-item').remove(); 
         }
 
-        // Function to get order details
         function getOrderDetail(orderId) {
             $.ajax({
                 url: 'https://localhost:7149/api/OrderDetails/' + orderId,
@@ -382,16 +374,15 @@
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
-                    $('#orderDetailBody').empty(); // Clear previous data
+                    $('#orderDetailBody').empty(); 
                     if (result.data && result.data.length > 0) {
-                        // Loop through each item in the data array
                         result.data.forEach(function (item) {
                             $('#orderDetailBody').append('<tr><td>' + item.koiId + '</td><td>' + item.price + '</td><td>' + item.quantity + '</td></tr>');
                         });
                     } else {
                         $('#orderDetailBody').append('<tr><td colspan="3">No items found</td></tr>');
                     }
-                    $('#orderDetailModal').modal('show'); // Show the modal
+                    $('#orderDetailModal').modal('show'); 
                 },
                 error: function (xhr, error) {
                     alert(xhr.statusText);

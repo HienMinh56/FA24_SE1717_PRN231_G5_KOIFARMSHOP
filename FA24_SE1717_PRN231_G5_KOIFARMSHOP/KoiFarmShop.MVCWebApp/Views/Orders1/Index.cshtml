@@ -9,6 +9,18 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form method="get" asp-action="Index" class="d-flex mb-4 align-items-end" style="gap: 10px;">
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="OrderId" name="OrderId" placeholder="Enter OrderId" value="@ViewBag.OrderId" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="UserId" name="UserId" placeholder="Enter User Id" value="@ViewBag.UserId" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter Status" value="@ViewBag.Status" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -93,3 +105,34 @@
 }
     </tbody>
 </table>
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)"
+                   asp-route-OrderId="@ViewBag.OrderId"
+                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-Status="@ViewBag.Status">Previous</a>
+            </li>
+        }
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i"
+                   asp-route-OrderId="@ViewBag.OrderId"
+                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-Status="@ViewBag.Status">@i</a>
+            </li>
+        }
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)"
+                   asp-route-OrderId="@ViewBag.OrderId"
+                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-Status="@ViewBag.Status">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
