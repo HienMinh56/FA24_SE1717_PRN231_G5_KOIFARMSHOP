@@ -12,9 +12,9 @@ namespace KoiFarmShop.Data.Request
         public string VoucherId { get; set; }
 
         public string VoucherCode { get; set; }
-        [Range(0.1, 1)]
-        public double DiscountAmount { get; set; }
         [Range(0, 100)]
+        public double DiscountAmount { get; set; }
+        [Range(0, double.MaxValue)]
         public double MinOrderAmount { get; set; }
 
         public int Status { get; set; }

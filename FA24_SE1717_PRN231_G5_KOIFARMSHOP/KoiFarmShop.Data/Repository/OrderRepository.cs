@@ -72,7 +72,7 @@ namespace KoiFarmShop.Data.Repository
                         }
 
                         if (voucher.MinOrderAmount <= totalAmount)
-                            totalAmount = totalAmount - (int)voucher.DiscountAmount*totalAmount;
+                            totalAmount = totalAmount - (int)voucher.DiscountAmount*totalAmount/100;
                         else
                         {
                             throw new Exception("Min amount is not invalid");
