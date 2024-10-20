@@ -114,27 +114,56 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         }
 
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string OrderId = null, string UserId = null, int? Status = null)
         {
-            using (var httpClient = new HttpClient())
+            List<Order> data = new List<Order>();
+            try
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders"))
+                using (var httpClient = new HttpClient())
                 {
-                    if (response.IsSuccessStatusCode)
+                    using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders"))
                     {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
-
-                        if (result != null && result.Data != null)
+                        if (response.IsSuccessStatusCode)
                         {
-                            var data = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
-                            return View(data);
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                            if (result != null && result.Data != null)
+                            {
+                                data = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
+                            }
                         }
                     }
                 }
             }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error fetching data: {ex.Message}");
+                return View(new List<Order>());
+            }
 
-            return View(new List<Order>());
+            // Filter the data
+            if (!string.IsNullOrEmpty(OrderId))
+                data = data.Where(x => x.OrderId.Contains(OrderId)).ToList();
+            if (!string.IsNullOrEmpty(UserId))
+                data = data.Where(x => x.UserId.Contains(UserId)).ToList();
+            if (Status.HasValue)
+                data = data.Where(x => x.Status == Status).ToList();
+
+            // Calculate pagination
+            int totalItems = data.Count;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var paginatedData = data.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Pass pagination and filter data to the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.OrderId = OrderId;
+            ViewBag.UserId = UserId;
+            ViewBag.Status = Status;
+
+            return View(paginatedData);
         }
 
         public async Task<IActionResult> Details(string id)
