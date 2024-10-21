@@ -104,8 +104,8 @@ namespace KoiFarmShop.Service
                 consignmentTmp.DealPrice = consignment.DealPrice;
                 consignmentTmp.Method = consignment.Method;
                 consignmentTmp.Status = consignment.Status;
-                consignmentTmp.ModifiedDate = DateTime.Now;
-                consignmentTmp.ModifiedBy = consignment.UserId;
+                consignmentTmp.ModifiedDate = consignment.ModifiedDate;
+                consignmentTmp.ModifiedBy = consignment.ModifiedBy;
 
                 var result = await _unitOfWork.ConsignmentRepository.UpdateAsync(consignmentTmp);
 

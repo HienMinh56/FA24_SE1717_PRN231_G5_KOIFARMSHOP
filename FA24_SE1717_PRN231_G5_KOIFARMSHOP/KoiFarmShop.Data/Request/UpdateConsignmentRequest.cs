@@ -21,5 +21,9 @@ namespace KoiFarmShop.Data.Request
         public string Method { get; set; }
 
         public int Status { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+
+        public string ModifiedBy { get; set; }
     }
 }

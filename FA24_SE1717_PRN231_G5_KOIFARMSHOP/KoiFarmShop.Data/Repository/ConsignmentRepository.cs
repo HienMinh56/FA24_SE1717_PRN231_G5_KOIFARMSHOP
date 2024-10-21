@@ -61,9 +61,9 @@ namespace KoiFarmShop.Data.Repository
                     Method = createConsignmentRequest.Method,
                     DealPrice = createConsignmentRequest.DealPrice,
                     Status = 1, // 1:Pending, 2:Agreed, 3: In store, 4:Sold, 5:Return, 6:Cancel
-                    ConsignmentDate = DateOnly.FromDateTime(DateTime.Now),
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = createConsignmentRequest.UserId
+                    ConsignmentDate = createConsignmentRequest.ConsignmentDate,
+                    CreatedDate = createConsignmentRequest.CreatedDate,
+                    CreatedBy = createConsignmentRequest.CreatedBy
                 };
 
                 // Thêm Consignment vào context

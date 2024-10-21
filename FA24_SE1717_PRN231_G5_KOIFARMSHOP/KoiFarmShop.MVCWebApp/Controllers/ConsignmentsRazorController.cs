@@ -94,27 +94,56 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         }
 
         // GET: Consignments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string ConsignmentId = null, string Method = null, int? Status = null)
         {
-            using (var httpClient = new HttpClient())
+            List<Consignment> data = new List<Consignment>();
+            try
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments"))
+                using (var httpClient = new HttpClient())
                 {
-                    if (response.IsSuccessStatusCode)
+                    using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments"))
                     {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
-
-                        if (result != null && result.Data != null)
+                        if (response.IsSuccessStatusCode)
                         {
-                            var data = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
-                            return View(data);
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                            if (result != null && result.Data != null)
+                            {
+                                data = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
+                            }
                         }
                     }
                 }
             }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error fetching data: {ex.Message}");
+                return View(new List<Consignment>());
+            }
 
-            return View(new List<Consignment>());
+            // Filter the data
+            if (!string.IsNullOrEmpty(ConsignmentId))
+                data = data.Where(x => x.ConsignmentId.Contains(ConsignmentId)).ToList();
+            if (!string.IsNullOrEmpty(Method))
+                data = data.Where(x => x.Method.Contains(Method)).ToList();
+            if (Status.HasValue)
+                data = data.Where(x => x.Status == Status).ToList();
+
+            // Calculate pagination
+            int totalItems = data.Count;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var paginatedData = data.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Pass pagination and filter data to the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.OrderId = ConsignmentId;
+            ViewBag.UserId = Method;
+            ViewBag.Status = Status;
+
+            return View(paginatedData);
         }
 
         // GET: Consignments/Details/5

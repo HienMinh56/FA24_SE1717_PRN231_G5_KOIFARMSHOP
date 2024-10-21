@@ -9,6 +9,18 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form method="get" asp-action="Index" class="d-flex mb-4 align-items-end" style="gap: 10px;">
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="ConsignmentId" name="ConsignmentId" placeholder="Enter ConsignmentId" value="@ViewBag.ConsignmentId" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Method" name="Method" placeholder="Enter Method" value="@ViewBag.Method" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter Status" value="@ViewBag.Status" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -55,53 +67,132 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ConsignmentId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DealPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Method)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ConsignmentDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ModifiedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ModifiedBy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.KoiId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PaymentId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConsignmentId)
+                </td>
+                <td>
+                    @{
+                        if (item.Type == 1)
+                        {
+                            <span>Care</span>
+                        }
+                        else
+                        {
+                            <span>Sale</span>
+                        }
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DealPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Method)
+                </td>
+                <td>
+                    @{
+                        if (item.Status == 1)
+                        {
+                            <span>Pending</span>
+                        }
+                        else if (item.Status == 2)
+                        {
+                            <span>Agreed</span>
+                        }
+                        else if (item.Status == 3)
+                        {
+                            <span>In Store</span>
+                        }
+                        else if (item.Status == 4)
+                        {
+                            <span>Sold</span>
+                        }
+                        else if (item.Status == 5)
+                        {
+                            <span>Returned</span>
+                        }
+                        else if (item.Status == 6)
+                        {
+                            <span>Canceled</span>
+                        }
+                        else
+                        {
+                            <span>Unknown</span>
+                        }
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConsignmentDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ModifiedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ModifiedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.KoiId)
+                </td>
+                <td>
+                    @{
+                        if (item.PaymentId == null)
+                        {
+                            <span>N/A</span>
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.PaymentId)
+                        }
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserId)
+                </td>
+                <td>
                     <a asp-action="Edit" asp-route-id="@item.ConsignmentId">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.ConsignmentId">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.ConsignmentId">Delete</a>
-            </td>
-        </tr>
-}
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)"
+                   asp-route-OrderId="@ViewBag.ConsignmentId"
+                   asp-route-UserId="@ViewBag.Method"
+                   asp-route-Status="@ViewBag.Status">Previous</a>
+            </li>
+        }
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i"
+                   asp-route-OrderId="@ViewBag.ConsignmentId"
+                   asp-route-UserId="@ViewBag.Method"
+                   asp-route-Status="@ViewBag.Status">@i</a>
+            </li>
+        }
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)"
+                   asp-route-OrderId="@ViewBag.ConsignmentId"
+                   asp-route-UserId="@ViewBag.Method"
+                   asp-route-Status="@ViewBag.Status">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
