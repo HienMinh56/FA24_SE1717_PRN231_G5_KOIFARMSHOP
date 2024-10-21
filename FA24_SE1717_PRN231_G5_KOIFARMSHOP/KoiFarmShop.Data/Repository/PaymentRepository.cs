@@ -38,8 +38,8 @@ namespace KoiFarmShop.Data.Repository
                     paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                     order.PaymentId = paymentId;
 
-                    // Cập nhật order
-                    _context.Orders.Update(order); // Thêm dòng này để cập nhật Order
+
+                    _context.Orders.Update(order); 
                 }
                 else if (createPaymentRequest.Type == 2) // Type 2: Consignment
                 {
@@ -63,7 +63,6 @@ namespace KoiFarmShop.Data.Repository
                     paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                     consignment.PaymentId = paymentId;
 
-                    // Cập nhật consignment
                     _context.Consignments.Update(consignment);
                 }
                 else
@@ -77,8 +76,8 @@ namespace KoiFarmShop.Data.Repository
                     UserId = userId,
                     Amount = amount,
                     Type = createPaymentRequest.Type,
-                    Status = 2, // Pending
-                    CreatedDate = DateTime.Now
+                    Status = createPaymentRequest.Status,
+                    CreatedDate = createPaymentRequest.CreatedDate
                 };
 
                 await _context.Payments.AddAsync(payment);
@@ -96,13 +95,13 @@ namespace KoiFarmShop.Data.Repository
         {
             var payment = await _context.Payments
                                         .AsNoTracking()
-                                        .Include(p => p.User)  
-                                        .Include(p => p.Orders)  
-                                        .Include(p => p.Consignments)  
+                                        .Include(p => p.User)
+                                        .Include(p => p.Orders)
+                                        .Include(p => p.Consignments)
                                         .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
 
             return payment;
         }
-     
+
     }
 }

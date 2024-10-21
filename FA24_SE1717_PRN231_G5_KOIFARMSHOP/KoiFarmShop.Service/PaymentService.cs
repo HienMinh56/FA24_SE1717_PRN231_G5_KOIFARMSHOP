@@ -84,9 +84,9 @@ namespace KoiFarmShop.Service
                     return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, null);
                 }
 
-                paymentEntity.UserId = payment.UserId;
                 paymentEntity.Status = payment.Status;
                 paymentEntity.Amount = payment.Amount;
+                paymentEntity.CreatedDate = payment.CreatedDate;
 
                 var result = await _unitOfWork.PaymentRepository.UpdateAsync(paymentEntity);
 

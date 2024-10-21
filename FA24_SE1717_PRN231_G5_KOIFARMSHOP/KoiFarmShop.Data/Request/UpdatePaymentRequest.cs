@@ -13,5 +13,6 @@ namespace KoiFarmShop.Data.Request
         public int Status { get; set; }
         public double Amount { get; set; }
         public string UserId { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

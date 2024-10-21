@@ -70,6 +70,53 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             return users;
         }
 
+        public async Task<List<Order>> GetOrders()
+        {
+            var orders = new List<Order>();
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Data != null)
+                        {
+                            orders = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
+                        }
+                    }
+                }
+            }
+
+            return orders;
+        }
+
+        public async Task<List<Consignment>> GetConsignments()
+        {
+            var consignments = new List<Consignment>();
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Consignments"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Data != null)
+                        {
+                            consignments = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
+                        }
+                    }
+                }
+            }
+
+            return consignments;
+        }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string PaymentId = null, string UserId = null, string? Type = null)
         {
@@ -136,8 +183,30 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var order = new Order();
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Payments"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                        if (result is not null)
+                        {
+                            var data = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
+
+                            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
+                            ViewData["OrderId"] = new SelectList(await GetOrders(), "OrderId", "OrderId");
+                            ViewData["ConsignmentId"] = new SelectList(await GetConsignments(), "ConsignmentId", "ConsignmentId");
+                            return View();
+                        }
+                    }
+                }
+            }
+
             return View();
         }
 
@@ -156,6 +225,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     var orderResponse = await httpClient.GetAsync($"{Const.APIEndpoint}Orders/{paymentRequest.OrderId}");
                     if (orderResponse.IsSuccessStatusCode)
                     {
+                        var content = await orderResponse.Content.ReadAsStringAsync();
+                        var order = JsonConvert.DeserializeObject<Order>(content);
                         isValid = true; 
                     }
                 }
@@ -167,6 +238,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     var consignmentResponse = await httpClient.GetAsync($"{Const.APIEndpoint}Consignments/{paymentRequest.ConsignmentId}");
                     if (consignmentResponse.IsSuccessStatusCode)
                     {
+                        var content = await consignmentResponse.Content.ReadAsStringAsync();
+                        var consignment = JsonConvert.DeserializeObject<Consignment>(content);
                         isValid = true;
                     }
                 }
@@ -184,7 +257,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 {
                     Type = paymentRequest.Type,
                     OrderId = paymentRequest.Type == 1 ? paymentRequest.OrderId : null, // type 1
-                    ConsignmentId = paymentRequest.Type == 2 ? paymentRequest.ConsignmentId : null // type = 2
+                    ConsignmentId = paymentRequest.Type == 2 ? paymentRequest.ConsignmentId : null, // type = 2
+                    CreatedDate = paymentRequest.CreatedDate,
+                    Status = paymentRequest.Status,
                 };
 
                 var jsonContent = JsonConvert.SerializeObject(paymentToCreate);
@@ -208,6 +283,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     }
                 }
             }
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
+            ViewData["OrderId"] = new SelectList(await GetOrders(), "OrderId", "OrderId");
+            ViewData["ConsignmentId"] = new SelectList(await GetConsignments(), "ConsignmentId", "ConsignmentId");
             return View(paymentRequest);
         }
 
@@ -230,8 +308,10 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             var payment = JsonConvert.DeserializeObject<Payment>(result.Data.ToString());
 
                             updatePayment.PaymentId = payment.PaymentId;
+                            updatePayment.UserId = payment.UserId;
                             updatePayment.Amount = payment.Amount;
                             updatePayment.Status = payment.Type;
+                            updatePayment.CreatedDate = (DateTime)payment.CreatedDate;
                         }
                     }
                     else
@@ -313,7 +393,6 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                // Retrieve payment information
                 var response = await httpClient.GetAsync(Const.APIEndpoint + "Payments/" + id);
                 if (response.IsSuccessStatusCode)
                 {
@@ -339,7 +418,6 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                // Gửi yêu cầu xóa đến API
                 var response = await httpClient.DeleteAsync(Const.APIEndpoint + "Payments/" + id);
                 if (response.IsSuccessStatusCode)
                 {
@@ -353,7 +431,6 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
         }
-
 
     }
 }

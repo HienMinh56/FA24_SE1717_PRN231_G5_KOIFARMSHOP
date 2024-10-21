@@ -14,5 +14,9 @@ namespace KoiFarmShop.Data.Request
 
          public string? ConsignmentId { get; set; }
 
+         public int Status { get; set; }
+
+         public DateTime CreatedDate { get; set; }
+
     }
 }
