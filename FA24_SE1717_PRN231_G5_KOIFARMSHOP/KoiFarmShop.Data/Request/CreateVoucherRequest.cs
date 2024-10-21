@@ -18,11 +18,12 @@ namespace KoiFarmShop.Data.Request
         public double MinOrderAmount { get; set; }
 
         public int Status { get; set; }
-
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         [DataType(DataType.Date)]
         public DateTime? ValidityStartDate { get; set; }
 
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         [EndDateGreaterThanStartDate("ValidityStartDate", ErrorMessage = "Validity end date must be greater than start date.")]
         public DateTime? ValidityEndDate { get; set; }
     }

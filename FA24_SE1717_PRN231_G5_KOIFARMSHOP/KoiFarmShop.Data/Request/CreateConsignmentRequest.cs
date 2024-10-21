@@ -18,5 +18,11 @@ namespace KoiFarmShop.Data.Request
         public double? DealPrice { get; set; }
 
         public string Method { get; set; }
+
+        public DateOnly? ConsignmentDate { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+
+        public string CreatedBy { get; set; }
     }
 }

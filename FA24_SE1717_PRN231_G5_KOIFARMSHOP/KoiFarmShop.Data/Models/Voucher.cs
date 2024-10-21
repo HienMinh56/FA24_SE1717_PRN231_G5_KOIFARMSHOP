@@ -20,15 +20,15 @@ public partial class Voucher
     public double MinOrderAmount { get; set; }
 
     public int Status { get; set; }
-
+    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime? ValidityStartDate { get; set; }
-
+    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime? ValidityEndDate { get; set; }
-
+    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime? CreatedDate { get; set; }
 
     public string CreatedBy { get; set; }
-
+    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime? ModifiedDate { get; set; }
 
     public string ModifiedBy { get; set; }
