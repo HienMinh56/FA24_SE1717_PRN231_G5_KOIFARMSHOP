@@ -1,4 +1,18 @@
-﻿﻿<div class="row">
+﻿﻿@{
+    ViewData["Title"] = "Index";
+}
+
+@* <form method="get" class="d-flex gap-5">
+    <input type="text" name="searchConsignmentId" placeholder="Search ConsignmentId" class="form-control" />
+
+    <input type="text" name="searchMethod" placeholder="Search method" class="form-control" />
+
+    <input type="text" name="searchStatus" placeholder="Search Status" class="form-control" />
+
+    <input type="submit" value="Search" class="btn btn-primary" />
+</form> *@
+
+﻿<div class="row">
     <div class="col-md-10">
         <h3 class="display-8">Consignments List</h3>
     </div>
@@ -22,6 +36,10 @@
                     <th class="card-title text-center">Payment Id</th>
                     <th class="card-title text-center">Status</th>
                     <th class="card-title text-center">Consignment Date</th>
+                    <th class="card-title text-center">Created Date</th>
+                    <th class="card-title text-center">Created By</th>
+                    <th class="card-title text-center">Modified Date</th>
+                    <th class="card-title text-center">Modified Date</th>
                     <th class="card-title text-center">Function</th>
                 </tr>
             </thead>
@@ -84,15 +102,20 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="status1">Status</label>
-                                    <select class="form-control" id="status1" name="status" required>
-                                        <option value="1">Pending</option>
-                                        <option value="2">Agreed</option>
-                                        <option value="3">In store</option>
-                                        <option value="4">Sold</option>
-                                        <option value="5">Return</option>
-                                        <option value="6">Cancel</option>
-                                    </select>
+                                    <label for="consignmentDate1">Consignment Date</label>
+                                    <input type="date" class="form-control" id="consignmentDate1" name="consignmentDate" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="createdDate1">Created Date</label>
+                                    <input type="datetime-local" class="form-control" id="createdDate1" name="createdDate" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="createdBy1">Created By</label>
+                                    <input type="text" class="form-control" id="createdBy1" name="createdBy" required />
                                 </div>
                             </div>
                         </div>
@@ -142,6 +165,18 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="modifiedDateUpdate">Modified Date</label>
+                                    <input type="datetime-local" class="form-control" id="modifiedDateUpdate" name="modifiedDate" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="modifiedByUpdate">Modified By</label>
+                                    <input type="text" class="form-control" id="modifiedByUpdate" name="modifiedBy" required />
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="statusUpdate">Status</label>
@@ -150,8 +185,8 @@
                                         <option value="2">Agreed</option>
                                         <option value="3">In store</option>
                                         <option value="4">Sold</option>
-                                        <option value="5">Return</option>
-                                        <option value="6">Cancel</option>
+                                        <option value="5">Returned</option>
+                                        <option value="6">Canceled</option>
                                     </select>
                                 </div>
                             </div>
@@ -168,17 +203,35 @@
     </div>
 </div>
 
+@* <div class="Pagination">
+</div> *@
+
 @section scripts {
     <script type="text/javascript">
         $(document).ready(function () {
             loadData();
+
+            $('form').on('submit', function (e) {
+                e.preventDefault();
+                loadData(1); // Gọi hàm với số trang 1 khi tìm kiếm
+            });
+
         });
 
-        // Load Data Function
-        function loadData() {
+        function loadData(page) {
+            var searchConsginmentId = $('input[name="searchConsignmentId"]').val();
+            var searchMethod = $('input[name="searchMethod"]').val();
+            var searchStatus = $('input[name="searchStatus"]').val();
+
             $.ajax({
-                url: "https://localhost:7149/api/Consignments",
+                url: `https://localhost:7149/api/Consignments`,
                 type: "GET",
+                data: {
+                    pageNumber: page,
+                    searchConsginmentId: searchConsginmentId,
+                    searchMethod: searchMethod,
+                    searchStatus: searchStatus,
+                },
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
@@ -188,57 +241,45 @@
                         html += '<td>' + item.consignmentId + '</td>';
                         html += '<td>' + item.koiId + '</td>';
                         html += '<td>' + item.userId + '</td>';
-                        var typeText = "";
-                        switch (item.type) {
-                            case 1:
-                                typeText = "Care";
-                                break;
-                            case 2:
-                                typeText = "Sale";
-                                break;
-                        }
+                        var typeText = item.type === 1 ? "Care" : "Sale";
                         html += '<td>' + typeText + '</td>';
                         html += '<td>' + item.dealPrice + '</td>';
                         html += '<td>' + item.method + '</td>';
                         html += '<td>' + (item.paymentId || 'N/A') + '</td>';
-                        var statusText = "";
-                        switch (item.status) {
-                            case 1:
-                                statusText = "Pending";
-                                break;
-                            case 2:
-                                statusText = "Agreed";
-                                break;
-                            case 3:
-                                statusText = "In store";
-                                break;
-                            case 4:
-                                statusText = "Sold";
-                                break;
-                            case 5:
-                                statusText = "Return";
-                                break;
-                            case 6:
-                                statusText = "Cancel";
-                                break;
-                        }
+                        var statusText = ["Pending", "Agreed", "In store", "Sold", "Returned", "Canceled"][item.status - 1];
                         html += '<td>' + statusText + '</td>';
                         html += '<td>' + item.consignmentDate + '</td>';
-                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\'' 
-                                                                                                  + item.koiId + '\', \''
-                                                                                                  + item.userId + '\', \''
-                                                                                                  + item.type + '\', \''
-                                                                                                  + item.dealPrice + '\', \''
-                                                                                                  + item.method + '\', \''
-                                                                                                  + item.status + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
+                        html += '<td>' + item.createdDate + '</td>';
+                        html += '<td>' + item.createdBy + '</td>';
+                        html += '<td>' + item.modifiedDate + '</td>';
+                        html += '<td>' + item.modifiedBy + '</td>';
+                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\'' + item.koiId + '\', \'' + item.userId + '\', \'' + item.type + '\', \'' + item.dealPrice + '\', \'' + item.method + '\', \'' + item.status + '\', \'' + item.consignmentDate + '\', \'' + item.createdDate + '\', \'' + item.createdBy + '\', \'' + item.modifiedDate + '\', \'' + item.modifiedBy + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
                         html += '</tr>';
                     });
                     $('.tblConsignments').html(html);
+
+                    console.log(result);
+
+                    updatePagination(result.totalCount, page);
                 },
                 error: function (xhr) {
                     alert(xhr.statusText);
                 }
             });
+        }
+
+        function updatePagination(totalCount, currentPage) {
+            var totalPages = Math.ceil(totalCount / 5); // Bạn có chắc chắn là bạn có 5 mục trên mỗi trang không?
+            var paginationHtml = '';
+
+            for (var i = 1; i <= totalPages; i++) {
+                paginationHtml += `<a href="#" onclick="loadData(${i})">${i}</a>`;
+                if (i < totalPages) {
+                    paginationHtml += ' | ';
+                }
+            }
+
+            $('.Pagination').html(paginationHtml);
         }
 
         // Open Add Modal
@@ -257,7 +298,9 @@
                 Type: $("#type1").val(),
                 DealPrice: $("#dealPrice1").val(),
                 Method: $("#method1").val(),
-                Status: $("#status1").val()
+                ConsignmentDate: $("#consignmentDate1").val(),
+                CreatedDate: $("#createdDate1").val(),
+                CreatedBy: $("#createdBy1").val(),
             };
 
             $.ajax({
@@ -268,7 +311,7 @@
                 success: function (result) {
                     if (result.status >= 1) {
                         $('#consignmentModal').modal('hide');
-                        loadData(); // Reload Data
+                        loadData();
                     }
                     alert(result.message);
                 },
@@ -302,7 +345,9 @@
                 type: $("#typeUpdate").val(),
                 dealPrice: $("#dealPriceUpdate").val(),
                 method: $("#methodUpdate").val(),
-                status: $("#statusUpdate").val()
+                status: $("#statusUpdate").val(),
+                modifiedDate: $("#modifiedDateUpdate").val(),
+                modifiedBy: $("#modifiedByUpdate").val(),
             }
 
             $.ajax({
