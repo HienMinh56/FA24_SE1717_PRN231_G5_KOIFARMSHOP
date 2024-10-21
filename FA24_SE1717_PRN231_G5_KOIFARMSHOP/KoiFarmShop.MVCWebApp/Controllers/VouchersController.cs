@@ -22,33 +22,96 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         {
 
         }
-        //public VouchersController(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context)
-        //{
-        //    _context = context;
-        //}
-
         // GET: Vouchers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, double? DiscountAmount = null, string voucherId = null, int? Status = null)
         {
-            //return View(await _context.KoiFishes.ToListAsync());
+            List<Voucher> data = new List<Voucher>();
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Vouchers"))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                            if (result is not null)
+                            {
+                                data = JsonConvert.DeserializeObject<List<Voucher>>(result.Data.ToString());
+
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error fetching data: {ex.Message}");
+                return View(new List<Voucher>());
+            }
+            if (!string.IsNullOrEmpty(voucherId))
+                data = data.Where(x => x.VoucherId.Contains(voucherId)).ToList();
+            if (DiscountAmount.HasValue && DiscountAmount >= 0 && DiscountAmount <= 100)
+                data = data.Where(x => x.DiscountAmount.Equals(DiscountAmount)).ToList();
+            if (Status.HasValue)
+                data = data.Where(x => x.Status == Status).ToList();
+
+            return View(data); // Fix: Pass the data as IEnumerable<Voucher> to the View
+        }
+
+
+        public async Task<List<Order>> GetOrders()
+        {
+            var orders = new List<Order>();
+
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Vouchers"))
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders"))
                 {
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
-                        if (result is not null)
+
+                        if (result != null && result.Data != null)
                         {
-                            var data = JsonConvert.DeserializeObject<List<Voucher>>(result.Data.ToString());
-                            return View(data);
+                            orders = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
                         }
                     }
                 }
             }
-            return View(new Voucher());
+
+            return orders;
         }
+
+
+        public async Task<List<Voucher>> GetVouchers()
+        {
+            var vouchers = new List<Voucher>();
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Vouchers"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Data != null)
+                        {
+                            vouchers = JsonConvert.DeserializeObject<List<Voucher>>(result.Data.ToString());
+                        }
+                    }
+                }
+            }
+
+            return vouchers;
+        }
+
 
         // GET: Vouchers/Details/5
         public async Task<IActionResult> Details(string? id)
