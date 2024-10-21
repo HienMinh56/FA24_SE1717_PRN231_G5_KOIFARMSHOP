@@ -8,6 +8,18 @@
         </button>
     </div>
 </div>
+<form id="OrderFilterForm" class="d-flex mb-4 align-items-end" style="gap: 10px;">
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="OrderId" name="OrderId" placeholder="Enter order id" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="UserId" name="UserId" placeholder="Enter user id" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter status" />
+    </div>
+    <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+</form>
 <div class="row">
     <div class="col-md-12">
         <table class="table table-striped table-bordered table-hover">
@@ -183,7 +195,13 @@
     <script type="text/javascript">
         $(document).ready(function () {
             loadData();
+            $('#OrderFilterForm input').on('input change', function () {
+                $('#searchBtn').addClass('active');
+            });
 
+            $('#searchBtn').on('click', function () {
+                filterOrders();
+            });
             $('#btSave').click(function () {
                 var orderItems = [];
                 $('.order-item').each(function () {
@@ -217,7 +235,6 @@
                     }
                 });
             });
-
 
 
 
@@ -256,6 +273,31 @@
         function add() {
             $('#orderModal').modal('show'); 
         }
+        function filterOrders() {
+            const orderId = $('#OrderId').val().toLowerCase();
+            const userId = $('#UserId').val().toLowerCase();
+            const status = $('#Status').val().toLowerCase(); // Nhập mã trạng thái (1, 2, 3, 4)
+
+            console.log("Filtering Orders with: ", {
+                orderId,
+                userId,
+                status
+            });
+
+            let filteredOrders = allOrders.filter(order => {
+                return (
+                    (orderId === '' || order.orderId.toString().includes(orderId)) &&
+                    (userId === '' || order.userId.toString().includes(userId)) &&
+                    (status === '' || getStatusText(order.status).toLowerCase().includes(status)) // So sánh tên trạng thái
+                );
+            });
+
+            if (filteredOrders.length > 0) {
+                displayOrders(filteredOrders);
+            } else {
+                $('.tblBanks').html('<tr><td colspan="9">No orders found.</td></tr>');
+            }
+        }
 
         function loadData() {
             $.ajax({
@@ -264,31 +306,36 @@
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
-                    var html = '';
-                    $.each(result.data, function (key, item) {
-                        html += '<tr>';
-                        html += '<td>' + item.orderId + '</td>';
-                        html += '<td>' + item.totalAmount + '</td>';
-                        html += '<td>' + item.quantity + '</td>';
-                        html += '<td>' + getStatusText(item.status) + '</td>';
-                        html += '<td>' + (item.voucherId || 'N/A') + '</td>';
-                        html += '<td>' + (item.paymentId || 'N/A') + '</td>';
-                        html += '<td>' + item.createdDate + '</td>';
-                        html += '<td>' + item.createdBy + '</td>';
-                        html += '<td>' +
-                            '<button type="button" class="btn btn-warning btn-update" data-id="' + item.orderId + '">Update</button> ' +
-                            '<button type="button" class="btn btn-info btn-detail" data-id="' + item.orderId + '">Details</button>' +
-                            '<button type="button" class="btn btn-danger btn-delete" data-id="' + item.orderId + '">Delete</button>'
-                            '</td>';
-                        html += '</tr>';
-                    });
-                    $('.tblBanks').html(html);
-                    bindActionButtons();
+                    allOrders = result.data || []; // Store all orders for filtering later
+                    console.log("All Orders Loaded: ", allOrders);
+                    displayOrders(allOrders); // Initially display all orders
                 },
                 error: function (xhr, error) {
                     alert(xhr.statusText);
                 }
             });
+        }
+        function displayOrders(orders) {
+            let html = '';
+            $.each(orders, function (key, item) {
+                html += '<tr>';
+                html += '<td>' + item.orderId + '</td>';
+                html += '<td>' + item.totalAmount + '</td>';
+                html += '<td>' + item.quantity + '</td>';
+                html += '<td>' + getStatusText(item.status) + '</td>';
+                html += '<td>' + (item.voucherId || 'N/A') + '</td>';
+                html += '<td>' + (item.paymentId || 'N/A') + '</td>';
+                html += '<td>' + item.createdDate + '</td>';
+                html += '<td>' + item.createdBy + '</td>';
+                html += '<td>' +
+                    '<button type="button" class="btn btn-warning btn-update" data-id="' + item.orderId + '">Update</button> ' +
+                    '<button type="button" class="btn btn-info btn-detail" data-id="' + item.orderId + '">Details</button>' +
+                    '<button type="button" class="btn btn-danger btn-delete" data-id="' + item.orderId + '">Delete</button>' +
+                    '</td>';
+                html += '</tr>';
+            });
+            $('.tblBanks').html(html);
+            bindActionButtons();
         }
 
         function bindActionButtons() {
@@ -301,7 +348,7 @@
                     dataType: "json",
                     success: function (result) {
                         $('#updateOrderId').val(result.data.orderId);
-                        $('#updateStatus').val(result.data.status); x
+                        $('#updateStatus').val(result.data.status); 
                         $('#voucherId').val(result.data.voucherId || ''); 
                         $('#updateOrderModal').modal('show'); 
                     },
