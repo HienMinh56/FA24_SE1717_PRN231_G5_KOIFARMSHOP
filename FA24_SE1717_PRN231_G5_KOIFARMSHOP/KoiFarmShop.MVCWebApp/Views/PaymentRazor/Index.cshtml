@@ -1,36 +1,37 @@
 ﻿@model IEnumerable<KoiFarmShop.Data.Models.Payment>
-
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Payments</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form method="get" asp-action="Index" class="d-flex mb-4 align-items-end" style="gap: 10px;">
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="PaymentId" name="PaymentId" placeholder=" PyamentId" value="@ViewBag.PaymentId" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="UserId" name="UserId" placeholder=" User Id" value="@ViewBag.UserId" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Type" name="Type" placeholder=" Type" value="@ViewBag.Type" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.PaymentId)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.PaymentId)</th>
             <th>
                 @Html.DisplayNameFor(model => model.UserId)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Amount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-           
+            <th>@Html.DisplayNameFor(model => model.Amount)</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>@Html.DisplayNameFor(model => model.CreatedDate)</th>
             <th></th>
         </tr>
     </thead>
@@ -38,25 +39,16 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>@Html.DisplayFor(modelItem => item.PaymentId)</td>
+                <td>@Html.DisplayFor(modelItem => item.UserId)</td>
+                <td>@Html.DisplayFor(modelItem => item.Amount)</td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PaymentId)
+                    @(item.Type == 1 ? "Order" : "Consignments")
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserId)
+                    @(item.Status == 1 ? "Success" : item.Status == 2 ? "Pending" : "Cancel")
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Amount)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Status)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedDate)
-                </td>
-
+                <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.PaymentId">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.PaymentId">Details</a> |
@@ -66,3 +58,34 @@
         }
     </tbody>
 </table>
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)"
+                   asp-route-OrderId="@ViewBag.OrderId"
+                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-Status="@ViewBag.Type">Previous</a>
+            </li>
+        }
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i"
+                   asp-route-OrderId="@ViewBag.OrderId"
+                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-Status="@ViewBag.Type">@i</a>
+            </li>
+        }
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)"
+                   asp-route-OrderId="@ViewBag.OrderId"
+                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-Status="@ViewBag.Type">Next</a>
+            </li>
+        }
+    </ul>
+</nav>

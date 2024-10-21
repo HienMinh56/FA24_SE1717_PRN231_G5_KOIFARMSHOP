@@ -70,29 +70,70 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             return users;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            using (var httpClient = new HttpClient())
-            {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Payments"))
-                {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
 
-                        if (result != null && result.Data != null)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string PaymentId = null, string UserId = null, string? Type = null)
+        {
+
+            List<Payment> data = new List<Payment>();
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Payments"))
+                    {
+                        if (response.IsSuccessStatusCode)
                         {
-                            var data = JsonConvert.DeserializeObject<List<Payment>>(result.Data.ToString());
-                            return View(data);
+                            var content = await response.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                            if (result != null && result.Data != null)
+                            {
+                                data = JsonConvert.DeserializeObject<List<Payment>>(result.Data.ToString());
+                            }
                         }
                     }
                 }
             }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error fetching data: {ex.Message}");
+                return View(new List<Payment>());
+            }
 
-            return View(new List<Payment>());
+            // Filter the data
+            if (!string.IsNullOrEmpty(PaymentId))
+                data = data.Where(x => x.PaymentId.Contains(PaymentId)).ToList();
+            if (!string.IsNullOrEmpty(UserId))
+                data = data.Where(x => x.UserId.Contains(UserId)).ToList();
+
+            int? typeValue = Type?.ToLower() switch
+            {
+                "order" => 1,
+                "consignments" => 2,
+                _ => null 
+            };
+
+            // Lọc theo Type
+            if (typeValue.HasValue)
+                data = data.Where(x => x.Type == typeValue.Value).ToList();
+
+            data = data.OrderByDescending(x => x.Id).ToList();
+
+            // Calculate pagination
+            int totalItems = data.Count;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var paginatedData = data.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Pass pagination and filter data to the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PaymentId = PaymentId;
+            ViewBag.UserId = UserId;
+            ViewBag.Type = Type;
+
+            return View(paginatedData);
         }
-      
 
         [HttpGet]
         public IActionResult Create()
@@ -190,7 +231,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
                             updatePayment.PaymentId = payment.PaymentId;
                             updatePayment.Amount = payment.Amount;
-                            updatePayment.Status = payment.Status;
+                            updatePayment.Status = payment.Type;
                         }
                     }
                     else
