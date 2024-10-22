@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace KoiFarmShop.Data.Models;
 
@@ -25,8 +26,9 @@ public partial class Voucher
 
     public int Status { get; set; }
 
+    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime? ValidityStartDate { get; set; }
-
+    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime? ValidityEndDate { get; set; }
 
     public string Note { get; set; }

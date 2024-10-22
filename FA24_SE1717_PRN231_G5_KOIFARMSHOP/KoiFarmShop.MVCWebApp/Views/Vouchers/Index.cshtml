@@ -31,8 +31,15 @@
                 @Html.DisplayNameFor(model => model.VoucherCode)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.VoucherName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            <th>
                 @Html.DisplayNameFor(model => model.DiscountAmount)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApplyMethod)
             <th>
                 @Html.DisplayNameFor(model => model.MinOrderAmount)
             </th>
@@ -45,6 +52,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.ValidityEndDate)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Note)
+            </th>
+
 
             <th></th>
         </tr>
@@ -60,7 +71,16 @@
                     @Html.DisplayFor(modelItem => item.VoucherCode)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.VoucherName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.DiscountAmount)
+                </td>
+                <td>
+                    @(item.ApplyMethod == 1 ? "online" : item.ApplyMethod == 0 ? "offline" : "both")
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.MinOrderAmount)
@@ -75,6 +95,9 @@
                     @Html.DisplayFor(modelItem => item.ValidityEndDate)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.Note)
+                </td>
+                
 
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.VoucherId">Edit</a> |
