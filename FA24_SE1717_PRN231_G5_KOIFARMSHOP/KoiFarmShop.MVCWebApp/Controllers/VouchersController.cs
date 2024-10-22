@@ -54,7 +54,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             }
             if (!string.IsNullOrEmpty(voucherId))
                 data = data.Where(x => x.VoucherId.Contains(voucherId)).ToList();
-            if (DiscountAmount.HasValue && DiscountAmount >= 0 && DiscountAmount <= 100)
+            if (DiscountAmount.HasValue && DiscountAmount >= 0 )
                 data = data.Where(x => x.DiscountAmount.Equals(DiscountAmount)).ToList();
             if (Status.HasValue)
                 data = data.Where(x => x.Status == Status).ToList();

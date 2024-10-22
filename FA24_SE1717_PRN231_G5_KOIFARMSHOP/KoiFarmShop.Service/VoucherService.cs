@@ -47,16 +47,20 @@ namespace KoiFarmShop.Service
                     .Select(v => new {
                         VoucherId = v.VoucherId,
                         VoucherCode = v.VoucherCode,
+                        VoucherName = v.VoucherName,
+                        ApplyMethod = v.ApplyMethod,
                         DiscountAmount = v.DiscountAmount,
                         MinOrderAmount = v.MinOrderAmount,
                         ValidityStartDate = v.ValidityStartDate,
                         ValidityEndDate = v.ValidityEndDate,
                         Status = v.Status,
+                        Quanlity = v.Quantity,
+
                         CreatedDate = DateTime.Now,
                         CreatedBy = v.CreatedBy,
                         ModifiedDate = DateTime.Now,
                         ModifiedBy = v.ModifiedBy,
-
+                        Note = v.Note
                     })
                     .ToList();
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, simplifiedVouchers);
@@ -106,6 +110,15 @@ namespace KoiFarmShop.Service
                     {
                         voucherTmp.VoucherCode = voucher.VoucherCode;
                     }
+                    if (voucher.VoucherName != null)
+                    {
+                        voucherTmp.VoucherName = voucher.VoucherName;
+                    }
+                    if (voucher.ApplyMethod != null)
+                    {
+                        voucherTmp.ApplyMethod = voucher.ApplyMethod;
+                    }
+                    
 
 
                     if (voucher.DiscountAmount != null && voucher.DiscountAmount != 0)
@@ -133,6 +146,18 @@ namespace KoiFarmShop.Service
                     {
                         voucherTmp.ValidityStartDate = voucher.ValidityStartDate;
                     }
+                    if (voucher.Quantity != null)
+                    {
+                        voucherTmp.Quantity = voucher.Quantity;
+                    }
+                    if (voucher.Note == null)
+                    {
+                        voucherTmp.Note = "";
+                    }else 
+                    {
+                        voucherTmp.Note = voucher.Note;
+                    }
+
 
                     result = await _unitOfWork.VoucherRepository.UpdateAsync(voucherTmp);
 
@@ -151,11 +176,16 @@ namespace KoiFarmShop.Service
                     {
                         VoucherId = voucher.VoucherId,
                         VoucherCode = voucher.VoucherCode,
+                        VoucherName = voucher.VoucherName,
                         DiscountAmount = voucher.DiscountAmount,
                         MinOrderAmount = voucher.MinOrderAmount,
                         Status = voucher.Status,
                         ValidityStartDate = voucher.ValidityStartDate,
                         ValidityEndDate = voucher.ValidityEndDate,
+                        Quantity = voucher.Quantity,
+                        Note = voucher.Note,
+                        ApplyMethod = voucher.ApplyMethod,
+
                         CreatedDate = DateTime.Now,
                         CreatedBy = "User",
                         ModifiedDate = DateTime.Now,
