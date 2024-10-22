@@ -139,8 +139,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             // Pass pagination and filter data to the view
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
-            ViewBag.OrderId = ConsignmentId;
-            ViewBag.UserId = Method;
+            ViewBag.ConsignmentId = ConsignmentId;
+            ViewBag.Method = Method;
             ViewBag.Status = Status;
 
             return View(paginatedData);

@@ -171,8 +171,8 @@
         {
             <li class="page-item">
                 <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)"
-                   asp-route-OrderId="@ViewBag.ConsignmentId"
-                   asp-route-UserId="@ViewBag.Method"
+                   asp-route-ConsignmentId="@ViewBag.ConsignmentId"
+                   asp-route-Method="@ViewBag.Method"
                    asp-route-Status="@ViewBag.Status">Previous</a>
             </li>
         }
@@ -180,8 +180,8 @@
         {
             <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
                 <a class="page-link" asp-action="Index" asp-route-page="@i"
-                   asp-route-OrderId="@ViewBag.ConsignmentId"
-                   asp-route-UserId="@ViewBag.Method"
+                   asp-route-ConsignmentId="@ViewBag.ConsignmentId"
+                   asp-route-Method="@ViewBag.Method"
                    asp-route-Status="@ViewBag.Status">@i</a>
             </li>
         }
@@ -189,8 +189,8 @@
         {
             <li class="page-item">
                 <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)"
-                   asp-route-OrderId="@ViewBag.ConsignmentId"
-                   asp-route-UserId="@ViewBag.Method"
+                   asp-route-ConsignmentId="@ViewBag.ConsignmentId"
+                   asp-route-Method="@ViewBag.Method"
                    asp-route-Status="@ViewBag.Status">Next</a>
             </li>
         }
