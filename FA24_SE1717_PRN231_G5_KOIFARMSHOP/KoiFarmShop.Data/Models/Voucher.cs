@@ -2,33 +2,39 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace KoiFarmShop.Data.Models;
 
 public partial class Voucher
 {
-
     public int Id { get; set; }
 
     public string VoucherId { get; set; }
 
     public string VoucherCode { get; set; }
 
+    public string VoucherName { get; set; }
+
+    public int? ApplyMethod { get; set; }
+
+    public int? Quantity { get; set; }
+
     public double DiscountAmount { get; set; }
 
     public double MinOrderAmount { get; set; }
 
     public int Status { get; set; }
-    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+
     public DateTime? ValidityStartDate { get; set; }
-    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+
     public DateTime? ValidityEndDate { get; set; }
-    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+
+    public string Note { get; set; }
+
     public DateTime? CreatedDate { get; set; }
 
     public string CreatedBy { get; set; }
-    [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+
     public DateTime? ModifiedDate { get; set; }
 
     public string ModifiedBy { get; set; }

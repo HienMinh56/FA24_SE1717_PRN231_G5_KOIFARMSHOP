@@ -15,7 +15,19 @@ public partial class Payment
 
     public double Amount { get; set; }
 
+    public string Currency { get; set; }
+
     public int Type { get; set; }
+
+    public string PaymentMethod { get; set; }
+
+    public string ConsignmentId { get; set; }
+
+    public string OrderId { get; set; }
+
+    public int? Refundable { get; set; }
+
+    public string Note { get; set; }
 
     public int Status { get; set; }
 

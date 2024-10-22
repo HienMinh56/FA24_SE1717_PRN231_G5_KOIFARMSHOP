@@ -23,6 +23,18 @@ public partial class Order
 
     public string VoucherId { get; set; }
 
+    public string ShippingAddress { get; set; }
+
+    public string PaymentMethod { get; set; }
+
+    public DateTime? DeliveryDate { get; set; }
+
+    public DateTime? ReceiveDate { get; set; }
+
+    public string Note { get; set; }
+
+    public decimal? TotalWeight { get; set; }
+
     public DateTime? CreatedDate { get; set; }
 
     public string CreatedBy { get; set; }

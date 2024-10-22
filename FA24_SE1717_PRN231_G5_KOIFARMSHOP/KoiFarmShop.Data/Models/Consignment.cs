@@ -23,6 +23,14 @@ public partial class Consignment
 
     public string PaymentId { get; set; }
 
+    public string Note { get; set; }
+
+    public string CustomerContact { get; set; }
+
+    public string CustomerAddress { get; set; }
+
+    public decimal? TotalWeight { get; set; }
+
     public int Status { get; set; }
 
     public DateOnly? ConsignmentDate { get; set; }
