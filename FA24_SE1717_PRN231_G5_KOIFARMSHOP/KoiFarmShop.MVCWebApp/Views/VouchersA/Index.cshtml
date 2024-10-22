@@ -8,6 +8,21 @@
         </button>
     </div>
 </div>
+<form id="VoucherFilterForm" class="d-flex mb-4 align-items-end" style="gap: 10px;">
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="VoucherId" name="VoucherId" placeholder="Enter voucher id" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="VoucherCode" name="VoucherCode" placeholder="Enter VoucherCode" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter status" />
+    </div>
+    <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+</form>
+
+
+
 
 <table class="table table-striped table-bVouchered table-hover">
     <thead>
@@ -157,7 +172,7 @@
                             <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" readonly />
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <label for="voucherupCode" class="form-label">Voucher Code</label>
                         <input type="text" class="form-control" id="voucherupCode" required>
                     </div>
@@ -171,6 +186,27 @@
                         </div>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <label for="discountupdateAmount" class="form-label">Discount Amount</label>
+                        <input type="number" class="form-control" id="discountupdateAmount" required>
+                    </div>
+                    <div class="col-4">
+                        <label for="minOrderupdateAmount" class="form-label">Min Order Amount</label>
+                        <input type="number" class="form-control" id="minOrderupdateAmount" required>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label for="validityupdateStartDate" class="form-label">Validity Start Date</label>
+                        <input type="date" class="form-control" id="validityupdateStartDate" required>
+                    </div>
+                    <div class="col-6">
+                        <label for="validityupdateEndDate" class="form-label">Validity End Date</label>
+                        <input type="date" class="form-control" id="validityupdateEndDate" required>
+                    </div>
+                </div>
+
 
             </div>
             <div class="modal-footer">
@@ -187,10 +223,20 @@
     <script type="text/javascript">
             $(document).ready(function () {
                 loadData();
+            $('#VoucherFilterForm input').on('input change', function () {
+                $('#searchBtn').addClass('active');
+            });
+
+            $('#searchBtn').on('click', function () {
+                filterVoucher();
+            });
+
+
+
             });
 
             function loadData() {
-                alert("Loading data...");
+              
 
                 $.ajax({
                     url: 'https://localhost:7149/api/Vouchers',
@@ -263,6 +309,57 @@
             });
         }
 
+        function filterVoucher() {
+            const voucherId = $('#VoucherId').val().toLowerCase();
+            const voucherCode = $('#VoucherCode').val().toLowerCase();
+            const status = $('#Status').val().toLowerCase(); //
+
+            console.log("Filtering Voucher  with: ", {
+                voucherId,
+                voucherCode,
+                status
+            });
+
+            let filteredVoucher = vouchers.filter(voucher => {
+                return (
+                    (voucherId === '' || voucher.voucherId.toString().includes(voucherId)) &&
+                    (voucherCode === '' || voucher.voucherCode.toString().includes(voucherCode)) &&
+                    (status === '' || getStatusText(order.status).toLowerCase().includes(status)) // So sánh tên trạng thái
+                );
+            });
+
+            if (filteredVoucher.length > 0) {
+                displayVouchers(filteredVoucher);
+            } else {
+                $('.tblBanks').html('<tr><td colspan="9">No Voucher found.</td></tr>');
+            }
+        }
+
+
+        function displayVouchers(vouchers) {
+            let html = '';
+            $.each(orders, function (key, item) {
+                html += '<tr>';
+                html += '<td>' + item.voucherId + '</td>';
+                html += '<td>' + item.voucherCode + '</td>';
+                html += '<td>' + item.discountAmount + '%</td>';
+                html += '<td>' + item.minOrderAmount + '</td>';
+                html += '<td>' + item.validityStartDate + '</td>';
+                html += '<td>' + item.validityEndDate + '</td>';
+                html += '<td>' + getStatusText(item.status) + '</td>';
+                html += '<td>' +
+                    '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(\'' + item.voucherId + '\') ">Update</button> ' +
+                    '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(\'' + item.voucherId + '\'); ">Details</button>' +
+                    '<button type="button" class="btn btn-danger" onclick="deleteVoucher(\'' + item.voucherId + '\');">Delete</button>'
+                '</td>'; // Closing tag for each row
+                html += '</tr>';
+            });
+            $('.tblBanks').html(html);
+            
+        }
+
+
+
         function saveData() {
             var obj = {
                 voucherId: $('#voucherId').val(),
@@ -325,7 +422,10 @@
                 voucherId: $('#updateVoucherId').val(),
                 status: $('#updateStatus').val(),
                 voucherCode: $('#voucherupCode').val(),
-
+                discountAmount: $('#discountupdateAmount').val(),
+                minOrderAmount: $('#minOrderupdateAmount').val(),
+                validityStartDate: $('#validityupdateStartDate').val(),
+                validityEndDate: $('#validityupdateEndDate').val(),
                 createdBy: "string",
                 modifiedDate: new Date().toISOString(),
                 modifiedBy: "string"

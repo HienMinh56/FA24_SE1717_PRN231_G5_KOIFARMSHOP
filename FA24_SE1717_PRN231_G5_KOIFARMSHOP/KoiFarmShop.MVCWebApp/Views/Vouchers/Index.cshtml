@@ -66,17 +66,7 @@
                     @Html.DisplayFor(modelItem => item.MinOrderAmount)
                 </td>
                 <td>
-                    <td>
-                        @if (item.Status == 1)
-                        {
-                            <text>Active</text>
-                        }
-                        else
-                        {
-                            <text>Inactive</text>
-                        }
-                    </td>
-                    @Html.DisplayFor(modelItem => item.Status)
+                    @(item.Status == 1 ? "Active" : "Inactive")
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ValidityStartDate)
