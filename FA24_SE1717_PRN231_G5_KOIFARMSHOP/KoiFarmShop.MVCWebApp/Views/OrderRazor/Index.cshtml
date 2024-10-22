@@ -14,7 +14,7 @@
         <input type="text" class="form-control" id="OrderId" name="OrderId" placeholder="Enter OrderId" value="@ViewBag.OrderId" />
     </div>
     <div class="flex-fill">
-        <input type="text" class="form-control" id="UserId" name="UserId" placeholder="Enter User Id" value="@ViewBag.UserId" />
+        <input type="text" class="form-control" id="ShippingAddress" name="ShippingAddress" placeholder="Enter Shipping Address" value="@ViewBag.ShippingAddress" />
     </div>
     <div class="flex-fill">
         <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter Status" value="@ViewBag.Status" />
@@ -37,19 +37,22 @@
                 @Html.DisplayNameFor(model => model.Status)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
+                @Html.DisplayNameFor(model => model.ShippingAddress)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
+                @Html.DisplayNameFor(model => model.PaymentMethod)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ModifiedDate)
+                @Html.DisplayNameFor(model => model.DeliveryDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ModifiedBy)
+                @Html.DisplayNameFor(model => model.ReceiveDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Payment)
+                @Html.DisplayNameFor(model => model.Note)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalWeight)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.User)
@@ -76,19 +79,22 @@
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
+                @Html.DisplayFor(modelItem => item.ShippingAddress)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy)
+                @Html.DisplayFor(modelItem => item.PaymentMethod)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ModifiedDate)
+                @Html.DisplayFor(modelItem => item.DeliveryDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ModifiedBy)
+                @Html.DisplayFor(modelItem => item.ReceiveDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PaymentId)
+                @Html.DisplayFor(modelItem => item.Note)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalWeight)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UserId)
@@ -112,7 +118,7 @@
             <li class="page-item">
                 <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)"
                    asp-route-OrderId="@ViewBag.OrderId"
-                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-UserId="@ViewBag.ShippingAddress"
                    asp-route-Status="@ViewBag.Status">Previous</a>
             </li>
         }
@@ -121,7 +127,7 @@
             <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
                 <a class="page-link" asp-action="Index" asp-route-page="@i"
                    asp-route-OrderId="@ViewBag.OrderId"
-                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-UserId="@ViewBag.ShippingAddress"
                    asp-route-Status="@ViewBag.Status">@i</a>
             </li>
         }
@@ -130,7 +136,7 @@
             <li class="page-item">
                 <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)"
                    asp-route-OrderId="@ViewBag.OrderId"
-                   asp-route-UserId="@ViewBag.UserId"
+                   asp-route-UserId="@ViewBag.ShippingAddress"
                    asp-route-Status="@ViewBag.Status">Next</a>
             </li>
         }

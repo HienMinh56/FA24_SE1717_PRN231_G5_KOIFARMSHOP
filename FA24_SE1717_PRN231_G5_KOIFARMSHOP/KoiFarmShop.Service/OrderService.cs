@@ -17,8 +17,9 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> GetOrders();
         Task<IBusinessResult> GetOrderById(string orderId);
-        Task<IBusinessResult> CreateOrderAsync(OrderCreateRequest orderCreateRequest);
-        Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest);
+        Task<IBusinessResult> Create(Order order);
+        Task<IBusinessResult> Update(Order order);
+        Task<IBusinessResult> Save(Order order);
         Task<IBusinessResult> DeleteOrderAsync(string orderId);
     }
 
@@ -59,59 +60,113 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> CreateOrderAsync(OrderCreateRequest orderCreateRequest)
+        public async Task<IBusinessResult> Create(Order order)
         {
+            if (order is null)
+            {
+                return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
+            }
+
             try
             {
-                var order = await _unitOfWork.OrderRepository.CreateOrderAsync(orderCreateRequest);
-                return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
+                int result = await _unitOfWork.OrderRepository.CreateAsync(order);
+
+                if (result > 0)
+                {
+                    return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
+                }
+                else
+                {
+                    return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
+                }
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
-        public async Task<IBusinessResult> UpdateOrderAsync(UpdateOrderRequest orderRequest)
+        public async Task<IBusinessResult> Update(Order order)
         {
+            if (order is null)
+            {
+                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+            }
+
             try
             {
-                var order =  _unitOfWork.OrderRepository.Get(o => o.OrderId == orderRequest.OrderId);
-                if (order == null)
+                int result = await _unitOfWork.OrderRepository.UpdateAsync(order);
+
+                if (result > 0)
                 {
-                    return new BusinessResult(Const.ERROR_EXCEPTION, "Order not found");
+                    return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, order);
                 }
-
-                order.Status = orderRequest.Status;
-                order.ModifiedDate = orderRequest.ModifiedDate;
-                order.ModifiedBy = orderRequest.ModifiedBy;
-
-                if (!string.IsNullOrEmpty(orderRequest.VoucherId))
+                else
                 {
-                    var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderRequest.VoucherId && v.ValidityStartDate <= DateTime.Now && v.ValidityEndDate >= DateTime.Now);
-                    if (voucher == null)
-                    {
-                        throw new Exception("Invalid or expired voucher.");
-                    }
-
-                    if (voucher.MinOrderAmount <= order.TotalAmount)
-                        order.TotalAmount = order.TotalAmount - (int)voucher.DiscountAmount;
-                    else
-                    {
-                        throw new Exception("Min amount is not invalid");
-                    }
-                    order.VoucherId = voucher.VoucherId;
+                    return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
                 }
-
-                await _unitOfWork.OrderRepository.UpdateAsync(order);
-                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG);
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+        public async Task<IBusinessResult> Save(Order order)
+        {
+            try
+            {
+                int result = -1;
+
+                Order orderTmp =  _unitOfWork.OrderRepository.Get(o => o.OrderId == order.OrderId);
+
+                if (orderTmp != null)
+                {
+                    orderTmp.VoucherId = order.VoucherId;
+                    orderTmp.UserId = order.UserId;
+                    orderTmp.Quantity = order.Quantity;
+                    orderTmp.TotalAmount = order.TotalAmount;
+                    orderTmp.TotalWeight = order.TotalWeight;
+                    orderTmp.PaymentMethod = order.PaymentMethod;
+                    orderTmp.ShippingAddress = order.ShippingAddress;
+                    orderTmp.DeliveryDate = order.DeliveryDate;
+                    orderTmp.ReceiveDate = order.ReceiveDate;
+                    orderTmp.Note = order.Note;
+                    orderTmp.Status = order.Status;
+                    orderTmp.ModifiedDate = DateTime.Now;
+                    orderTmp.ModifiedBy = "User";
+
+                    result = await _unitOfWork.OrderRepository.UpdateAsync(orderTmp);
+
+                    if (result > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, orderTmp);
+                    }
+                    else
+                    {
+                        return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                    }
+                }
+                else
+                {
+                    order.CreatedDate = DateTime.Now;
+                    order.CreatedBy = "User";
+                    result = await _unitOfWork.OrderRepository.CreateAsync(order);
+
+                    if (result > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
+                    }
+                    else
+                    {
+                        return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+
         }
 
         public async Task<IBusinessResult> DeleteOrderAsync(string orderId)

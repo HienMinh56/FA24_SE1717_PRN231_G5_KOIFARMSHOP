@@ -13,7 +13,7 @@
         <input type="text" class="form-control" id="OrderId" name="OrderId" placeholder="Enter order id" />
     </div>
     <div class="flex-fill">
-        <input type="text" class="form-control" id="UserId" name="UserId" placeholder="Enter user id" />
+        <input type="text" class="form-control" id="ShippingAddress" name="ShippingAddress" placeholder="Enter shipping address" />
     </div>
     <div class="flex-fill">
         <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter status" />
@@ -26,13 +26,17 @@
             <thead>
                 <tr class="card-header">
                     <th class="card-title text-center">Order Id</th>
+                    <th class="card-title text-center">User Id</th>
                     <th class="card-title text-center">Total Amount</th>
                     <th class="card-title text-center">Quantity</th>
                     <th class="card-title text-center">Status</th>
                     <th class="card-title text-center">Voucher</th>
-                    <th class="card-title text-center">Payment</th>
-                    <th class="card-title text-center">Created Date</th>
-                    <th class="card-title text-center">Created By</th>
+                    <th class="card-title text-center">Shipping Address</th>
+                    <th class="card-title text-center">Payment Method</th>
+                    <th class="card-title text-center">Delivery Date</th>
+                    <th class="card-title text-center">Receive Date</th>
+                    <th class="card-title text-center">Note</th>
+                    <th class="card-title text-center">Total Weight</th>
                     <th class="card-title text-center">Actions</th>
                 </tr>
             </thead>
@@ -57,6 +61,12 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label for="orderId">Order ID</label>
+                                <input type="text" class="form-control" id="orderId" name="orderId" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
                                 <label for="userId">User ID</label>
                                 <input type="text" class="form-control" id="userId" name="userId" required />
                             </div>
@@ -71,33 +81,54 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="createBy">Created By</label>
-                                <input type="text" class="form-control" id="createBy" name="createBy" required />
+                                <label for="totalAmount">Total Amount</label>
+                                <input type="number" class="form-control" id="totalAmount" name="totalAmount" required />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="createTime">Created Time</label>
-                                <input type="datetime-local" class="form-control" id="createTime" name="createTime" required />
+                                <label for="quantity">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <input type="text" class="form-control" id="status" name="status" required />
                             </div>
                         </div>
                     </div>
-                    <div id="orderItemsSection">
-                        <div class="row order-item">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="koiId1">Koi ID</label>
-                                    <input type="text" class="form-control koiId" id="koiId1" name="koiId" required />
-                                </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="shippingAddress">Shipping Address</label>
+                                <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" required />
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="quantity1">Quantity</label>
-                                    <input type="number" class="form-control quantity" id="quantity1" name="quantity" required />
-                                </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="paymentMethod">Payment Method</label>
+                                <input type="text" class="form-control" id="paymentMethod" name="paymentMethod" required />
                             </div>
-                            <div class="col-md-4">
-                                <button type="button" class="btn btn-secondary" onclick="addOrderItem()">Add Item</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="deliveryDate">Delivery Date</label>
+                                <input type="date" class="form-control" id="deliveryDate" name="deliveryDate" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="note">Note</label>
+                                <input type="text" class="form-control" id="note" name="note" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="totalWeight">Total Weight</label>
+                                <input type="number" class="form-control" id="totalWeight" name="totalWeight" required />
                             </div>
                         </div>
                     </div>
@@ -126,29 +157,54 @@
                     <input type="text" class="form-control" id="updateOrderId" name="orderId" readonly />
                 </div>
                 <div class="form-group">
-                    <label for="userId">User ID</label>
-                    <input type="text" class="form-control" id="userId" name="userId"/>
+                    <label for="updateTotalAmount">Total Amount</label>
+                    <input type="text" class="form-control" id="updateTotalAmount" name="updateTotalAmount" />
                 </div>
                 <div class="form-group">
-                    <label for="voucherId">Voucher ID</label>
-                    <input type="text" class="form-control" id="voucherId" name="voucherId" />
+                    <label for="updateQuantity">Quantity</label>
+                    <input type="text" class="form-control" id="updateQuantity" name="updateQuantity" />
                 </div>
                 <div class="form-group">
                     <label for="updateStatus">Status</label>
-                    <select class="form-select" id="updateStatus" name="status">
+                    <select class="form-select" id="updateStatus" name="updateStatus">
                         <option value="1">Pending</option>
                         <option value="2">Completed</option>
                         <option value="3">Canceled</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="updateUserId">User ID</label>
+                    <input type="text" class="form-control" id="updateUserId" name="updateUserId" />
+                </div>
+                <div class="form-group">
+                    <label for="updateVoucherId">Voucher ID</label>
+                    <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" />
+                </div>
             </div>
             <div class="form-group">
-                <label for="modifiedBy">Modified By</label>
-                <input type="text" class="form-control" id="modifiedBy" name="modifiedBy" required />
+                <label for="updateShippingAddress">Shipping Address</label>
+                <input type="text" class="form-control" id="updateShippingAddress" name="updateShippingAddress" required />
             </div>
             <div class="form-group">
-                <label for="modifiedDate">Modified Date</label>
-                <input type="datetime-local" class="form-control" id="modifiedDate" name="modifiedDate" required />
+                <label for="updatePaymentMethod">Payment Method</label>
+                <input type="text" class="form-control" id="updatePaymentMethod" name="updatePaymentMethod" required />
+            </div>
+            <div class="form-group">
+                <label for="updateDeliveryDate">Delivery Date</label>
+                <input type="datetime-local" class="form-control" id="updateDeliveryDate" name="updateDeliveryDate" required />
+            </div>
+            <div class="form-group">
+                <label for="updateReceiveDate">Receive Date</label>
+                <input type="datetime-local" class="form-control" id="updateReceiveDate" name="updateReceiveDate" required />
+            </div>
+            
+            <div class="form-group">
+                <label for="updateNote">Note</label>
+                <input type="text" class="form-control" id="updateNote" name="updateNote" required />
+            </div>
+            <div class="form-group">
+                <label for="updateTotalWeight">Total Weight</label>
+                <input type="text" class="form-control" id="updateTotalWeight" name="updateTotalWeight" required />
             </div>
 
             <div class="modal-footer">
@@ -162,7 +218,7 @@
 
 <!-- Modal for Order Details -->
 <div class="modal" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="max-width: 70%;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="orderDetailModalLabel">Order Details</h5>
@@ -172,9 +228,18 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Koi ID</th>
-                            <th>Price</th>
+                            <th>Order Id</th>
+                            <th>Total Amount</th>
                             <th>Quantity</th>
+                            <th>Status</th>
+                            <th>User Id</th>
+                            <th>Voucher Id</th>
+                            <th>Shipping Address</th>
+                            <th>Payment Method</th>
+                            <th>Delivery Date</th>
+                            <th>Receive Date</th>
+                            <th>Note</th>
+                            <th>Total Weight</th>
                         </tr>
                     </thead>
                     <tbody id="orderDetailBody">
@@ -203,21 +268,18 @@
                 filterOrders();
             });
             $('#btSave').click(function () {
-                var orderItems = [];
-                $('.order-item').each(function () {
-                    var item = {
-                        koiId: $(this).find('.koiId').val(),
-                        quantity: parseInt($(this).find('.quantity').val())
-                    };
-                    orderItems.push(item);
-                });
-
                 var obj = {
+                    orderId: $('#orderId').val(),
                     userId: $('#userId').val(),
-                    orderItems: orderItems,
-                    voucherCode: $('#voucherCode').val() || null,
-                    createBy: $('#createBy').val(),
-                    createTime: $('#createTime').val()
+                    voucherId: $('#voucherCode').val() || null,
+                    totalAmount: parseFloat($('#totalAmount').val()),
+                    quantity: parseInt($('#quantity').val()),
+                    status: $('#updateStatus').val(),
+                    shippingAddress: $('#shippingAddress').val(),
+                    paymentMethod: $('#paymentMethod').val(),
+                    deliveryDate: $('#deliveryDate').val(),
+                    note: $('#note').val() || null,
+                    totalWeight: parseFloat($('#totalWeight').val())
                 };
 
                 $.ajax({
@@ -238,18 +300,34 @@
 
 
 
+
             $('#btUpdate').click(function () {
                 var orderId = $('#updateOrderId').val();
+                var totalAmount = $('#updateTotalAmount').val();
+                var quantity = $('#updateQuantity').val();
                 var status = $('#updateStatus').val();
-                var voucherId = $('#voucherId').val() || null;
+                var userId = $('#updateUserId').val();
+                var voucherId = $('#updateVoucherId').val() || null;
+                var shippingAddress = $('#updateShippingAddress').val();
+                var paymentMethod = $('#updatePaymentMethod').val();
+                var deliveryDate = $('#updateDeliveryDate').val();
+                var receiveDate = $('#updateReceiveDate').val();
+                var note = $('#updateNote').val();
+                var totalWeight = $('#updateTotalWeight').val();
 
                 var updateObj = {
                     orderId: orderId,
-                    status: parseInt(status),
+                    totalAmount: parseFloat(totalAmount),
+                    quantity: parseInt(quantity),
+                    status: status,
+                    userId: userId,
                     voucherId: voucherId,
-                    userId: $('#userId').val(),
-                    modifiedBy: $('#modifiedBy').val(),
-                    modifiedDate: $('#modifiedDate').val()
+                    shippingAddress: shippingAddress,
+                    paymentMethod: paymentMethod,
+                    deliveryDate: deliveryDate,
+                    receiveDate: receiveDate,
+                    note: note,
+                    totalWeight: parseFloat(totalWeight)
                 };
 
                 $.ajax({
@@ -275,19 +353,19 @@
         }
         function filterOrders() {
             const orderId = $('#OrderId').val().toLowerCase();
-            const userId = $('#UserId').val().toLowerCase();
-            const status = $('#Status').val().toLowerCase(); // Nhập mã trạng thái (1, 2, 3, 4)
+            const shippingAddress = $('#ShippingAddress').val().toLowerCase();
+            const status = $('#Status').val().toLowerCase(); 
 
             console.log("Filtering Orders with: ", {
                 orderId,
-                userId,
+                shippingAddress,
                 status
             });
 
             let filteredOrders = allOrders.filter(order => {
                 return (
-                    (orderId === '' || order.orderId.toString().includes(orderId)) &&
-                    (userId === '' || order.userId.toString().includes(userId)) &&
+                    (orderId === '' || order.orderId.toString().toLowerCase().includes(orderId)) &&
+                    (shippingAddress === '' || order.shippingAddress.toLowerCase().toString().includes(shippingAddress)) &&
                     (status === '' || getStatusText(order.status).toLowerCase().includes(status)) // So sánh tên trạng thái
                 );
             });
@@ -320,13 +398,17 @@
             $.each(orders, function (key, item) {
                 html += '<tr>';
                 html += '<td>' + item.orderId + '</td>';
+                html += '<td>' + item.userId + '</td>';
                 html += '<td>' + item.totalAmount + '</td>';
                 html += '<td>' + item.quantity + '</td>';
                 html += '<td>' + getStatusText(item.status) + '</td>';
                 html += '<td>' + (item.voucherId || 'N/A') + '</td>';
-                html += '<td>' + (item.paymentId || 'N/A') + '</td>';
-                html += '<td>' + item.createdDate + '</td>';
-                html += '<td>' + item.createdBy + '</td>';
+                html += '<td>' + item.shippingAddress + '</td>';
+                html += '<td>' + item.paymentMethod + '</td>';
+                html += '<td>' + item.deliveryDate + '</td>';
+                html += '<td>' + item.receiveDate + '</td>';
+                html += '<td>' + item.note + '</td>';
+                html += '<td>' + item.totalWeight + '</td>';
                 html += '<td>' +
                     '<button type="button" class="btn btn-warning btn-update" data-id="' + item.orderId + '">Update</button> ' +
                     '<button type="button" class="btn btn-info btn-detail" data-id="' + item.orderId + '">Details</button>' +
@@ -348,9 +430,18 @@
                     dataType: "json",
                     success: function (result) {
                         $('#updateOrderId').val(result.data.orderId);
+                        $('#updateTotalAmount').val(result.data.totalAmount);
+                        $('#updateQuantity').val(result.data.quantity);
                         $('#updateStatus').val(result.data.status); 
-                        $('#voucherId').val(result.data.voucherId || ''); 
-                        $('#updateOrderModal').modal('show'); 
+                        $('#updateVoucherId').val(result.data.voucherId || ''); 
+                        $('#updateUserId').val(result.data.userId);
+                        $('#updateShippingAddress').val(result.data.shippingAddress);
+                        $('#updatePaymentMethod').val(result.data.paymentMethod);
+                        $('#updateDeliveryDate').val(result.data.deliveryDate);
+                        $('#updateReceiveDate').val(result.data.receiveDate);
+                        $('#updateNote').val(result.data.note);
+                        $('#updateTotalWeight').val(result.data.totalWeight);
+                        $('#updateOrderModal').modal('show');
                     },
                     error: function (xhr, error) {
                         alert(xhr.statusText);
@@ -414,34 +505,47 @@
             $(button).closest('.order-item').remove(); 
         }
 
-        function getOrderDetail(orderId) {
+        
+        function loadOrderDetails(orderId) {
             $.ajax({
-                url: 'https://localhost:7149/api/OrderDetails/' + orderId,
+                url: 'https://localhost:7149/api/Orders/' + orderId,
                 type: "GET",
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
-                    $('#orderDetailBody').empty(); 
-                    if (result.data && result.data.length > 0) {
-                        result.data.forEach(function (item) {
-                            $('#orderDetailBody').append('<tr><td>' + item.koiId + '</td><td>' + item.price + '</td><td>' + item.quantity + '</td></tr>');
-                        });
+                    if (result && result.data) {
+                        // Hiển thị dữ liệu chi tiết đơn hàng trong modal
+                        let order = result.data;
+
+                        let orderDetailsHtml = `
+                            <tr>
+                                <td>${order.orderId}</td>
+                                <td>${order.totalAmount}</td>
+                                <td>${order.quantity}</td>
+                                <td>${getStatusText(order.status)}</td>
+                                <td>${order.userId}</td>
+                                <td>${order.voucherId || 'N/A'}</td>
+                                <td>${order.shippingAddress}</td>
+                                <td>${order.paymentMethod}</td>
+                                <td>${order.deliveryDate}</td>
+                                <td>${order.receiveDate}</td>
+                                <td>${order.note}</td>
+                                <td>${order.totalWeight}</td>
+                            </tr>`;
+
+                        $('#orderDetailBody').html(orderDetailsHtml); // Cập nhật dữ liệu vào bảng
+                        $('#orderDetailModal').modal('show'); // Hiển thị modal chi tiết
                     } else {
-                        $('#orderDetailBody').append('<tr><td colspan="3">No items found</td></tr>');
+                        alert('Không tìm thấy chi tiết đơn hàng.');
                     }
-                    $('#orderDetailModal').modal('show'); 
                 },
                 error: function (xhr, error) {
-                    alert(xhr.statusText);
+                    alert('Không thể lấy chi tiết đơn hàng: ' + xhr.statusText);
                 }
             });
         }
 
-        // Event listener for order detail button
-        $(document).on('click', '.btn-detail', function () {
-            var orderId = $(this).data('id');
-            getOrderDetail(orderId);
-        });
+       
 
         // Function to get status text based on status code
         function getStatusText(statusCode) {

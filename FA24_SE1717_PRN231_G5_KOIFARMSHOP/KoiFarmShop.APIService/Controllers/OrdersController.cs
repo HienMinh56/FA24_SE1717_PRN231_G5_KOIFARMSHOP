@@ -26,65 +26,33 @@ namespace KoiFarmShop.APIService.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IBusinessResult>> GetOrders()
+        public async Task<IBusinessResult> GetOrders()
         {
-            var result = await _orderService.GetOrders();
-            if (result.Status == 1)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return await _orderService.GetOrders();
         }
 
         [HttpGet("{OrderId}")]
-        public async Task<ActionResult<IBusinessResult>> GetOrderById(string OrderId)
+        public async Task<IBusinessResult> GetOrderById(string OrderId)
         {
-            var result = await _orderService.GetOrderById(OrderId);
-            if (result.Status == 1)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return await _orderService.GetOrderById(OrderId);
         }
 
         [HttpPost]
-        public async Task<ActionResult<IBusinessResult>> CreateOrder([FromBody] OrderCreateRequest request)
+        public async Task<IBusinessResult> CreateOrder([FromBody] Order order)
         {
             // Call the service to create the order
-            var result = await _orderService.CreateOrderAsync(request);
-
-            // Check the result and return the appropriate response
-            if (result.Status == 1)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return await _orderService.Save(order);
         }
 
         [HttpPut]
-        public async Task<ActionResult<IBusinessResult>> UpdateOrder(UpdateOrderRequest orderRequest)
+        public async Task<IBusinessResult> UpdateOrder([FromBody] Order order)
         {
-            var result = await _orderService.UpdateOrderAsync(orderRequest);
-            if (result.Status == 1)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return await _orderService.Save(order);
         }
         [HttpDelete("{orderId}")]
-        public async Task<ActionResult<IBusinessResult>> DeleteOrder(string orderId)
+        public async Task<IBusinessResult> DeleteOrder(string orderId)
         {
-            var result = await _orderService.DeleteOrderAsync(orderId);
-            if (result.Status == 1)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return await _orderService.DeleteOrderAsync(orderId);
         }
     }
 }

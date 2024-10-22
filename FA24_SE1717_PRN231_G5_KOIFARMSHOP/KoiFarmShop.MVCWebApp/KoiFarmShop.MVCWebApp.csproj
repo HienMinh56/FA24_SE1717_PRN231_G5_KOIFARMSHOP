@@ -19,4 +19,8 @@
     <ProjectReference Include="..\KoiFarmShop.Data\KoiFarmShop.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="OrderRazor\" />
+  </ItemGroup>
+
 </Project>
