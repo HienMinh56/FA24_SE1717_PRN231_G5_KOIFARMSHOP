@@ -176,14 +176,15 @@ namespace KoiFarmShop.Service
                     {
                         VoucherId = voucher.VoucherId,
                         VoucherCode = voucher.VoucherCode,
-                        VoucherName = voucher.VoucherName,
+                        VoucherName = voucher.VoucherName ?? "",
                         DiscountAmount = voucher.DiscountAmount,
                         MinOrderAmount = voucher.MinOrderAmount,
                         Status = voucher.Status,
                         ValidityStartDate = voucher.ValidityStartDate,
                         ValidityEndDate = voucher.ValidityEndDate,
                         Quantity = voucher.Quantity,
-                        Note = voucher.Note,
+                        
+                        Note = voucher.Note ?? "",
                         ApplyMethod = voucher.ApplyMethod,
 
                         CreatedDate = DateTime.Now,
