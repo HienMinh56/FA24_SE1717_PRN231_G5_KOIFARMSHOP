@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="OrderRazor\**" />
+    <Content Remove="OrderRazor\**" />
+    <EmbeddedResource Remove="OrderRazor\**" />
+    <None Remove="OrderRazor\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -17,10 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\KoiFarmShop.APIService\KoiFarmShop.APIService.csproj" />
     <ProjectReference Include="..\KoiFarmShop.Data\KoiFarmShop.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="OrderRazor\" />
   </ItemGroup>
 
 </Project>

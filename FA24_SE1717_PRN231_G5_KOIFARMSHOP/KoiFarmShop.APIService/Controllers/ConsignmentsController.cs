@@ -40,17 +40,17 @@ namespace KoiFarmShop.APIService.Controllers
         // POST: api/Consignments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<IBusinessResult> PostConsignment(CreateConsignmentRequest consignment)
+        public async Task<IBusinessResult> PostConsignment([FromBody] CreateConsignmentRequest consignment)
         {
-            return await _consignmentService.Create(consignment);
+            return await _consignmentService.SaveConsignment(consignment);
         }
 
-        // PUT: api/Consignments/5
+        // PUT: api/Consignments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<IBusinessResult> PutConsignment(UpdateConsignmentRequest consignment)
+        public async Task<IBusinessResult> PutConsignment([FromBody] UpdateConsignmentRequest consignment)
         {
-            return await _consignmentService.Update(consignment);
+            return await _consignmentService.SaveConsignment(consignment);
         }
 
         [HttpDelete("{consignmentId}")]

@@ -63,6 +63,18 @@
             <th>
                 @Html.DisplayNameFor(model => model.User.UserId)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Note)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CustomerContact)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CustomerAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalWeight)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -155,6 +167,18 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UserId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Note)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CustomerContact)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CustomerAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalWeight)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ConsignmentId">Edit</a> |

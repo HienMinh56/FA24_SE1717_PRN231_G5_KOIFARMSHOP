@@ -188,6 +188,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         {
                             // Deserialize result.Data as a list of Consignments
                             var consignments = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
+                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
+                            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+                            return View();
                         }
                     }
                     else
@@ -196,9 +199,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     }
                 }
             }
-
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+            
             return View(consignmentTmp);
         }
 
@@ -207,13 +208,16 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateConsignmentRequest consignment)
         {
-            bool saveStatus = false;
-
             if (ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine(error); // Hoặc ghi vào log
+                }
+
                 using (var httpClient = new HttpClient())
                 {
-                    // Properly send the voucher in the body of the POST request
                     using (var response = await httpClient.PostAsJsonAsync(Const.APIEndpoint + "Consignments", consignment))
                     {
                         if (response.IsSuccessStatusCode)
@@ -223,13 +227,11 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
                             if (result != null && result.Status == Const.SUCCESS_CREATE_CODE)
                             {
-                                saveStatus = true;
                                 return RedirectToAction(nameof(Index));
 
                             }
                             else
                             {
-                                saveStatus = false;
                                 ModelState.AddModelError("", "Failed to create the consignment. Please try again later.");
                             }
                         }
@@ -272,6 +274,10 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             consignmentTmp.DealPrice = consignment.DealPrice;
                             consignmentTmp.Method = consignment.Method;
                             consignmentTmp.Status = consignment.Status;
+                            consignmentTmp.Note = consignment.Note;
+                            consignmentTmp.CustomerContact = consignment.CustomerContact;
+                            consignmentTmp.CustomerAddress = consignment.CustomerAddress;
+                            consignmentTmp.TotalWeight = consignment.TotalWeight;
                         }
                     }
                     else

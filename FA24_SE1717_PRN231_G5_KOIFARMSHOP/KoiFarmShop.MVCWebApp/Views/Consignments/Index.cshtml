@@ -35,6 +35,10 @@
                     <th class="card-title text-center">Method</th>
                     <th class="card-title text-center">Payment Id</th>
                     <th class="card-title text-center">Status</th>
+                    <th class="card-title text-center">Note</th>
+                    <th class="card-title text-center">CustomerContact</th>
+                    <th class="card-title text-center">CustomerAddress</th>
+                    <th class="card-title text-center">TotalWeight</th>
                     <th class="card-title text-center">Consignment Date</th>
                     <th class="card-title text-center">Created Date</th>
                     <th class="card-title text-center">Created By</th>
@@ -102,20 +106,32 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
+                                    <label for="note1">Note</label>
+                                    <input type="text" class="form-control" id="note1" name="note" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="customerContact1">Customer Contact</label>
+                                    <input type="text" class="form-control" id="customerContact1" name="customerContact" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="customerAddress1">Customer Address</label>
+                                    <input type="text" class="form-control" id="customerAddress1" name="customerAddress" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="totalWeight1">Total Weight</label>
+                                    <input type="number" class="form-control" id="totalWeight1" name="totalWeight" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
                                     <label for="consignmentDate1">Consignment Date</label>
                                     <input type="date" class="form-control" id="consignmentDate1" name="consignmentDate" required />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="createdDate1">Created Date</label>
-                                    <input type="datetime-local" class="form-control" id="createdDate1" name="createdDate" required />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="createdBy1">Created By</label>
-                                    <input type="text" class="form-control" id="createdBy1" name="createdBy" required />
                                 </div>
                             </div>
                         </div>
@@ -167,14 +183,26 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="modifiedDateUpdate">Modified Date</label>
-                                    <input type="datetime-local" class="form-control" id="modifiedDateUpdate" name="modifiedDate" required />
+                                    <label for="noteUpdate">Note</label>
+                                    <input type="text" class="form-control" id="noteUpdate" name="note" required />
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="modifiedByUpdate">Modified By</label>
-                                    <input type="text" class="form-control" id="modifiedByUpdate" name="modifiedBy" required />
+                                    <label for="customerContactUpdate">Customer Contact</label>
+                                    <input type="text" class="form-control" id="customerContactUpdate" name="customerContact" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="customerAddressUpdate">Customer Address</label>
+                                    <input type="text" class="form-control" id="customerAddressUpdate" name="customerAddress" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="totalWeightUpdate">Total Weight</label>
+                                    <input type="number" class="form-control" id="totalWeightUpdate" name="totalWeight" required />
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -213,7 +241,7 @@
 
             $('form').on('submit', function (e) {
                 e.preventDefault();
-                loadData(1); // Gọi hàm với số trang 1 khi tìm kiếm
+                loadData(1);
             });
 
         });
@@ -248,18 +276,29 @@
                         html += '<td>' + (item.paymentId || 'N/A') + '</td>';
                         var statusText = ["Pending", "Agreed", "In store", "Sold", "Returned", "Canceled"][item.status - 1];
                         html += '<td>' + statusText + '</td>';
+                        html += '<td>' + item.note + '</td>';
+                        html += '<td>' + item.customerContact + '</td>';
+                        html += '<td>' + item.customerAddress + '</td>';
+                        html += '<td>' + item.totalWeight + '</td>';
                         html += '<td>' + item.consignmentDate + '</td>';
                         html += '<td>' + item.createdDate + '</td>';
                         html += '<td>' + item.createdBy + '</td>';
-                        html += '<td>' + item.modifiedDate + '</td>';
-                        html += '<td>' + item.modifiedBy + '</td>';
-                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\'' + item.koiId + '\', \'' + item.userId + '\', \'' + item.type + '\', \'' + item.dealPrice + '\', \'' + item.method + '\', \'' + item.status + '\', \'' + item.consignmentDate + '\', \'' + item.createdDate + '\', \'' + item.createdBy + '\', \'' + item.modifiedDate + '\', \'' + item.modifiedBy + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
+                        html += '<td>' + (item.modifiedDate || 'N/A') + '</td>';
+                        html += '<td>' + (item.modifiedBy || 'N/A') + '</td>';
+                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\'' 
+                                                                                                  + item.koiId + '\', \'' 
+                                                                                                  + item.userId + '\', \'' 
+                                                                                                  + item.type + '\', \'' 
+                                                                                                  + item.dealPrice + '\', \'' 
+                                                                                                  + item.method + '\', \'' 
+                                                                                                  + item.status + '\', \''
+                                                                                                  + item.note + '\', \''
+                                                                                                  + item.customerContact + '\', \''
+                                                                                                  + item.customerAddress + '\', \''
+                                                                                                  + item.totalWeight + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
                         html += '</tr>';
                     });
                     $('.tblConsignments').html(html);
-
-                    console.log(result);
-
                     updatePagination(result.totalCount, page);
                 },
                 error: function (xhr) {
@@ -299,8 +338,10 @@
                 DealPrice: $("#dealPrice1").val(),
                 Method: $("#method1").val(),
                 ConsignmentDate: $("#consignmentDate1").val(),
-                CreatedDate: $("#createdDate1").val(),
-                CreatedBy: $("#createdBy1").val(),
+                Note: $("#note1").val(),
+                CustomerContact: $("#customerContact1").val(),
+                CustomerAddress: $("#customerAddress1").val(),
+                TotalWeight: $("#totalWeight1").val()
             };
 
             $.ajax({
@@ -322,7 +363,7 @@
         }
 
         // Open Edit Modal
-        function editConsignment(consignmentId, koiId, userId, type, dealPrice, method, status) {
+        function editConsignment(consignmentId, koiId, userId, type, dealPrice, method, status, note, customerContact, customerAddress, totalWeight) {
             $("#consignmentIdUpdate").val(consignmentId);
             $("#koiIdUpdate").val(koiId);
             $("#userIdUpdate").val(userId);
@@ -330,6 +371,10 @@
             $("#dealPriceUpdate").val(dealPrice);
             $("#methodUpdate").val(method);
             $("#statusUpdate").val(status);
+            $("#noteUpdate").val(note);
+            $("#customerContactUpdate").val(customerContact);
+            $("#customerAddressUpdate").val(customerAddress);
+            $("#totalWeightUpdate").val(totalWeight);
             $("#consignmentModalLabel").html("Update Consignment");
             $('#consignmentModal').modal('show');
             $('#orderItemsSection').hide();
@@ -345,9 +390,12 @@
                 type: $("#typeUpdate").val(),
                 dealPrice: $("#dealPriceUpdate").val(),
                 method: $("#methodUpdate").val(),
-                status: $("#statusUpdate").val(),
-                modifiedDate: $("#modifiedDateUpdate").val(),
-                modifiedBy: $("#modifiedByUpdate").val(),
+                ConsignmentDate: $("#consignmentDate1").val(),
+                note: $("#noteUpdate").val(),
+                customerContact: $("#customerContactUpdate").val(),
+                customerAddress: $("#customerAddressUpdate").val(),
+                totalWeight: $("#totalWeightUpdate").val(),
+                status: $("#statusUpdate").val()                
             }
 
             $.ajax({
