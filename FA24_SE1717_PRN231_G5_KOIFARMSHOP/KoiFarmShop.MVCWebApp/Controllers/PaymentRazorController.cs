@@ -260,6 +260,10 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                     ConsignmentId = paymentRequest.Type == 2 ? paymentRequest.ConsignmentId : null, // type = 2
                     CreatedDate = paymentRequest.CreatedDate,
                     Status = paymentRequest.Status,
+                    Currency = paymentRequest.Currency,
+                    PaymentMethod = paymentRequest.PaymentMethod,
+                    Refundable = paymentRequest.Refundable,
+                    Note = paymentRequest.Note,
                 };
 
                 var jsonContent = JsonConvert.SerializeObject(paymentToCreate);
@@ -311,6 +315,10 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                             updatePayment.UserId = payment.UserId;
                             updatePayment.Amount = payment.Amount;
                             updatePayment.Status = payment.Type;
+                            updatePayment.PaymentMethod = payment.PaymentMethod;
+                            updatePayment.Currency = payment.Currency;
+                            updatePayment.Refundable = payment.Refundable;
+                            updatePayment.Note = payment.Note;
                             updatePayment.CreatedDate = (DateTime)payment.CreatedDate;
                         }
                     }

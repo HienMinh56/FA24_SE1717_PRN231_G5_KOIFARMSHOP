@@ -20,6 +20,8 @@ namespace KoiFarmShop.Data.Repository
                 string userId = string.Empty;
                 double amount = 0;
                 string paymentId;
+                string orderId;
+                string consignmentId;
 
                 if (createPaymentRequest.Type == 1) // Type 1: Order
                 {
@@ -34,6 +36,7 @@ namespace KoiFarmShop.Data.Repository
 
                     userId = order.UserId;
                     amount = order.TotalAmount;
+                    orderId = order.OrderId;
 
                     paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                     order.PaymentId = paymentId;
@@ -59,6 +62,7 @@ namespace KoiFarmShop.Data.Repository
 
                     userId = consignment.UserId;
                     amount = consignment.DealPrice ?? 0; // DealPrice null = 0
+                    consignmentId = consignment.ConsignmentId;
 
                     paymentId = $"PAYMENT{(await Count() + 1).ToString("D4")}";
                     consignment.PaymentId = paymentId;
@@ -75,8 +79,14 @@ namespace KoiFarmShop.Data.Repository
                     PaymentId = paymentId,
                     UserId = userId,
                     Amount = amount,
+                    ConsignmentId = createPaymentRequest.ConsignmentId,
+                    OrderId = createPaymentRequest.OrderId,
                     Type = createPaymentRequest.Type,
                     Status = createPaymentRequest.Status,
+                    Currency = createPaymentRequest.Currency,
+                    PaymentMethod = createPaymentRequest.PaymentMethod,
+                    Refundable = createPaymentRequest.Refundable,
+                    Note = createPaymentRequest.Note,
                     CreatedDate = createPaymentRequest.CreatedDate
                 };
 

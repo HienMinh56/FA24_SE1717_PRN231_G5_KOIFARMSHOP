@@ -23,6 +23,24 @@
             @Html.DisplayFor(model => model.VoucherCode)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VoucherName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VoucherName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ApplyMethod)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ApplyMethod)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Quantity)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.DiscountAmount)
         </dt>
         <dd class="col-sm-10">
@@ -53,32 +71,15 @@
             @Html.DisplayFor(model => model.ValidityEndDate)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
+            @Html.DisplayNameFor(model => model.Note)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
+            @Html.DisplayFor(model => model.Note)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedBy)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ModifiedDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ModifiedDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ModifiedBy)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ModifiedBy)
-        </dd>
+
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.VoucherId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.VoucherId" class="btn btn-sm btn-warning">Edit</a> |
+    <a asp-action="Index" class="btn btn-sm btn-secondary">Back to List</a>
 </div>

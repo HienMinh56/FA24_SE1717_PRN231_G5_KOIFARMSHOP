@@ -23,6 +23,21 @@
                 <span asp-validation-for="VoucherCode" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="VoucherName" class="control-label"></label>
+                <input asp-for="VoucherName" class="form-control" />
+                <span asp-validation-for="VoucherName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ApplyMethod" class="control-label"></label>
+                <input asp-for="ApplyMethod" class="form-control" />
+                <span asp-validation-for="ApplyMethod" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="DiscountAmount" class="control-label"></label>
                 <input asp-for="DiscountAmount" class="form-control" />
                 <span asp-validation-for="DiscountAmount" class="text-danger"></span>
@@ -46,6 +61,11 @@
                 <label asp-for="ValidityEndDate" class="control-label"></label>
                 <input asp-for="ValidityEndDate" class="form-control" />
                 <span asp-validation-for="ValidityEndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Note" class="control-label"></label>
+                <input asp-for="Note" class="form-control" />
+                <span asp-validation-for="Note" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
