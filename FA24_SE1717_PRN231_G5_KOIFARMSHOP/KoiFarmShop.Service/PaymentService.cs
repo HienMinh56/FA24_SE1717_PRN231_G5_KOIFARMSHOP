@@ -86,6 +86,10 @@ namespace KoiFarmShop.Service
 
                 paymentEntity.Status = payment.Status;
                 paymentEntity.Amount = payment.Amount;
+                paymentEntity.PaymentMethod = payment.PaymentMethod;
+                paymentEntity.Currency = payment.Currency;
+                paymentEntity.Note = payment.Note;
+                paymentEntity.Refundable = payment.Refundable;
                 paymentEntity.CreatedDate = payment.CreatedDate;
 
                 var result = await _unitOfWork.PaymentRepository.UpdateAsync(paymentEntity);

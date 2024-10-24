@@ -16,6 +16,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.PaymentId)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.FullName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.FullName)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Amount)
         </dt>
@@ -25,14 +31,50 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Type)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Type)
+        <dd class="col-sm-10">
+            @(Model.Type == 1 ? "Order" : "Consignments")
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ConsignmentId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ConsignmentId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.OrderId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.OrderId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PaymentMethod)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PaymentMethod)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Currency)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Currency)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Refundable)
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.Refundable == 1 ? "Yes" : "No")
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Note)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Note)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Status)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
+            @(Model.Status == 1 ? "Success" : Model.Status == 2 ? "Pending" : "Cancel")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.CreatedDate)
@@ -40,12 +82,7 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.CreatedDate)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.UserName)
-        </dd>
+
     </dl>
 </div>
 <div>
