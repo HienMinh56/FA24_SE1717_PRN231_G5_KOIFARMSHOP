@@ -29,11 +29,15 @@
         <tr class="card-header">
             <th class="card-title text-center">VoucherId</th>
             <th class="card-title text-center">VoucherCode</th>
+            <th class="card-title text-center">VoucherName</th>
+            <th class="card-title text-center">ApplyMethod</th>
             <th class="card-title text-center">DiscountAmount</th>
             <th class="card-title text-center">MinOrderAmount</th>
+            <th class="card-title text-center">Quanlity</th>
             <th class="card-title text-center">ValidityStartDate</th>
             <th class="card-title text-center">ValidityEndDate</th>
             <th class="card-title text-center">Status</th>
+            <th class="card-title text-center">Note</th>
 
         </tr>
     </thead>
@@ -41,6 +45,8 @@
         <!-- Rows will be populated here -->
     </tbody>
 </table>
+
+
 
 <div class="modal" id="VoucherModal" tabindex="-1" aria-labelledby="VoucherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -59,6 +65,10 @@
                             <label for="voucherId" class="form-label">Voucher Id</label>
                             <input type="text" class="form-control" id="voucherId" required>
                         </div>
+                        <div class="col-4">
+                            <label for="note" class="form-label">Note</label>
+                            <input type="text" class="form-control" id="note" required>
+                        </div>
                     </div>
                     <div class="row mb-3">
 
@@ -67,6 +77,16 @@
                             <input type="text" class="form-control" id="voucherCode" required>
                         </div>
                         <div class="col-4">
+                            <label for="voucherName" class="form-label">Voucher Name</label>
+                            <input type="text" class="form-control" id="voucherName" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="applyMethod" class="form-label">Apply Method</label>
+                            <input type="number" class="form-control" id="applyMethod" required>
+                        </div>
+                        </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
                             <label for="discountAmount" class="form-label">Discount Amount</label>
                             <input type="number" class="form-control" id="discountAmount" required>
                         </div>
@@ -74,7 +94,13 @@
                             <label for="minOrderAmount" class="form-label">Min Order Amount</label>
                             <input type="number" class="form-control" id="minOrderAmount" required>
                         </div>
+
+                        <div class="col-4">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" required>
+                        </div>
                     </div>
+                
                     <div class="row mb-3">
                         <div class="col-4">
                             <label for="validityStartDate" class="form-label">Validity Start Date</label>
@@ -250,11 +276,15 @@
                             html += '<tr>';
                             html += '<td>' + item.voucherId + '</td>';
                             html += '<td>' + item.voucherCode + '</td>';
+                            html += '<td>' + item.voucherName + '</td>';
+                            html += '<td>' + item.applyMethod + '</td>';
                             html += '<td>' + item.discountAmount + '%</td>';
                             html += '<td>' + item.minOrderAmount+ '</td>';
+                            html += '<td>' + item.quanlity + '</td>';
                             html += '<td>' + item.validityStartDate + '</td>';
                             html += '<td>' + item.validityEndDate + '</td>';
                             html += '<td>' + getStatusText (item.status) + '</td>';
+                            html += '<td>' + item.note + '</td>';
                             html += '<td>' +
                             '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(\'' + item.voucherId + '\') ">Update</button> ' +
                             '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(\'' + item.voucherId + '\'); ">Details</button>' +
@@ -295,11 +325,14 @@
                     var voucher = result.data;
                     $('#voucherdetailId').val(voucher.voucherId);
                     $('#voucherdetailCode').val(voucher.voucherCode);
+                   
                     $('#discountdetailAmount').val(voucher.discountAmount);
                     $('#minOrderdetailAmount').val(voucher.minOrderAmount);
+                   
                     $('#validitydetailStartDate').val(voucher.validityStartDate);
                     $('#validitydetailEndDate').val(voucher.validityEndDate);
                     $('#statusdetail').val(getStatusText(voucher.status));
+                    
                     $('#VoucherdetailModal').modal('show');
 
                 },
@@ -342,11 +375,15 @@
                 html += '<tr>';
                 html += '<td>' + item.voucherId + '</td>';
                 html += '<td>' + item.voucherCode + '</td>';
+                html += '<td>' + item.voucherName + '</td>';
+                html += '<td>' + item.applyMethod + '</td>';
                 html += '<td>' + item.discountAmount + '%</td>';
                 html += '<td>' + item.minOrderAmount + '</td>';
+                html += '<td>' + item.quantity + '</td>';
                 html += '<td>' + item.validityStartDate + '</td>';
                 html += '<td>' + item.validityEndDate + '</td>';
                 html += '<td>' + getStatusText(item.status) + '</td>';
+                html += '<td>' + item.note + '</td>';
                 html += '<td>' +
                     '<button type="button" class="btn btn-warning btn-update" onclick="updateVoucher(\'' + item.voucherId + '\') ">Update</button> ' +
                     '<button type="button" class="btn btn-info btn-detail" onclick="detailVoucher(\'' + item.voucherId + '\'); ">Details</button>' +
@@ -364,15 +401,19 @@
             var obj = {
                 voucherId: $('#voucherId').val(),
                 voucherCode: $('#voucherCode').val(),
+                voucherName: $('#voucherName').val(),
+                applyMethod: $('#applyMethod').val(),
                 discountAmount: $('#discountAmount').val(),
                 minOrderAmount: $('#minOrderAmount').val(),
+                quantity: $('#quantity').val(),
                 validityStartDate: $('#validityStartDate').val(),
                 validityEndDate: $('#validityEndDate').val(),
                 status: $('#status').val(),
                 createdDate: new Date().toISOString(),
                 createdBy: "string",
                 modifiedDate: new Date().toISOString(),
-                modifiedBy: "string"
+                modifiedBy: "string",
+                note: "string"
             };
 
             $.ajax({
