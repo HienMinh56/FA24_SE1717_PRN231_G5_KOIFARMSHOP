@@ -19,18 +19,35 @@
         <input type="text" class="form-control" id="Type" name="Type" placeholder=" Type" value="@ViewBag.Type" />
     </div>
 
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="PaymentMethod" name="PaymentMethod" placeholder=" PaymentMethod" value="@ViewBag.PaymentMethod" />
+    </div>
+
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Refundable" name="Refundable" placeholder=" Refundable" value="@ViewBag.Refundable" />
+    </div>
+
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Currency" name="Currency" placeholder=" Currency" value="@ViewBag.Currency" />
+    </div>
+
+
     <button type="submit" class="btn btn-primary">Search</button>
 </form>
 <table class="table">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.PaymentId)</th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserId)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.UserId)</th>
             <th>@Html.DisplayNameFor(model => model.Amount)</th>
-            <th>Type</th>
-            <th>Status</th>
+            <th>@Html.DisplayNameFor(model => model.Type)</th>
+            <th>@Html.DisplayNameFor(model => model.Status)</th>
+            <th>@Html.DisplayNameFor(model => model.PaymentMethod)</th>
+            <th>@Html.DisplayNameFor(model => model.Refundable)</th>
+            <th>@Html.DisplayNameFor(model => model.Currency)</th>
+            <th>@Html.DisplayNameFor(model => model.OrderId)</th>
+            <th>@Html.DisplayNameFor(model => model.ConsignmentId)</th>
+            <th>@Html.DisplayNameFor(model => model.Note)</th>
             <th>@Html.DisplayNameFor(model => model.CreatedDate)</th>
             <th></th>
         </tr>
@@ -48,6 +65,12 @@
                 <td>
                     @(item.Status == 1 ? "Success" : item.Status == 2 ? "Pending" : "Cancel")
                 </td>
+                <td>@Html.DisplayFor(modelItem => item.PaymentMethod)</td>
+                <td>@(item.Refundable == 1 ? "Yes" : "No")</td>
+                <td>@Html.DisplayFor(modelItem => item.Currency)</td>
+                <td>@Html.DisplayFor(modelItem => item.OrderId)</td>
+                <td>@Html.DisplayFor(modelItem => item.ConsignmentId)</td>
+                <td>@Html.DisplayFor(modelItem => item.Note)</td>
                 <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.PaymentId">Edit</a> |

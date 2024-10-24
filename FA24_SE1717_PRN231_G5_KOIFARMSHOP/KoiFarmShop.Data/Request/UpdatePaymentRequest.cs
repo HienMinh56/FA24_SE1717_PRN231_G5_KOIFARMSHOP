@@ -13,6 +13,10 @@ namespace KoiFarmShop.Data.Request
         public int Status { get; set; }
         public double Amount { get; set; }
         public string UserId { get; set; }
+        public string PaymentMethod { get; set; }
+        public int? Refundable { get; set; }
+        public string Currency { get; set; }
+        public string Note { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
