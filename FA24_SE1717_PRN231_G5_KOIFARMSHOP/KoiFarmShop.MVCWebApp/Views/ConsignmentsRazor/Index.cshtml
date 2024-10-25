@@ -61,7 +61,7 @@
                 @Html.DisplayNameFor(model => model.Payment)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.User.UserId)
+                @Html.DisplayNameFor(model => model.User)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Note)
@@ -151,7 +151,7 @@
                     @Html.DisplayFor(modelItem => item.ModifiedBy)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.KoiId)
+                    @Html.DisplayFor(modelItem => item.Koi.KoiName)
                 </td>
                 <td>
                     @{
@@ -166,7 +166,7 @@
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserId)
+                    @Html.DisplayFor(modelItem => item.User.UserName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Note)
