@@ -61,12 +61,6 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="orderId">Order ID</label>
-                                <input type="text" class="form-control" id="orderId" name="orderId" required />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
                                 <label for="userId">User ID</label>
                                 <input type="text" class="form-control" id="userId" name="userId" required />
                             </div>
@@ -81,24 +75,10 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="totalAmount">Total Amount</label>
-                                <input type="number" class="form-control" id="totalAmount" name="totalAmount" required />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="quantity">Quantity</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" required />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
                                 <label for="status">Status</label>
                                 <input type="text" class="form-control" id="status" name="status" required />
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="shippingAddress">Shipping Address</label>
@@ -132,6 +112,29 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Order Details Section -->
+                    <h5>Order Details</h5>
+                    <div id="orderDetailsContainer">
+                        <div class="row order-detail">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="koiId">Koi ID</label>
+                                    <input type="text" class="form-control" name="koiId" required />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="detailQuantity">Quantity</label>
+                                    <input type="number" class="form-control" name="quantity" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger remove-detail">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addDetail">Add Another Detail</button>
                 </div>
                 <div class="modal-footer">
                     <button id="btSave" type="button" class="btn btn-primary">Save</button>
@@ -141,6 +144,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Modal for Updating Orders -->
@@ -155,14 +159,6 @@
                 <div class="form-group">
                     <label for="updateOrderId">Order ID</label>
                     <input type="text" class="form-control" id="updateOrderId" name="orderId" readonly />
-                </div>
-                <div class="form-group">
-                    <label for="updateTotalAmount">Total Amount</label>
-                    <input type="text" class="form-control" id="updateTotalAmount" name="updateTotalAmount" />
-                </div>
-                <div class="form-group">
-                    <label for="updateQuantity">Quantity</label>
-                    <input type="text" class="form-control" id="updateQuantity" name="updateQuantity" />
                 </div>
                 <div class="form-group">
                     <label for="updateStatus">Status</label>
@@ -268,35 +264,78 @@
                 filterOrders();
             });
             $('#btSave').click(function () {
-                var obj = {
-                    orderId: $('#orderId').val(),
+                var orderDetails = [];
+
+                // Gather order details from the form
+                $('#orderDetailsContainer .order-detail').each(function () {
+                    var detail = {
+                        koiId: $(this).find('input[name="koiId"]').val(),
+                        quantity: parseInt($(this).find('input[name="quantity"]').val())
+                    };
+                    orderDetails.push(detail);
+                });
+
+                var order = {
                     userId: $('#userId').val(),
-                    voucherId: $('#voucherCode').val() || null,
-                    totalAmount: parseFloat($('#totalAmount').val()),
-                    quantity: parseInt($('#quantity').val()),
-                    status: $('#updateStatus').val(),
+                    status: parseInt($('#status').val()), // Ensure this is an integer
+                    voucherId: $('#voucherCode').val() || null, // Ensure this is captured
                     shippingAddress: $('#shippingAddress').val(),
                     paymentMethod: $('#paymentMethod').val(),
-                    deliveryDate: $('#deliveryDate').val(),
+                    deliveryDate: new Date($('#deliveryDate').val()).toISOString(), // Convert to ISO string
+                    receiveDate: new Date().toISOString(), // Set to current time or another value as needed
                     note: $('#note').val() || null,
-                    totalWeight: parseFloat($('#totalWeight').val())
+                    totalWeight: parseFloat($('#totalWeight').val()),
+                    orderDetails: orderDetails
                 };
+
+                // Log the order object before sending
+                console.log("Order Object:", JSON.stringify(order));
 
                 $.ajax({
                     url: 'https://localhost:7149/api/Orders',
                     type: "POST",
                     contentType: "application/json;charset=utf-8",
-                    data: JSON.stringify(obj),
+                    data: JSON.stringify(order), // Sending the order object directly
                     success: function (result) {
                         alert(result.message);
                         $('#orderModal').modal('hide');
-                        loadData();
+                        loadData(); // Call your function to refresh the data on the page
                     },
                     error: function (xhr, error) {
                         alert(xhr.statusText);
                     }
                 });
             });
+
+            // Add functionality to dynamically add order details
+            $('#addDetail').click(function () {
+                var detailHtml = `
+                <div class="row order-detail">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label for="koiId">Koi ID</label>
+                            <input type="text" class="form-control" name="koiId" required />
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label for="detailQuantity">Quantity</label>
+                            <input type="number" class="form-control" name="quantity" required />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-detail">Remove</button>
+                    </div>
+                </div>
+            `;
+                $('#orderDetailsContainer').append(detailHtml);
+            });
+
+            // Event to remove order detail row
+            $(document).on('click', '.remove-detail', function () {
+                $(this).closest('.order-detail').remove();
+            });
+
 
 
 

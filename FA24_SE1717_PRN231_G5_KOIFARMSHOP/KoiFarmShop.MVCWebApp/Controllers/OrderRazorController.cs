@@ -172,8 +172,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
                         if (result is not null)
                         {
-                            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
-                            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
+                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+                            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
 
                             return View(order);
                         }
@@ -182,8 +182,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             }
 
             // Fallback if data fetching fails
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
-            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
+
             return View(order);
         }
 
@@ -229,8 +230,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             }
 
             // Repopulate ViewData for dropdowns if ModelState is invalid
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
-            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
+
 
             return View(order);
         }
@@ -266,8 +268,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         order.OrderDetails = orderDetails;
 
                         // Set ViewData for dropdowns
-                        ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
-                        ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode", order.VoucherId);
+                        ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+                        ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
+
 
                         return View(order);
                     }
@@ -320,8 +323,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             }
 
             // If we get here, something went wrong, so return the view with the voucher data
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
-            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode", order.VoucherId);
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email", order.UserId);
+            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode", order.VoucherId);
+
             return View(order);
         }
 
