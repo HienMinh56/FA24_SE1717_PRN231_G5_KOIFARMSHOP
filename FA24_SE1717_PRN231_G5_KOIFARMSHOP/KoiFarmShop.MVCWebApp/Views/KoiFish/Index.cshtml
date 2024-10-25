@@ -9,6 +9,23 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<form method="get" asp-action="Index">
+    <label for="KoiName">Koi Name</label>
+    <input type="text" class="form-control" id="KoiName" name="koiname" value="">
+
+    <label for="Gender">Gender</label>
+    <input type="text" class="form-control" id="Gender" name="gender" value="">
+
+    <label for="MinPrice">Min Price</label>
+    <input type="number" step="0.01" class="form-control" id="MinPrice" name="minPrice" value="">
+
+    <label for="MaxPrice">Max Price</label>
+    <input type="number" step="0.01" class="form-control" id="MaxPrice" name="maxPrice" value="">
+
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>

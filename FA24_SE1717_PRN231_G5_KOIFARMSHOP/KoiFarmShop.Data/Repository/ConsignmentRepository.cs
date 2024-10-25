@@ -15,33 +15,5 @@ namespace KoiFarmShop.Data.Repository
         {
             _context = context;
         }
-
-        public async Task<List<Consignment>> GetAllConsignmentAsync()
-        {
-            var consignments = await _context.Consignments
-                                             .AsNoTracking()
-                                             .Include(k => k.Koi)
-                                             .Include(u => u.User)
-                                             .Include(p => p.Payment)
-                                                 .ThenInclude(o => o.Orders)
-                                                 .DefaultIfEmpty()
-                                             .ToListAsync();
-            return consignments ?? new List<Consignment>();
-        }
-
-        public async Task<Consignment> GetConsignmentByIdAsync(string ConsignmentId)
-        {
-            var consignment = await _context.Consignments
-                                            .AsNoTracking()
-                                            .Where(c => c.ConsignmentId == ConsignmentId)
-                                            .Include(k => k.Koi)
-                                             .Include(u => u.User)
-                                             .Include(p => p.Payment)
-                                                 .ThenInclude(o => o.Orders)
-                                                 .DefaultIfEmpty()
-                                            .FirstOrDefaultAsync();
-
-            return consignment ?? new Consignment();
-        }
     }
 }
