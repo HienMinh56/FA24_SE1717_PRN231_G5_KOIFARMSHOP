@@ -127,29 +127,41 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "Orders/" + id))
+                // Fetch the main Order data
+                var orderResponse = await httpClient.GetAsync(Const.API_ENDPOINT + "Orders/" + id);
+                if (orderResponse.IsSuccessStatusCode)
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                    var orderContent = await orderResponse.Content.ReadAsStringAsync();
+                    var orderResult = JsonConvert.DeserializeObject<BusinessResult>(orderContent);
+                    var order = JsonConvert.DeserializeObject<Order>(orderResult?.Data?.ToString() ?? "");
 
-                        if (result != null && result.Data != null)
-                        {
-                            var data = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
-                            return View(data);
-                        }
+                    // Fetch OrderDetails for this specific Order ID
+                    var detailsResponse = await httpClient.GetAsync(Const.API_ENDPOINT + "OrderDetails/" + id);
+                    if (detailsResponse.IsSuccessStatusCode)
+                    {
+                        var detailsContent = await detailsResponse.Content.ReadAsStringAsync();
+                        var detailsResult = JsonConvert.DeserializeObject<BusinessResult>(detailsContent);
+                        var orderDetails = JsonConvert.DeserializeObject<List<OrderDetail>>(detailsResult?.Data?.ToString() ?? "");
+
+                        // Assign fetched OrderDetails to the Order object
+                        order.OrderDetails = orderDetails;
+
+
+                        return View(order);
                     }
                 }
             }
 
+            // Handle cases where either the order or details fetching fails
             return View(new Order());
         }
 
         // GET: OrderRazor/Create
         public async Task<IActionResult> Create()
         {
-            var Order = new Order();
+            // Initialize empty Order object
+            var order = new Order();
+
             using (var httpClient = new HttpClient())
             {
                 using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Orders"))
@@ -160,31 +172,35 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         var result = JsonConvert.DeserializeObject<BusinessResult>(content);
                         if (result is not null)
                         {
-                            var orders = JsonConvert.DeserializeObject<List<Order>>(result.Data.ToString());
                             ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
                             ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
 
-                            return View();
+                            return View(order);
                         }
                     }
                 }
             }
 
-            return View();
+            // Fallback if data fetching fails
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
+            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
+            return View(order);
         }
 
         // POST: OrderRazor/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,Note,TotalWeight")] Order order)
+        public async Task<IActionResult> Create([Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,Note,TotalWeight,OrderDetails")] Order order)
         {
+            if (order.OrderDetails == null || !order.OrderDetails.Any())
+            {
+                ModelState.AddModelError("", "Order details are missing. Please add at least one item.");
+            }
             if (ModelState.IsValid)
             {
                 using (var httpClient = new HttpClient())
                 {
-                    // Properly send the voucher in the body of the POST request
+                    // Set API endpoint and send the full Order object, including OrderDetails
                     using (var response = await httpClient.PostAsJsonAsync(Const.API_ENDPOINT + "Orders", order))
                     {
                         if (response.IsSuccessStatusCode)
@@ -194,61 +210,81 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
                             if (result is not null && result.Status == Const.SUCCESS_CREATE_CODE)
                             {
-                                // Success path logic here
-                                return RedirectToAction(nameof(Index)); // Or another success action
+                                // Success path - redirect to the index or success action
+                                return RedirectToAction(nameof(Index));
                             }
-                            else if (result is not null && result.Data != null)
+                            else
                             {
-                                var data = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
-
-                                return View(data); // Display the returned voucher data
+                                // Handle API returned data or errors
+                                ModelState.AddModelError("", "API returned an error: " + result?.Message);
                             }
                         }
                         else
                         {
-                            // Handle the error from the API here
-                            ModelState.AddModelError("", "Error creating order.");
+                            // Handle HTTP errors
+                            ModelState.AddModelError("", "Error creating order. Please try again.");
                         }
                     }
                 }
             }
 
-            // If we get here, something went wrong, so return the view with the voucher data
+            // Repopulate ViewData for dropdowns if ModelState is invalid
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
+            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
+
             return View(order);
         }
+
 
         // GET: OrderRazor/Edit/5
         public async Task<IActionResult> Edit(string? id)
         {
-            var Order = new Order();
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.API_ENDPOINT + "Orders/" + id))
+                // Fetch the main Order data
+                var orderResponse = await httpClient.GetAsync(Const.API_ENDPOINT + "Orders/" + id);
+                if (orderResponse.IsSuccessStatusCode)
                 {
-                    if (response.IsSuccessStatusCode)
+                    var orderContent = await orderResponse.Content.ReadAsStringAsync();
+                    var orderResult = JsonConvert.DeserializeObject<BusinessResult>(orderContent);
+                    var order = JsonConvert.DeserializeObject<Order>(orderResult?.Data?.ToString() ?? "");
+
+                    // Fetch OrderDetails for this specific Order ID
+                    var detailsResponse = await httpClient.GetAsync(Const.API_ENDPOINT + "OrderDetails/" + id);
+                    if (detailsResponse.IsSuccessStatusCode)
                     {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
-                        if (result is not null)
-                        {
-                            var data = JsonConvert.DeserializeObject<Order>(result.Data.ToString());
-                            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
-                            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode");
-                            return View(data);
-                        }
+                        var detailsContent = await detailsResponse.Content.ReadAsStringAsync();
+                        var detailsResult = JsonConvert.DeserializeObject<BusinessResult>(detailsContent);
+                        var orderDetails = JsonConvert.DeserializeObject<List<OrderDetail>>(detailsResult?.Data?.ToString() ?? "");
+
+                        // Assign fetched OrderDetails to the Order object
+                        order.OrderDetails = orderDetails;
+
+                        // Set ViewData for dropdowns
+                        ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
+                        ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode", order.VoucherId);
+
+                        return View(order);
                     }
                 }
             }
 
+            // Handle cases where either the order or details fetching fails
             return View();
         }
+
 
         // POST: OrderRazor/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight")] Order order)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight, OrderDetails")] Order order)
         {
             if (ModelState.IsValid)
             {
@@ -284,6 +320,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             }
 
             // If we get here, something went wrong, so return the view with the voucher data
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
+            ViewData["VoucherId"] = new SelectList(_context.Vouchers, "VoucherId", "VoucherCode", order.VoucherId);
             return View(order);
         }
 

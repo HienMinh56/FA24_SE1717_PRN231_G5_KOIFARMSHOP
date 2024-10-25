@@ -20,6 +20,7 @@ namespace KoiFarmShop.Data.Repository
         {
             return _context.OrderDetails
                 .Where(od => od.OrderId == orderId)
+                .Include(o => o.Koi)
                 .ToList();
         }
 

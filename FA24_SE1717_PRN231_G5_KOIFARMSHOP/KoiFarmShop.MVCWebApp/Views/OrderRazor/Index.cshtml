@@ -97,10 +97,10 @@
                 @Html.DisplayFor(modelItem => item.TotalWeight)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UserId)
+                @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.VoucherId)
+                @Html.DisplayFor(modelItem => item.Voucher.VoucherCode)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
