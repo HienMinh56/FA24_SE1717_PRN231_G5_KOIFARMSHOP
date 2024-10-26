@@ -62,13 +62,15 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="userId">User ID</label>
-                                <input type="text" class="form-control" id="userId" name="userId" required />
+                                <select class="form-control" id="userId" name="userId" required>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="voucherCode">Voucher Code</label>
-                                <input type="text" class="form-control" id="voucherCode" name="voucherCode" />
+                                <select class="form-control" id="voucherCode" name="voucherCode">
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -88,7 +90,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="paymentMethod">Payment Method</label>
-                                <input type="text" class="form-control" id="paymentMethod" name="paymentMethod" required />
+                                <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                                    <option value="Online">Online</option>
+                                    <option value="Offline">Offline</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -169,12 +174,14 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="updateUserId">User ID</label>
-                    <input type="text" class="form-control" id="updateUserId" name="updateUserId" />
+                    <label for="updateUserId">User</label>
+                    <select class="form-control" id="updateUserId" name="updateUserId" required>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="updateVoucherId">Voucher ID</label>
-                    <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" />
+                    <label for="updateVoucherId">Voucher Code</label>
+                    <select class="form-control" id="updateVoucherId" name="updateVoucherId">
+                    </select>
                 </div>
             </div>
             <div class="form-group">
@@ -183,7 +190,10 @@
             </div>
             <div class="form-group">
                 <label for="updatePaymentMethod">Payment Method</label>
-                <input type="text" class="form-control" id="updatePaymentMethod" name="updatePaymentMethod" required />
+                <select class="form-select" id="updatePaymentMethod" name="updatePaymentMethod" required>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="updateDeliveryDate">Delivery Date</label>
@@ -221,6 +231,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <h6>Order Information</h6>
                 <table class="table">
                     <thead>
                         <tr>
@@ -241,9 +252,20 @@
                     <tbody id="orderDetailBody">
                     </tbody>
                 </table>
-            </div>
-            
 
+                <h6>Koi Details</h6> <!-- New Section -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Koi Name</th>
+                            <th>Koi Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="koiDetailBody">
+                        <!-- Separate body for koi details -->
+                    </tbody>
+                </table>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
@@ -256,6 +278,8 @@
     <script type="text/javascript">
         $(document).ready(function () {
             loadData();
+            loadUsers();
+            loadVouchers();
             $('#OrderFilterForm input').on('input change', function () {
                 $('#searchBtn').addClass('active');
             });
@@ -342,8 +366,6 @@
 
             $('#btUpdate').click(function () {
                 var orderId = $('#updateOrderId').val();
-                var totalAmount = $('#updateTotalAmount').val();
-                var quantity = $('#updateQuantity').val();
                 var status = $('#updateStatus').val();
                 var userId = $('#updateUserId').val();
                 var voucherId = $('#updateVoucherId').val() || null;
@@ -356,8 +378,6 @@
 
                 var updateObj = {
                     orderId: orderId,
-                    totalAmount: parseFloat(totalAmount),
-                    quantity: parseInt(quantity),
                     status: status,
                     userId: userId,
                     voucherId: voucherId,
@@ -458,7 +478,45 @@
             $('.tblBanks').html(html);
             bindActionButtons();
         }
+        function loadUsers() {
+            $.ajax({
+                url: 'https://localhost:7149/api/Users',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var userHtml = '';
+                    $.each(result.data, function (key, item) {
+                        userHtml += `<option value="${item.userId}">${item.fullName}</option>`;
+                    });
+                    $('#updateUserId').append(userHtml);
+                    $('#userId').append(userHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
 
+        function loadVouchers() {
+            $.ajax({
+                url: 'https://localhost:7149/api/Vouchers',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var voucherHtml = '';
+                    $.each(result.data, function (key, item) {
+                        voucherHtml += `<option value="${item.voucherId}">${item.voucherCode}</option>`;
+                    });
+                    $('#updateVoucherId').append(voucherHtml);
+                    $('#voucherCode').append(voucherHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
         function bindActionButtons() {
             $('.btn-update').click(function () {
                 var orderId = $(this).data('id');
@@ -571,7 +629,7 @@
                                 <td>${order.note}</td>
                                 <td>${order.totalWeight}</td>
                             </tr>`;
-
+                        loadOrderDetailsByOrderId(orderId);
                         $('#orderDetailBody').html(orderDetailsHtml); // Cập nhật dữ liệu vào bảng
                         $('#orderDetailModal').modal('show'); // Hiển thị modal chi tiết
                     } else {
@@ -584,7 +642,36 @@
             });
         }
 
-       
+        function loadOrderDetailsByOrderId(orderId) {
+            $.ajax({
+                url: 'https://localhost:7149/api/OrderDetails/' + orderId,
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    if (result && result.data && result.data.length > 0) {
+                        let koiDetailsHtml = '';
+                        $.each(result.data, function (key, item) {
+                            koiDetailsHtml += `
+                                <tr>
+                                    <td>${item.koi.koiName}</td>
+                                    <td>${item.quantity}</td>
+                                </tr>`;
+                        });
+
+                        // Append the koi details to the separate body
+                        $('#koiDetailBody').html(koiDetailsHtml);
+                        $('#orderDetailModal').modal('show'); // Show modal after both data loads
+                    } else {
+                        alert('Không tìm thấy chi tiết đơn hàng.');
+                    }
+                },
+                error: function (xhr, error) {
+                    alert('Không thể lấy chi tiết đơn hàng: ' + xhr.statusText);
+                }
+            });
+        }
+
 
         // Function to get status text based on status code
         function getStatusText(statusCode) {

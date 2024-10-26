@@ -47,7 +47,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="DeliveryDate" class="control-label"></label>
-                <input asp-for="DeliveryDate" class="form-control" readonly />
+                <input asp-for="DeliveryDate" class="form-control" />
                 <span asp-validation-for="DeliveryDate" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -66,7 +66,7 @@
                 <span asp-validation-for="TotalWeight" class="text-danger"></span>
             </div>
 
-            <!-- Order Details Section -->
+            @* <!-- Order Details Section -->
             <h4>Order Details</h4>
             <hr />
             @if (Model.OrderDetails != null && Model.OrderDetails.Any())
@@ -88,7 +88,7 @@
             else
             {
                 <p>No order details available for this order.</p>
-            }
+            } *@
 
 
 

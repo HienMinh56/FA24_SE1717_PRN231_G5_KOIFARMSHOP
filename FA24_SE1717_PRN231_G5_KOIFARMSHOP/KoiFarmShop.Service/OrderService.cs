@@ -170,36 +170,75 @@ namespace KoiFarmShop.Service
                     orderTmp.Status = order.Status;
                     orderTmp.ModifiedDate = DateTime.Now;
                     orderTmp.ModifiedBy = "User";
-                    var totalAmount = 0.0;
-                    var totalQuantity = 0;
-                    foreach (var item in order.OrderDetails)
+                    if (order.OrderDetails.Count == 0)
                     {
-                        var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
-                        var orderDetail = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
-                        if (orderDetail == null)
+                        var totalAmount = 0.0;
+                        var totalQuantity = 0;
+                        var voucher2 = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+                        var orderDetail = _unitOfWork.OrderDetailRepository.GetOrderDetailsByOrderId(orderTmp.OrderId);
+                        foreach(var item in orderDetail)
                         {
-                            throw new Exception("Order detail not found");
+                            var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
+                            var orderDetail1 = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
+                            if (orderDetail == null)
+                            {
+                                throw new Exception("Order detail not found");
+                            }
+                            orderDetail1.Quantity = item.Quantity;
+                            orderDetail1.Price = koi.Price;
+                            totalAmount += koi.Price * item.Quantity;
+                            totalQuantity += item.Quantity;
+                            orderTmp.VoucherId = order.VoucherId;
+
+                            var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+
+                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                            {
+                                totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                            }
+                            else
+                            {
+                                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                            }
+                            orderTmp.TotalAmount = totalAmount;
+                            orderTmp.Quantity = totalQuantity;
                         }
-                        orderDetail.Quantity = item.Quantity;
-                        orderDetail.Price = koi.Price;
-                        totalAmount += koi.Price * item.Quantity;
-                        totalQuantity += item.Quantity;
-                        orderTmp.VoucherId = order.VoucherId;
-
-                        await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
-                    }
-                    var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderTmp.VoucherId);
-
-                    if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
-                    {
-                        totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                        
                     }
                     else
                     {
-                        return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                        var totalAmount = 0.0;
+                        var totalQuantity = 0;
+                        foreach (var item in orderTmp.OrderDetails)
+                        {
+                            var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
+                            var orderDetail = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
+                            if (orderDetail == null)
+                            {
+                                throw new Exception("Order detail not found");
+                            }
+                            orderDetail.Quantity = item.Quantity;
+                            orderDetail.Price = koi.Price;
+                            totalAmount += koi.Price * item.Quantity;
+                            totalQuantity += item.Quantity;
+                            orderTmp.VoucherId = order.VoucherId;
+
+                            await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
+                            var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+
+                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                            {
+                                totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                            }
+                            else
+                            {
+                                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                            }
+                            orderTmp.TotalAmount = totalAmount;
+                            orderTmp.Quantity = totalQuantity;
+                        }
                     }
-                    orderTmp.TotalAmount = totalAmount;
-                    orderTmp.Quantity = totalQuantity;
+
                     result = await _unitOfWork.OrderRepository.UpdateAsync(orderTmp);
 
                     if (result > 0)
@@ -233,7 +272,7 @@ namespace KoiFarmShop.Service
 
                     if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
                     {
-                        totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount)/100;
+                        totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
                     }
                     else
                     {

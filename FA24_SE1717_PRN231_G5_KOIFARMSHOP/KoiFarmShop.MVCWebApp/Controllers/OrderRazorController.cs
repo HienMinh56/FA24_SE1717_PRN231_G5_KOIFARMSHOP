@@ -287,7 +287,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight, OrderDetails")] Order order)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight")] Order order)
         {
             if (ModelState.IsValid)
             {
