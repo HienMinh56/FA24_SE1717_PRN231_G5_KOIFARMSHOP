@@ -118,7 +118,7 @@ namespace KoiFarmShop.MVC.Controllers
                     }
                 }
             }
-            return View(new KoiFish());
+            return View(new List<KoiFish>());
         }
 
         // GET: KoiFish/Details/5

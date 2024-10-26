@@ -188,8 +188,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         {
                             // Deserialize result.Data as a list of Consignments
                             var consignments = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
-                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-                            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+                            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiName");
                             return View();
                         }
                     }
@@ -244,8 +244,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiName");
             return View(consignment);
         }
 
@@ -287,8 +287,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
-            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "Email");
+            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiName");
             return View(consignmentTmp);
         }
 
@@ -332,7 +332,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "Email");
             ViewData["ConsignmentId"] = new SelectList(await GetConsignments(), "ConsignmentId", consignment.ConsignmentId);
             return View(consignment);
         }
