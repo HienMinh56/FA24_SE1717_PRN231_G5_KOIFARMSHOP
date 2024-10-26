@@ -633,11 +633,11 @@
                         $('#orderDetailBody').html(orderDetailsHtml); // Cập nhật dữ liệu vào bảng
                         $('#orderDetailModal').modal('show'); // Hiển thị modal chi tiết
                     } else {
-                        alert('Không tìm thấy chi tiết đơn hàng.');
+                        alert('Not found order.');
                     }
                 },
                 error: function (xhr, error) {
-                    alert('Không thể lấy chi tiết đơn hàng: ' + xhr.statusText);
+                    alert('Not found order: ' + xhr.statusText);
                 }
             });
         }
@@ -663,11 +663,11 @@
                         $('#koiDetailBody').html(koiDetailsHtml);
                         $('#orderDetailModal').modal('show'); // Show modal after both data loads
                     } else {
-                        alert('Không tìm thấy chi tiết đơn hàng.');
+                        alert('Not found order.');
                     }
                 },
                 error: function (xhr, error) {
-                    alert('Không thể lấy chi tiết đơn hàng: ' + xhr.statusText);
+                    alert('Not found order: ' + xhr.statusText);
                 }
             });
         }
