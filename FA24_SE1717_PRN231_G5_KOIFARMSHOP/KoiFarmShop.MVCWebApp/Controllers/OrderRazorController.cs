@@ -68,6 +68,29 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
             return vouchers;
         }
+        public async Task<List<KoiFish>> GetKois()
+        {
+            var kois = new List<KoiFish>();
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "KoiFish"))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+
+                        if (result != null && result.Data != null)
+                        {
+                            kois = JsonConvert.DeserializeObject<List<KoiFish>>(result.Data.ToString());
+                        }
+                    }
+                }
+            }
+
+            return kois;
+        }
 
         // GET: OrderRazor
         public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string OrderId = null, string ShippingAddress = null, int? Status = null)
@@ -174,7 +197,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         {
                             ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
                             ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
-
+                            ViewData["KoiId"] = new SelectList(await this.GetKois(), "KoiId", "KoiName");
+                            ViewBag.Kois = await this.GetKois();
                             return View(order);
                         }
                     }
@@ -184,7 +208,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             // Fallback if data fetching fails
             ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
             ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
-
+            ViewData["KoiId"] = new SelectList(await this.GetKois(), "KoiId", "KoiName");
+            ViewBag.Kois = await this.GetKois();
             return View(order);
         }
 
@@ -232,8 +257,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             // Repopulate ViewData for dropdowns if ModelState is invalid
             ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
             ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode");
-
-
+            ViewData["KoiId"] = new SelectList(await this.GetKois(), "KoiId", "KoiName");
+            ViewBag.Kois = await this.GetKois();
             return View(order);
         }
 

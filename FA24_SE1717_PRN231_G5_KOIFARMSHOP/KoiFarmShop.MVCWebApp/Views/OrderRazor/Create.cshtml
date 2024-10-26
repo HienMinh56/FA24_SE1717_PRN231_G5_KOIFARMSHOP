@@ -56,19 +56,25 @@
             <div id="orderDetailsContainer">
                 <div class="form-group">
                     <label>Koi ID</label>
-                    <input name="OrderDetails[0].KoiId" class="form-control" />
+                    <select name="OrderDetails[0].KoiId" class="form-control">
+                        @foreach (var koi in ViewBag.Kois)
+                        {
+                            <option value="@koi.KoiId">@koi.KoiName</option>
+                        }
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Quantity</label>
                     <input name="OrderDetails[0].Quantity" type="number" class="form-control" />
                 </div>
-                <!-- Add more OrderDetails as needed -->
             </div>
+
             <button type="button" class="btn btn-secondary" onclick="addOrderDetail()">Add Another Item</button>
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
+
         </form>
     </div>
 </div>
@@ -86,19 +92,26 @@
         let orderDetailIndex = 1;
 
         function addOrderDetail() {
-            const container = document.getElementById('orderDetailsContainer');
-            const newDetail = document.createElement('div');
-            newDetail.innerHTML = `
-                        <div class="form-group">
-                            <label>Koi ID</label>
-                            <input name="OrderDetails[${orderDetailIndex}].KoiId" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <label>Quantity</label>
-                            <input name="OrderDetails[${orderDetailIndex}].Quantity" type="number" class="form-control" />
-                        </div>`;
-            container.appendChild(newDetail);
-            orderDetailIndex++;
+            const container = document.getElementById("orderDetailsContainer");
+
+            const newDetail = `
+                    <div class="form-group">
+                        <label>Koi ID</label>
+                        <select name="OrderDetails[${orderDetailIndex}].KoiId" class="form-control">
+        @foreach (var koi in ViewBag.Kois)
+        {
+                                    <option value="@koi.KoiId">@koi.KoiName</option>
+        }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input name="OrderDetails[${orderDetailIndex}].Quantity" type="number" class="form-control" />
+                    </div>
+                `;
+
+            container.insertAdjacentHTML('beforeend', newDetail);
+            orderDetailIndex++; // Increment the index for the next order detail
         }
     </script>
 }
