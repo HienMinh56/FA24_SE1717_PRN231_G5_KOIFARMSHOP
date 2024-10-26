@@ -125,7 +125,8 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label for="koiId">Koi ID</label>
-                                    <input type="text" class="form-control" name="koiId" required />
+                                    <select class="form-control" name="koiId" required>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -280,6 +281,7 @@
             loadData();
             loadUsers();
             loadVouchers();
+            loadKoi();
             $('#OrderFilterForm input').on('input change', function () {
                 $('#searchBtn').addClass('active');
             });
@@ -293,7 +295,7 @@
                 // Gather order details from the form
                 $('#orderDetailsContainer .order-detail').each(function () {
                     var detail = {
-                        koiId: $(this).find('input[name="koiId"]').val(),
+                        koiId: $(this).find('select[name="koiId"]').val(),
                         quantity: parseInt($(this).find('input[name="quantity"]').val())
                     };
                     orderDetails.push(detail);
@@ -333,24 +335,26 @@
 
             // Add functionality to dynamically add order details
             $('#addDetail').click(function () {
-                var detailHtml = `
-                <div class="row order-detail">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label for="koiId">Koi ID</label>
-                            <input type="text" class="form-control" name="koiId" required />
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label for="detailQuantity">Quantity</label>
-                            <input type="number" class="form-control" name="quantity" required />
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-detail">Remove</button>
+                const detailHtml = `
+            <div class="row order-detail">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="koiId">Koi ID</label>
+                        <select class="form-control" name="koiId" required>
+                            ${koiDropdownHtml} <!-- Use stored dropdown HTML here -->
+                        </select>
                     </div>
                 </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="detailQuantity">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" required />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-detail">Remove</button>
+                </div>
+            </div>
             `;
                 $('#orderDetailsContainer').append(detailHtml);
             });
@@ -517,6 +521,27 @@
                 }
             });
         }
+        function loadKoi() {
+            $.ajax({
+                url: 'https://localhost:7149/api/KoiFish',
+                type: 'GET',
+                success: function (response) {
+                    if (response.status === 1) {
+                        koiDropdownHtml = response.data.map(koi =>
+                            `<option value="${koi.koiId}">${koi.koiName}</option>`
+                        ).join('');
+
+                        // Populate initial koi dropdown
+                        $('#orderDetailsContainer select[name="koiId"]').html(koiDropdownHtml);
+                    } else {
+                        console.error("Failed to load koi data:", response.message);
+                    }
+                },
+                error: function (xhr, error) {
+                    console.error("Error fetching koi data:", xhr.statusText);
+                }
+            });
+        }
         function bindActionButtons() {
             $('.btn-update').click(function () {
                 var orderId = $(this).data('id');
@@ -570,32 +595,6 @@
                     }
                 });
             }
-        }
-
-        function addOrderItem() {
-            var itemCount = $('.order-item').length; 
-            var newItemId = itemCount + 1; 
-
-            var newItemHtml = `
-                <div class="row order-item">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="koiId${newItemId}">Koi ID</label>
-                            <input type="text" class="form-control koiId" id="koiId${newItemId}" name="koiId" required />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="quantity${newItemId}">Quantity</label>
-                            <input type="number" class="form-control quantity" id="quantity${newItemId}" name="quantity" required />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <button type="button" class="btn btn-danger" onclick="removeOrderItem(this)">Remove</button>
-                    </div>
-                </div>`;
-
-            $('#orderItemsSection').append(newItemHtml);
         }
 
         function removeOrderItem(button) {
