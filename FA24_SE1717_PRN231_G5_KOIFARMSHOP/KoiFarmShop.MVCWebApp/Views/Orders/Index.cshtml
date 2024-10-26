@@ -125,8 +125,10 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label for="koiId">Koi ID</label>
+
                                     <select class="form-control" name="koiId" required>
                                     </select>
+
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -335,6 +337,7 @@
 
             // Add functionality to dynamically add order details
             $('#addDetail').click(function () {
+
                 const detailHtml = `
             <div class="row order-detail">
                 <div class="col-md-5">
@@ -343,6 +346,7 @@
                         <select class="form-control" name="koiId" required>
                             ${koiDropdownHtml} <!-- Use stored dropdown HTML here -->
                         </select>
+
                     </div>
                 </div>
                 <div class="col-md-5">
@@ -521,6 +525,7 @@
                 }
             });
         }
+
         function loadKoi() {
             $.ajax({
                 url: 'https://localhost:7149/api/KoiFish',
@@ -539,6 +544,7 @@
                 },
                 error: function (xhr, error) {
                     console.error("Error fetching koi data:", xhr.statusText);
+
                 }
             });
         }
@@ -597,9 +603,7 @@
             }
         }
 
-        function removeOrderItem(button) {
-            $(button).closest('.order-item').remove(); 
-        }
+
 
         
         function loadOrderDetails(orderId) {
