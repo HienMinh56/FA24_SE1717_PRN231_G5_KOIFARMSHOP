@@ -125,7 +125,7 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label for="koiId">Koi ID</label>
-                                    <input type="text" class="form-control" name="koiId" required />
+                                    <select class="form-control" name="koiId" required></select>
                                 </div>
                             </div>
                             <div class="col-md-5">
@@ -338,7 +338,7 @@
                     <div class="col-md-5">
                         <div class="form-group">
                             <label for="koiId">Koi ID</label>
-                            <input type="text" class="form-control" name="koiId" required />
+                            <select class="form-control" name="koiId" required></select>
                         </div>
                     </div>
                     <div class="col-md-5">
@@ -517,6 +517,24 @@
                 }
             });
         }
+        function loadKoiFishs() {
+            $.ajax({
+                url: 'https://localhost:7149/api/KoiFish',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var userHtml = '';
+                    $.each(result.data, function (key, item) {
+                        userHtml += `<option value="${item.koiId}">${item.koiName}</option>`;
+                    });
+                    $('#koiId').append(userHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
         function bindActionButtons() {
             $('.btn-update').click(function () {
                 var orderId = $(this).data('id');
@@ -577,11 +595,11 @@
             var newItemId = itemCount + 1; 
 
             var newItemHtml = `
-                <div class="row order-item">
+                <div class="row order-item" xmlns="http://www.w3.org/1999/html">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="koiId${newItemId}">Koi ID</label>
-                            <input type="text" class="form-control koiId" id="koiId${newItemId}" name="koiId" required />
+                            <select class="form-control koiId" id="koiId${newItemId}" name="koiId" required /></select
                         </div>
                     </div>
                     <div class="col-md-4">
