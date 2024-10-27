@@ -72,28 +72,53 @@ namespace KoiFarmShop.MVC.Controllers
         //}
 
         // GET: KoiFish
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string koiname, string gender, double minPrice, double maxPrice)
         {
             //return View(await _context.KoiFishes.ToListAsync());
             using (var httpClient = new HttpClient())
             {
-                using (var response = await httpClient.GetAsync(Const.APIEndpoint + "KoiFish"))
+                var url = $"{Const.APIEndpoint}Koifish/odata?$filter="
+                    + (koiname == null ? "" : $"contains(KoiName, '{koiname}') and ")
+                    + (gender == null ? "" : $"Gender eq '{gender}' and ")
+                    + (minPrice == 0 ? "" : $"Price ge {minPrice} and ");
+                if (maxPrice == 0)
+                {
+                    if (url.EndsWith("="))
+                    {
+                        url = $"{Const.APIEndpoint}Koifish/odata";
+                    }
+                    else
+                    {
+                        url = url.Trim().Remove(url.Length - 4);
+                    }
+                }
+                else
+                {
+                    url += $"Price le {maxPrice}";
+                }
+                using (var response = await httpClient.GetAsync(url))
                 {
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<BusinessResult>(content);
-                        if (result is not null && result.Data is not null)
+                        var data = JsonConvert.DeserializeObject<List<KoiFish>>(content);
+                        if (data is not null)
                         {
-                            var data = JsonConvert.DeserializeObject<List<KoiFish>>
-                                (result.Data.ToString());
-
                             return View(data);
                         }
+
+                        //var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+                        //if (result is not null && result.Data is not null)
+                        //{
+                        //    var data = JsonConvert.DeserializeObject<List<KoiFish>>
+                        //        (result.Data.ToString());
+
+                        //    return View(data);
+                        //}
                     }
                 }
             }
-            return View(new KoiFish());
+            return View(new List<KoiFish>());
         }
 
         // GET: KoiFish/Details/5
@@ -344,5 +369,32 @@ namespace KoiFarmShop.MVC.Controllers
         {
             return _context.KoiFishes.Any(e => e.Id == id);
         }
+
+        //public async Task<IActionResult> Search(string koiname, string gender, double minPrice, double maxPrice)
+        //{
+        //    using (var httpClient = new HttpClient())
+        //    {
+        //        using (var response = await httpClient.GetAsync($"{Const.APIEndpoint}Koifish/odata?$  "
+        //            + (koiname == null ? "" : $"filter=contains(Name, '{koiname}') and ")
+        //            + (gender == null ? "" : $"Gender eq '{gender}' and ")
+        //            + (minPrice == 0 ? "" : $"and Price ge {minPrice} and ")
+        //            + (maxPrice == 0 ? "\b\b\b\b" : $"Price le {maxPrice}")))
+        //        {
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                var content = await response.Content.ReadAsStringAsync();
+        //                var result = JsonConvert.DeserializeObject<BusinessResult>(content);
+        //                if (result is not null && result.Data is not null)
+        //                {
+        //                    var data = JsonConvert.DeserializeObject<List<KoiFish>>
+        //                        (result.Data.ToString());
+
+        //                    return RedirectToAction(nameof(Index),data);
+        //                }
+        //            }
+        //            return RedirectToAction(nameof(Index));
+        //        }
+        //    }
+        //}
     }
 }

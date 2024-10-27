@@ -15,33 +15,21 @@ namespace KoiFarmShop.Data.Repository
         {
             _context = context;
         }
-
+        
         public async Task<List<Consignment>> GetAllConsignmentAsync()
         {
-            var consignments = await _context.Consignments
-                                             .AsNoTracking()
-                                             .Include(k => k.Koi)
-                                             .Include(u => u.User)
-                                             .Include(p => p.Payment)
-                                                 .ThenInclude(o => o.Orders)
-                                                 .DefaultIfEmpty()
-                                             .ToListAsync();
-            return consignments ?? new List<Consignment>();
+            return  _context.Consignments.Include(u => u.User)
+                .Include(k => k.Koi)
+                .Include(p => p.Payment)
+                .ToList();
         }
 
-        public async Task<Consignment> GetConsignmentByIdAsync(string ConsignmentId)
+        public async Task<Consignment> GetConsignmentByIdAsync(string consignmentId)
         {
-            var consignment = await _context.Consignments
-                                            .AsNoTracking()
-                                            .Where(c => c.ConsignmentId == ConsignmentId)
-                                            .Include(k => k.Koi)
-                                             .Include(u => u.User)
-                                             .Include(p => p.Payment)
-                                                 .ThenInclude(o => o.Orders)
-                                                 .DefaultIfEmpty()
-                                            .FirstOrDefaultAsync();
-
-            return consignment ?? new Consignment();
+            return await _context.Consignments.Include(u => u.User)
+                .Include(k => k.Koi)
+                .Include(p => p.Payment)
+                .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId);
         }
     }
 }

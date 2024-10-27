@@ -151,8 +151,14 @@
                         </div>
                         <div class="col-4">
                             <label for="statusdetail" class="form-label">Status</label>
-                            <input type="text" class="form-label" id="statusdetail" readonly />
+                            <input type="text" class="form-control" id="statusdetail" readonly />
                         </div>
+
+                        <div class="col-4">
+                            <label for="voucherdetailName" class="form-label">Voucher Name</label>
+                            <input type="text" class="form-control" id="voucherdetailName" readonly>
+                        </div>
+
                     </div>
                     <div class="row mb-3">
 
@@ -169,7 +175,31 @@
                             <input type="number" class="form-control" id="minOrderdetailAmount" readonly>
                         </div>
                     </div>
+                    <div class="row mb-3">
 
+                        <div class="col-4">
+                            <label for="quantitydetail" class="form-label">Quantity</label>
+                            <input type="text" class="form-control" id="quantitydetail" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="applyMethoddetail" class="form-label">Apply Method</label>
+                            <input type="number" class="form-control" id="applyMethoddetail" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="NoteDetail" class="form-label">Note</label>
+                            <input type="text" class="form-control" id="NoteDetail" readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label for="validityStartDateDetail" class="form-label">Validity Start Date</label>
+                            <input type="date" class="form-control" id="validityStartDateDetail" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="validityEndDateDetail" class="form-label">Validity End Date</label>
+                            <input type="date" class="form-control" id="validityEndDateDetail" readonly>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
 
@@ -179,6 +209,7 @@
         </div>
     </div>
 </div>
+
 
 
 
@@ -221,17 +252,44 @@
                         <label for="minOrderupdateAmount" class="form-label">Min Order Amount</label>
                         <input type="number" class="form-control" id="minOrderupdateAmount" required>
                     </div>
+
+                    <div class="col-4">
+                        <label for="UpdateapplyMethod" class="form-label">apply menthod</label>
+                        <input type="number" class="form-control" id="UpdateapplyMethod" required>
+                    </div>
                 </div>
-                <div class="row mb-2">
-                    <div class="col-6">
+                <div class="row mb-3">
+                    <div class="col-4">
                         <label for="validityupdateStartDate" class="form-label">Validity Start Date</label>
                         <input type="date" class="form-control" id="validityupdateStartDate" required>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <label for="validityupdateEndDate" class="form-label">Validity End Date</label>
                         <input type="date" class="form-control" id="validityupdateEndDate" required>
                     </div>
+
+
+                    <div class="col-4">
+                        <label for="UpdateQuality" class="form-label">Quality</label>
+                        <input type="number" class="form-control" id="UpdateQuality" required>
+                    </div>
                 </div>
+                <div class="row mb-3">
+                    <div>
+                        <label for="NoteUpdate" class="form-label">Note</label>
+                        <input type="text" class="form-control" id="NoteUpdate" required>
+                    </div>
+
+                    <div>
+                        <label for="NameUpdate" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="NameUpdate" required>
+                    </div>
+
+
+
+
+                </div>
+
 
 
             </div>
@@ -325,16 +383,25 @@
                     var voucher = result.data;
                     $('#voucherdetailId').val(voucher.voucherId);
                     $('#voucherdetailCode').val(voucher.voucherCode);
-                   
+                    $('#voucherdetailName').val(voucher.voucherName);
                     $('#discountdetailAmount').val(voucher.discountAmount);
                     $('#minOrderdetailAmount').val(voucher.minOrderAmount);
-                   
-                    $('#validitydetailStartDate').val(voucher.validityStartDate);
-                    $('#validitydetailEndDate').val(voucher.validityEndDate);
-                    $('#statusdetail').val(getStatusText(voucher.status));
-                    
-                    $('#VoucherdetailModal').modal('show');
+                    $('#quantitydetail').val(voucher.quantity);
+                    $('#applyMethoddetail').val(voucher.applyMethod);
+                    let formattedStartDate = new Date(voucher.validityStartDate);
+                    formattedStartDate.setDate(formattedStartDate.getDate() + 1);
+                    formattedStartDate = formattedStartDate.toISOString().split('T')[0];
 
+                    let formattedEndDate = new Date(voucher.validityEndDate);
+                    formattedEndDate.setDate(formattedEndDate.getDate() + 1);
+                    formattedEndDate = formattedEndDate.toISOString().split('T')[0];
+                    $('#validityStartDateDetail').val(formattedStartDate);
+                    $('#validityEndDateDetail').val(formattedEndDate);
+                    $('#statusdetail').val(getStatusText(voucher.status));
+                    $('#NoteDetail').val(voucher.note);
+                   
+                    $('#VoucherdetailModal').modal('show');
+                    console.log(voucher);
                 },
                 error: function (xhr, error) {
                     alert("Error: " + xhr.statusText);
@@ -462,6 +529,9 @@
             var obj = {
                 voucherId: $('#updateVoucherId').val(),
                 status: $('#updateStatus').val(),
+                voucherName: $('#NameUpdate').val(),
+                quantity: $('#UpdateQuality').val(),
+                applyMethod: $('#UpdateapplyMethod').val(),
                 voucherCode: $('#voucherupCode').val(),
                 discountAmount: $('#discountupdateAmount').val(),
                 minOrderAmount: $('#minOrderupdateAmount').val(),
@@ -469,7 +539,8 @@
                 validityEndDate: $('#validityupdateEndDate').val(),
                 createdBy: "string",
                 modifiedDate: new Date().toISOString(),
-                modifiedBy: "string"
+                modifiedBy: "string",
+                note: $('#NoteUpdate').val()
             };
             $.ajax({
                 headers: {

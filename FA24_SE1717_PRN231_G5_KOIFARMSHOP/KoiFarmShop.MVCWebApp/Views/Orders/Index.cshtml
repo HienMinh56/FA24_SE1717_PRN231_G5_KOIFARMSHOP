@@ -61,44 +61,26 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="orderId">Order ID</label>
-                                <input type="text" class="form-control" id="orderId" name="orderId" required />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
                                 <label for="userId">User ID</label>
-                                <input type="text" class="form-control" id="userId" name="userId" required />
+                                <select class="form-control" id="userId" name="userId" required>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="voucherCode">Voucher Code</label>
-                                <input type="text" class="form-control" id="voucherCode" name="voucherCode" />
+                                <select class="form-control" id="voucherCode" name="voucherCode">
+                                </select>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="totalAmount">Total Amount</label>
-                                <input type="number" class="form-control" id="totalAmount" name="totalAmount" required />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="quantity">Quantity</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" required />
-                            </div>
-                        </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <input type="text" class="form-control" id="status" name="status" required />
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="shippingAddress">Shipping Address</label>
@@ -108,7 +90,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="paymentMethod">Payment Method</label>
-                                <input type="text" class="form-control" id="paymentMethod" name="paymentMethod" required />
+                                <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                                    <option value="Online">Online</option>
+                                    <option value="Offline">Offline</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -132,6 +117,32 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Order Details Section -->
+                    <h5>Order Details</h5>
+                    <div id="orderDetailsContainer">
+                        <div class="row order-detail">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="koiId">Koi ID</label>
+
+                                    <select class="form-control" name="koiId" required>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="detailQuantity">Quantity</label>
+                                    <input type="number" class="form-control" name="quantity" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger remove-detail">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addDetail">Add Another Detail</button>
                 </div>
                 <div class="modal-footer">
                     <button id="btSave" type="button" class="btn btn-primary">Save</button>
@@ -141,6 +152,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Modal for Updating Orders -->
@@ -157,14 +169,6 @@
                     <input type="text" class="form-control" id="updateOrderId" name="orderId" readonly />
                 </div>
                 <div class="form-group">
-                    <label for="updateTotalAmount">Total Amount</label>
-                    <input type="text" class="form-control" id="updateTotalAmount" name="updateTotalAmount" />
-                </div>
-                <div class="form-group">
-                    <label for="updateQuantity">Quantity</label>
-                    <input type="text" class="form-control" id="updateQuantity" name="updateQuantity" />
-                </div>
-                <div class="form-group">
                     <label for="updateStatus">Status</label>
                     <select class="form-select" id="updateStatus" name="updateStatus">
                         <option value="1">Pending</option>
@@ -173,12 +177,14 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="updateUserId">User ID</label>
-                    <input type="text" class="form-control" id="updateUserId" name="updateUserId" />
+                    <label for="updateUserId">User</label>
+                    <select class="form-control" id="updateUserId" name="updateUserId" required>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="updateVoucherId">Voucher ID</label>
-                    <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" />
+                    <label for="updateVoucherId">Voucher Code</label>
+                    <select class="form-control" id="updateVoucherId" name="updateVoucherId">
+                    </select>
                 </div>
             </div>
             <div class="form-group">
@@ -187,7 +193,10 @@
             </div>
             <div class="form-group">
                 <label for="updatePaymentMethod">Payment Method</label>
-                <input type="text" class="form-control" id="updatePaymentMethod" name="updatePaymentMethod" required />
+                <select class="form-select" id="updatePaymentMethod" name="updatePaymentMethod" required>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="updateDeliveryDate">Delivery Date</label>
@@ -225,6 +234,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <h6>Order Information</h6>
                 <table class="table">
                     <thead>
                         <tr>
@@ -245,9 +255,20 @@
                     <tbody id="orderDetailBody">
                     </tbody>
                 </table>
-            </div>
-            
 
+                <h6>Koi Details</h6> <!-- New Section -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Koi Name</th>
+                            <th>Koi Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="koiDetailBody">
+                        <!-- Separate body for koi details -->
+                    </tbody>
+                </table>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
@@ -260,6 +281,9 @@
     <script type="text/javascript">
         $(document).ready(function () {
             loadData();
+            loadUsers();
+            loadVouchers();
+            loadKoi();
             $('#OrderFilterForm input').on('input change', function () {
                 $('#searchBtn').addClass('active');
             });
@@ -268,29 +292,42 @@
                 filterOrders();
             });
             $('#btSave').click(function () {
-                var obj = {
-                    orderId: $('#orderId').val(),
+                var orderDetails = [];
+
+                // Gather order details from the form
+                $('#orderDetailsContainer .order-detail').each(function () {
+                    var detail = {
+                        koiId: $(this).find('select[name="koiId"]').val(),
+                        quantity: parseInt($(this).find('input[name="quantity"]').val())
+                    };
+                    orderDetails.push(detail);
+                });
+
+                var order = {
                     userId: $('#userId').val(),
-                    voucherId: $('#voucherCode').val() || null,
-                    totalAmount: parseFloat($('#totalAmount').val()),
-                    quantity: parseInt($('#quantity').val()),
-                    status: $('#updateStatus').val(),
+                    status: parseInt($('#status').val()), // Ensure this is an integer
+                    voucherId: $('#voucherCode').val() || null, // Ensure this is captured
                     shippingAddress: $('#shippingAddress').val(),
                     paymentMethod: $('#paymentMethod').val(),
-                    deliveryDate: $('#deliveryDate').val(),
+                    deliveryDate: new Date($('#deliveryDate').val()).toISOString(), // Convert to ISO string
+                    receiveDate: new Date().toISOString(), // Set to current time or another value as needed
                     note: $('#note').val() || null,
-                    totalWeight: parseFloat($('#totalWeight').val())
+                    totalWeight: parseFloat($('#totalWeight').val()),
+                    orderDetails: orderDetails
                 };
+
+                // Log the order object before sending
+                console.log("Order Object:", JSON.stringify(order));
 
                 $.ajax({
                     url: 'https://localhost:7149/api/Orders',
                     type: "POST",
                     contentType: "application/json;charset=utf-8",
-                    data: JSON.stringify(obj),
+                    data: JSON.stringify(order), // Sending the order object directly
                     success: function (result) {
                         alert(result.message);
                         $('#orderModal').modal('hide');
-                        loadData();
+                        loadData(); // Call your function to refresh the data on the page
                     },
                     error: function (xhr, error) {
                         alert(xhr.statusText);
@@ -298,13 +335,45 @@
                 });
             });
 
+            // Add functionality to dynamically add order details
+            $('#addDetail').click(function () {
+
+                const detailHtml = `
+            <div class="row order-detail">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="koiId">Koi ID</label>
+                        <select class="form-control" name="koiId" required>
+                            ${koiDropdownHtml} <!-- Use stored dropdown HTML here -->
+                        </select>
+
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="detailQuantity">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" required />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-detail">Remove</button>
+                </div>
+            </div>
+            `;
+                $('#orderDetailsContainer').append(detailHtml);
+            });
+
+            // Event to remove order detail row
+            $(document).on('click', '.remove-detail', function () {
+                $(this).closest('.order-detail').remove();
+            });
+
+
 
 
 
             $('#btUpdate').click(function () {
                 var orderId = $('#updateOrderId').val();
-                var totalAmount = $('#updateTotalAmount').val();
-                var quantity = $('#updateQuantity').val();
                 var status = $('#updateStatus').val();
                 var userId = $('#updateUserId').val();
                 var voucherId = $('#updateVoucherId').val() || null;
@@ -317,8 +386,6 @@
 
                 var updateObj = {
                     orderId: orderId,
-                    totalAmount: parseFloat(totalAmount),
-                    quantity: parseInt(quantity),
                     status: status,
                     userId: userId,
                     voucherId: voucherId,
@@ -419,7 +486,68 @@
             $('.tblBanks').html(html);
             bindActionButtons();
         }
+        function loadUsers() {
+            $.ajax({
+                url: 'https://localhost:7149/api/Users',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var userHtml = '';
+                    $.each(result.data, function (key, item) {
+                        userHtml += `<option value="${item.userId}">${item.fullName}</option>`;
+                    });
+                    $('#updateUserId').append(userHtml);
+                    $('#userId').append(userHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
 
+        function loadVouchers() {
+            $.ajax({
+                url: 'https://localhost:7149/api/Vouchers',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var voucherHtml = '';
+                    $.each(result.data, function (key, item) {
+                        voucherHtml += `<option value="${item.voucherId}">${item.voucherCode}</option>`;
+                    });
+                    $('#updateVoucherId').append(voucherHtml);
+                    $('#voucherCode').append(voucherHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
+        }
+
+        function loadKoi() {
+            $.ajax({
+                url: 'https://localhost:7149/api/KoiFish',
+                type: 'GET',
+                success: function (response) {
+                    if (response.status === 1) {
+                        koiDropdownHtml = response.data.map(koi =>
+                            `<option value="${koi.koiId}">${koi.koiName}</option>`
+                        ).join('');
+
+                        // Populate initial koi dropdown
+                        $('#orderDetailsContainer select[name="koiId"]').html(koiDropdownHtml);
+                    } else {
+                        console.error("Failed to load koi data:", response.message);
+                    }
+                },
+                error: function (xhr, error) {
+                    console.error("Error fetching koi data:", xhr.statusText);
+
+                }
+            });
+        }
         function bindActionButtons() {
             $('.btn-update').click(function () {
                 var orderId = $(this).data('id');
@@ -475,35 +603,7 @@
             }
         }
 
-        function addOrderItem() {
-            var itemCount = $('.order-item').length; 
-            var newItemId = itemCount + 1; 
 
-            var newItemHtml = `
-                <div class="row order-item">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="koiId${newItemId}">Koi ID</label>
-                            <input type="text" class="form-control koiId" id="koiId${newItemId}" name="koiId" required />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="quantity${newItemId}">Quantity</label>
-                            <input type="number" class="form-control quantity" id="quantity${newItemId}" name="quantity" required />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <button type="button" class="btn btn-danger" onclick="removeOrderItem(this)">Remove</button>
-                    </div>
-                </div>`;
-
-            $('#orderItemsSection').append(newItemHtml);
-        }
-
-        function removeOrderItem(button) {
-            $(button).closest('.order-item').remove(); 
-        }
 
         
         function loadOrderDetails(orderId) {
@@ -532,20 +632,49 @@
                                 <td>${order.note}</td>
                                 <td>${order.totalWeight}</td>
                             </tr>`;
-
+                        loadOrderDetailsByOrderId(orderId);
                         $('#orderDetailBody').html(orderDetailsHtml); // Cập nhật dữ liệu vào bảng
                         $('#orderDetailModal').modal('show'); // Hiển thị modal chi tiết
                     } else {
-                        alert('Không tìm thấy chi tiết đơn hàng.');
+                        alert('Not found order.');
                     }
                 },
                 error: function (xhr, error) {
-                    alert('Không thể lấy chi tiết đơn hàng: ' + xhr.statusText);
+                    alert('Not found order: ' + xhr.statusText);
                 }
             });
         }
 
-       
+        function loadOrderDetailsByOrderId(orderId) {
+            $.ajax({
+                url: 'https://localhost:7149/api/OrderDetails/' + orderId,
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    if (result && result.data && result.data.length > 0) {
+                        let koiDetailsHtml = '';
+                        $.each(result.data, function (key, item) {
+                            koiDetailsHtml += `
+                                <tr>
+                                    <td>${item.koi.koiName}</td>
+                                    <td>${item.quantity}</td>
+                                </tr>`;
+                        });
+
+                        // Append the koi details to the separate body
+                        $('#koiDetailBody').html(koiDetailsHtml);
+                        $('#orderDetailModal').modal('show'); // Show modal after both data loads
+                    } else {
+                        alert('Not found order.');
+                    }
+                },
+                error: function (xhr, error) {
+                    alert('Not found order: ' + xhr.statusText);
+                }
+            });
+        }
+
 
         // Function to get status text based on status code
         function getStatusText(statusCode) {

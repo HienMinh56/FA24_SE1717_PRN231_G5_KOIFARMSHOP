@@ -3,6 +3,7 @@ using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Repository;
 using KoiFarmShop.Data.Request;
+using KoiFarmShop.Data.Response;
 using KoiFarmShop.Service.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -36,7 +37,7 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+                var orders = await _unitOfWork.OrderRepository.GetAllOrderAsync();
                 return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, orders);
             }
             catch (Exception ex)
@@ -50,8 +51,45 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var order = _unitOfWork.OrderRepository.Get(o => o.OrderId == orderId);
-                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, order);
+                var order = await _unitOfWork.OrderRepository.GetOrderByIdAsync(orderId);
+
+                if (order == null)
+                {
+                    return new BusinessResult(Const.FAIL_READ_CODE, "Order not found");
+                }
+
+                var result = new GetOrderResponse
+                {
+                    OrderId = order.OrderId,
+                    UserId = order.UserId,
+                    Status = order.Status,
+                    VoucherId = order.VoucherId,
+                    ShippingAddress = order.ShippingAddress,
+                    PaymentMethod = order.PaymentMethod,
+                    DeliveryDate = order.DeliveryDate,
+                    ReceiveDate = order.ReceiveDate,
+                    Note = order.Note,
+                    TotalWeight = order.TotalWeight,
+                    TotalAmount = order.TotalAmount,
+                    Quantity = order.Quantity,
+                    User = new UserDto
+                    {
+                        UserId = order.User.UserId,
+                        UserName = order.User.FullName,
+                    },
+                    Voucher = new VoucherDto
+                    {
+                        VoucherId = order.Voucher.VoucherId,
+                        VoucherCode = order.Voucher.VoucherCode,
+                    },
+                    OrderDetails = order.OrderDetails.Select(od => new OrderDetailDto
+                    {
+                        KoiId = od.KoiId,
+                        Quantity = od.Quantity,
+                    }).ToList(), // Chắc chắn trả về danh sách
+                };
+
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, result); // Trả về result
             }
             catch (Exception ex)
             {
@@ -59,6 +97,7 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
 
         public async Task<IBusinessResult> Create(Order order)
         {
@@ -117,14 +156,11 @@ namespace KoiFarmShop.Service
             {
                 int result = -1;
 
-                Order orderTmp =  _unitOfWork.OrderRepository.Get(o => o.OrderId == order.OrderId);
+                Order orderTmp = _unitOfWork.OrderRepository.Get(o => o.OrderId == order.OrderId);
 
                 if (orderTmp != null)
                 {
-                    orderTmp.VoucherId = order.VoucherId;
                     orderTmp.UserId = order.UserId;
-                    orderTmp.Quantity = order.Quantity;
-                    orderTmp.TotalAmount = order.TotalAmount;
                     orderTmp.TotalWeight = order.TotalWeight;
                     orderTmp.PaymentMethod = order.PaymentMethod;
                     orderTmp.ShippingAddress = order.ShippingAddress;
@@ -134,6 +170,74 @@ namespace KoiFarmShop.Service
                     orderTmp.Status = order.Status;
                     orderTmp.ModifiedDate = DateTime.Now;
                     orderTmp.ModifiedBy = "User";
+                    if (order.OrderDetails.Count == 0)
+                    {
+                        var totalAmount = 0.0;
+                        var totalQuantity = 0;
+                        var voucher2 = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+                        var orderDetail = _unitOfWork.OrderDetailRepository.GetOrderDetailsByOrderId(orderTmp.OrderId);
+                        foreach(var item in orderDetail)
+                        {
+                            var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
+                            var orderDetail1 = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
+                            if (orderDetail == null)
+                            {
+                                throw new Exception("Order detail not found");
+                            }
+                            orderDetail1.Quantity = item.Quantity;
+                            orderDetail1.Price = koi.Price;
+                            totalAmount += koi.Price * item.Quantity;
+                            totalQuantity += item.Quantity;
+                            orderTmp.VoucherId = order.VoucherId;
+
+                            var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+
+                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                            {
+                                totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                            }
+                            else
+                            {
+                                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                            }
+                            orderTmp.TotalAmount = totalAmount;
+                            orderTmp.Quantity = totalQuantity;
+                        }
+                        
+                    }
+                    else
+                    {
+                        var totalAmount = 0.0;
+                        var totalQuantity = 0;
+                        foreach (var item in orderTmp.OrderDetails)
+                        {
+                            var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
+                            var orderDetail = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
+                            if (orderDetail == null)
+                            {
+                                throw new Exception("Order detail not found");
+                            }
+                            orderDetail.Quantity = item.Quantity;
+                            orderDetail.Price = koi.Price;
+                            totalAmount += koi.Price * item.Quantity;
+                            totalQuantity += item.Quantity;
+                            orderTmp.VoucherId = order.VoucherId;
+
+                            await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
+                            var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+
+                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                            {
+                                totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                            }
+                            else
+                            {
+                                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                            }
+                            orderTmp.TotalAmount = totalAmount;
+                            orderTmp.Quantity = totalQuantity;
+                        }
+                    }
 
                     result = await _unitOfWork.OrderRepository.UpdateAsync(orderTmp);
 
@@ -148,8 +252,35 @@ namespace KoiFarmShop.Service
                 }
                 else
                 {
+                    order.OrderId = $"ORDER{(await _unitOfWork.OrderRepository.Count() + 1).ToString("D4")}";
                     order.CreatedDate = DateTime.Now;
                     order.CreatedBy = "User";
+
+                    var totalAmount = 0.0;
+                    var totalQuantity = 0;
+                    foreach (var item in order.OrderDetails)
+                    {
+                        var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
+                        item.OrderId = order.OrderId;
+                        item.KoiId = item.KoiId;
+                        item.Price = koi.Price;
+                        item.Quantity = item.Quantity;
+                        totalAmount += item.Price * item.Quantity;
+                        totalQuantity += item.Quantity;
+                    }
+                    var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
+
+                    if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                    {
+                        totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                    }
+                    else
+                    {
+                        return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
+                    }
+                    order.TotalAmount = totalAmount;
+                    order.Quantity = totalQuantity;
+
                     result = await _unitOfWork.OrderRepository.CreateAsync(order);
 
                     if (result > 0)
@@ -185,7 +316,7 @@ namespace KoiFarmShop.Service
                     await _unitOfWork.OrderDetailRepository.RemoveAsync(item);
                 }
                 await _unitOfWork.OrderRepository.RemoveAsync(order);
-                
+
                 return new BusinessResult(Const.SUCCESS_DELETE_CODE, Const.SUCCESS_DELETE_MSG);
             }
             catch (Exception ex)

@@ -1,18 +1,27 @@
-﻿﻿@{
+﻿@{
     ViewData["Title"] = "Index";
 }
 
-@* <form method="get" class="d-flex gap-5">
-    <input type="text" name="searchConsignmentId" placeholder="Search ConsignmentId" class="form-control" />
+<form id="ConsignmentFilterForm" class="d-flex mb-4 align-items-end" style="gap: 10px;">
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="ConsignmentId" name="ConsignmentId" placeholder="Enter ConsignmentId" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="CustomerContact" name="CustomerContact" placeholder="Enter CustomerContact" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="CustomerAddress" name="CustomerAddress" placeholder="Enter CustomerAddress" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Method" name="Method" placeholder="Enter Method" />
+    </div>
+    <div class="flex-fill">
+        <input type="text" class="form-control" id="Status" name="Status" placeholder="Enter status" />
+    </div>
+    <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+</form>
 
-    <input type="text" name="searchMethod" placeholder="Search method" class="form-control" />
-
-    <input type="text" name="searchStatus" placeholder="Search Status" class="form-control" />
-
-    <input type="submit" value="Search" class="btn btn-primary" />
-</form> *@
-
-﻿<div class="row">
+<div class="row">
     <div class="col-md-10">
         <h3 class="display-8">Consignments List</h3>
     </div>
@@ -28,8 +37,8 @@
             <thead>
                 <tr class="card-header">
                     <th class="card-title text-center">Consignment Id</th>
-                    <th class="card-title text-center">Koi Id</th>
-                    <th class="card-title text-center">User Id</th>
+                    <th class="card-title text-center">Koi</th>
+                    <th class="card-title text-center">User</th>
                     <th class="card-title text-center">Type</th>
                     <th class="card-title text-center">Deal Price</th>
                     <th class="card-title text-center">Method</th>
@@ -71,13 +80,13 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="koiId1">Koi Id</label>
-                                    <input type="text" class="form-control" id="koiId1" name="koiId" required />
+                                    <select class="form-control" id="koiId1" name="koiId" required></select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="userId1">User Id</label>
-                                    <input type="text" class="form-control" id="userId1" name="userId" required />
+                                    <select class="form-control" id="userId1" name="userId" required></select>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -148,13 +157,13 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="koiIdUpdate">Koi Id</label>
-                                    <input type="text" class="form-control" id="koiIdUpdate" name="koiId" required />
+                                    <select class="form-control" id="koiIdUpdate" name="koiId" required></select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="userIdUpdate">User Id</label>
-                                    <input type="text" class="form-control" id="userIdUpdate" name="userId" required />
+                                    <select class="form-control" id="userIdUpdate" name="userId" required></select>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -231,75 +240,152 @@
     </div>
 </div>
 
-@* <div class="Pagination">
-</div> *@
+<div id="paginationControls">
+    <button id="prevPage" onclick="goToPreviousPage()">Previous</button>
+    <span id="pageInfo">Page 1 of X</span>
+    <button id="nextPage" onclick="goToNextPage()">Next</button>
+</div>
 
 @section scripts {
     <script type="text/javascript">
         $(document).ready(function () {
             loadData();
+            loadUsers();
+            loadKoiFishs();
 
-            $('form').on('submit', function (e) {
-                e.preventDefault();
-                loadData(1);
+            $('#ConsignmentFilterForm input').on('input change', function () {
+                $('#searchBtn').addClass('active');
             });
 
+            $('#searchBtn').on('click', function () {
+                filterConsignments();
+            });
         });
 
-        function loadData(page) {
-            var searchConsginmentId = $('input[name="searchConsignmentId"]').val();
-            var searchMethod = $('input[name="searchMethod"]').val();
-            var searchStatus = $('input[name="searchStatus"]').val();
+        let currentPage = 1;
+        let consignmentsPerPage = 3;
+        let totalPages = 0;
+        
+        function goToPreviousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadData();
+            }
+        }
+        
+        function goToNextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadData();
+            }
+        }
+        
+        function updatePaginationControls() {
+            // Update the page info
+            $('#pageInfo').text(`Page ${currentPage} of ${totalPages}`);
 
+            // Disable/Enable buttons based on the page
+            $('#prevPage').prop('disabled', currentPage === 1);
+            $('#nextPage').prop('disabled', currentPage === totalPages);
+        }
+
+        function filterConsignments() {
+            const consignmentId = ($('#ConsignmentId').val() || '').toLowerCase();
+            const customerContact = ($('#CustomerContact').val() || '').toLowerCase();
+            const customerAddress = ($('#CustomerAddress').val() || '').toLowerCase();
+            const method = ($('#Method').val() || '').toLowerCase();
+            const statusTextInput = ($('#Status').val() || '').toLowerCase();
+
+            // Ánh xạ status codes sang statusText
+            const statusMapping = {
+                1: "pending",
+                2: "agreed",
+                3: "in store",
+                4: "sold",
+                5: "returned",
+                6: "canceled"
+            };
+
+            let filteredConsignments = allConsignments.filter(consignment => {
+                const consignmentStatusText = statusMapping[consignment.status].toLowerCase();
+
+                return (
+                    (consignmentId === '' || consignment.consignmentId.toLowerCase().includes(consignmentId)) &&
+                    (customerContact === '' || consignment.customerContact.toLowerCase().includes(customerContact)) &&
+                    (customerAddress === '' || consignment.customerAddress.toLowerCase().includes(customerAddress)) &&
+                    (method === '' || consignment.method.toLowerCase().includes(method)) &&
+                    (statusTextInput === '' || consignmentStatusText.includes(statusTextInput))
+                );
+            });
+
+            // Cập nhật totalPages dựa trên số kết quả lọc
+            totalPages = Math.ceil(filteredConsignments.length / consignmentsPerPage);
+
+            // Paginate dữ liệu đã lọc
+            let startIndex = (currentPage - 1) * consignmentsPerPage;
+            let paginatedConsignments = filteredConsignments.slice(startIndex, startIndex + consignmentsPerPage);
+
+            if (paginatedConsignments.length > 0) {
+                displayConsignments(paginatedConsignments);
+            } else {
+                $('.tblConsignments').html('<tr><td colspan="9">No consignments found.</td></tr>');
+            }
+
+            updatePaginationControls();
+        }
+        
+        function displayConsignments(consignments) {
+            let html = '';
+            $.each(consignments, function (key, item) {
+                html += '<tr>';
+                html += '<td>' + item.consignmentId + '</td>';
+                html += '<td>' + item.koiId + '</td>';
+                html += '<td>' + item.userId + '</td>';
+                var typeText = item.type === 1 ? "Care" : "Sale";
+                html += '<td>' + typeText + '</td>';
+                html += '<td>' + item.dealPrice + '</td>';
+                html += '<td>' + item.method + '</td>';
+                html += '<td>' + (item.paymentId || 'N/A') + '</td>';
+                var statusText = ["Pending", "Agreed", "In store", "Sold", "Returned", "Canceled"][item.status - 1];
+                html += '<td>' + statusText + '</td>';
+                html += '<td>' + item.note + '</td>';
+                html += '<td>' + item.customerContact + '</td>';
+                html += '<td>' + item.customerAddress + '</td>';
+                html += '<td>' + item.totalWeight + '</td>';
+                html += '<td>' + item.consignmentDate + '</td>';
+                html += '<td>' + item.createdDate + '</td>';
+                html += '<td>' + item.createdBy + '</td>';
+                html += '<td>' + (item.modifiedDate || 'N/A') + '</td>';
+                html += '<td>' + (item.modifiedBy || 'N/A') + '</td>';
+                html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\''
+                                                                                          + item.koiId + '\', \''
+                                                                                          + item.userId + '\', \''
+                                                                                          + item.type + '\', \''
+                                                                                          + item.dealPrice + '\', \''
+                                                                                          + item.method + '\', \''
+                                                                                          + item.status + '\', \''
+                                                                                          + item.note + '\', \''
+                                                                                          + item.customerContact + '\', \''
+                                                                                          + item.customerAddress + '\', \''
+                                                                                          + item.totalWeight + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
+                html += '</tr>';
+            });
+            $('.tblConsignments').html(html);
+        }
+
+        function loadData() {
             $.ajax({
                 url: `https://localhost:7149/api/Consignments`,
                 type: "GET",
-                data: {
-                    pageNumber: page,
-                    searchConsginmentId: searchConsginmentId,
-                    searchMethod: searchMethod,
-                    searchStatus: searchStatus,
-                },
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
-                    var html = '';
-                    $.each(result.data, function (key, item) {
-                        html += '<tr>';
-                        html += '<td>' + item.consignmentId + '</td>';
-                        html += '<td>' + item.koiId + '</td>';
-                        html += '<td>' + item.userId + '</td>';
-                        var typeText = item.type === 1 ? "Care" : "Sale";
-                        html += '<td>' + typeText + '</td>';
-                        html += '<td>' + item.dealPrice + '</td>';
-                        html += '<td>' + item.method + '</td>';
-                        html += '<td>' + (item.paymentId || 'N/A') + '</td>';
-                        var statusText = ["Pending", "Agreed", "In store", "Sold", "Returned", "Canceled"][item.status - 1];
-                        html += '<td>' + statusText + '</td>';
-                        html += '<td>' + item.note + '</td>';
-                        html += '<td>' + item.customerContact + '</td>';
-                        html += '<td>' + item.customerAddress + '</td>';
-                        html += '<td>' + item.totalWeight + '</td>';
-                        html += '<td>' + item.consignmentDate + '</td>';
-                        html += '<td>' + item.createdDate + '</td>';
-                        html += '<td>' + item.createdBy + '</td>';
-                        html += '<td>' + (item.modifiedDate || 'N/A') + '</td>';
-                        html += '<td>' + (item.modifiedBy || 'N/A') + '</td>';
-                        html += '<td><button class="btn btn-warning" onclick="editConsignment(\'' + item.consignmentId + '\',\'' 
-                                                                                                  + item.koiId + '\', \'' 
-                                                                                                  + item.userId + '\', \'' 
-                                                                                                  + item.type + '\', \'' 
-                                                                                                  + item.dealPrice + '\', \'' 
-                                                                                                  + item.method + '\', \'' 
-                                                                                                  + item.status + '\', \''
-                                                                                                  + item.note + '\', \''
-                                                                                                  + item.customerContact + '\', \''
-                                                                                                  + item.customerAddress + '\', \''
-                                                                                                  + item.totalWeight + '\')">Update</button> <button class="btn btn-danger" onclick="deleteConsignment(\'' + item.consignmentId + '\')">Delete</button></td>';
-                        html += '</tr>';
-                    });
-                    $('.tblConsignments').html(html);
-                    updatePagination(result.totalCount, page);
+                    allConsignments = result.data || [];
+                    // Tính lại số trang dựa trên dữ liệu lấy được
+                    totalPages = Math.ceil(allConsignments.length / consignmentsPerPage);
+                    // Tải dữ liệu trang hiện tại
+                    filterConsignments();
+                    updatePaginationControls();
                 },
                 error: function (xhr) {
                     alert(xhr.statusText);
@@ -307,18 +393,44 @@
             });
         }
 
-        function updatePagination(totalCount, currentPage) {
-            var totalPages = Math.ceil(totalCount / 5); // Bạn có chắc chắn là bạn có 5 mục trên mỗi trang không?
-            var paginationHtml = '';
-
-            for (var i = 1; i <= totalPages; i++) {
-                paginationHtml += `<a href="#" onclick="loadData(${i})">${i}</a>`;
-                if (i < totalPages) {
-                    paginationHtml += ' | ';
+        function loadUsers() {
+            $.ajax({
+                url: 'https://localhost:7149/api/Users',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var userHtml = '';
+                    $.each(result.data, function (key, item) {
+                        userHtml += `<option value="${item.userId}">${item.fullName}</option>`;
+                    });
+                    $('#userId1').append(userHtml);
+                    $('#userIdUpdate').append(userHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
                 }
-            }
+            });
+        }
 
-            $('.Pagination').html(paginationHtml);
+        function loadKoiFishs() {
+            $.ajax({
+                url: 'https://localhost:7149/api/KoiFish',
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var koiHtml = '';
+                    $.each(result.data, function (key, item) {
+                        koiHtml += `<option value="${item.koiId}">${item.koiName}</option>`;
+                    });
+                    $('#koiId1').append(koiHtml);
+                    $('#koiIdUpdate').append(koiHtml);
+                },
+                error: function (xhr, error) {
+                    alert(xhr.statusText);
+                }
+            });
         }
 
         // Open Add Modal

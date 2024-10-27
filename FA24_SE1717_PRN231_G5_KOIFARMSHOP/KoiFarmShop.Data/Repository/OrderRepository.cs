@@ -18,6 +18,23 @@ namespace KoiFarmShop.Data.Repository
 
         public OrderRepository(FA24_SE1717_PRN231_G5_KOIFARMSHOPContext context) => _context = context;
 
+        public async Task<List<Order>> GetAllOrderAsync()
+        {
+            return  _context.Orders.Include(u => u.User)
+                                        .Include(od => od.OrderDetails)
+                                        .Include(v => v.Voucher)
+                                        .ToList();
+        }
+
+        public async Task<Order> GetOrderByIdAsync(string orderId)
+        {
+            return await _context.Orders.Include(u => u.User)
+                                        .Include(od => od.OrderDetails)
+                                        .Include(v => v.Voucher)
+                                        .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
     }
+
+    
 
 }

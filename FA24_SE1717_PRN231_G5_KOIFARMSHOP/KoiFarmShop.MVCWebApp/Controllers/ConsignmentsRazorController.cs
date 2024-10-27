@@ -94,9 +94,20 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         }
 
         // GET: Consignments
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string ConsignmentId = null, string Method = null, int? Status = null)
-        {
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 3, string ConsignmentId = null, string Method = null, string CustomerContact = null, string CustomerAddress = null, string Status = null) {
             List<Consignment> data = new List<Consignment>();
+
+            // Define the status mapping dictionary
+            var statusMap = new Dictionary<string, int>
+            {
+                { "pending", 1 },
+                { "agreed", 2 },
+                { "in store", 3 },
+                { "sold", 4 },
+                { "returned", 5 },
+                { "canceled", 6 }
+            };
+
             try
             {
                 using (var httpClient = new HttpClient())
@@ -125,10 +136,18 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             // Filter the data
             if (!string.IsNullOrEmpty(ConsignmentId))
                 data = data.Where(x => x.ConsignmentId.Contains(ConsignmentId)).ToList();
+            if (!string.IsNullOrEmpty(CustomerContact))
+                data = data.Where(x => x.CustomerContact.Contains(CustomerContact)).ToList();
+            if (!string.IsNullOrEmpty(CustomerAddress))
+                data = data.Where(x => x.CustomerAddress.Contains(CustomerAddress)).ToList();
             if (!string.IsNullOrEmpty(Method))
                 data = data.Where(x => x.Method.Contains(Method)).ToList();
-            if (Status.HasValue)
-                data = data.Where(x => x.Status == Status).ToList();
+
+            // Check if the Status is a key in the dictionary and apply the filter if it exists
+            if (!string.IsNullOrEmpty(Status) && statusMap.TryGetValue(Status.ToLower(), out int statusValue))
+            {
+                data = data.Where(x => x.Status == statusValue).ToList();
+            }
 
             // Calculate pagination
             int totalItems = data.Count;
@@ -140,6 +159,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.ConsignmentId = ConsignmentId;
+            ViewBag.CustomerContact = CustomerContact;
+            ViewBag.CustomerAddress = CustomerAddress;
             ViewBag.Method = Method;
             ViewBag.Status = Status;
 
@@ -188,8 +209,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                         {
                             // Deserialize result.Data as a list of Consignments
                             var consignments = JsonConvert.DeserializeObject<List<Consignment>>(result.Data.ToString());
-                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-                            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+                            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+                            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiName");
                             return View();
                         }
                     }
@@ -244,8 +265,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "FullName");
-            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+            ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email");
+            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiName");
             return View(consignment);
         }
 
@@ -287,8 +308,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
-            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiId");
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "Email");
+            ViewData["KoiId"] = new SelectList(await this.GetKoiFishes(), "KoiId", "KoiName");
             return View(consignmentTmp);
         }
 
@@ -332,7 +353,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 }
             }
 
-            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "UserId");
+            ViewData["UserId"] = new SelectList(await GetUsers(), "UserId", "Email");
             ViewData["ConsignmentId"] = new SelectList(await GetConsignments(), "ConsignmentId", consignment.ConsignmentId);
             return View(consignment);
         }
