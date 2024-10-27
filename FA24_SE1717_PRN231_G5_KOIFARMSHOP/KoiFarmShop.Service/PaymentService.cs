@@ -46,21 +46,31 @@ namespace KoiFarmShop.Service
                     {
                         return new BusinessResult(Const.WARNING_NO_DATA_CODE, "Order not found.");
                     }
-
+                    paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
                     userId = order.UserId;
                     amount = order.TotalAmount;
                     orderId = order.OrderId;
+                    var payment = new Payment
+                    {
+                        PaymentId = paymentId,
+                        UserId = userId,
+                        Amount = amount,
+                        ConsignmentId = null,
+                        OrderId = orderId,
+                        Type = createPaymentRequest.Type,
+                        Status = createPaymentRequest.Status,
+                        Currency = createPaymentRequest.Currency,
+                        PaymentMethod = createPaymentRequest.PaymentMethod,
+                        Refundable = createPaymentRequest.Refundable,
+                        Note = createPaymentRequest.Note,
+                        CreatedDate = createPaymentRequest.CreatedDate
+                    };
+                    _unitOfWork.PaymentRepository.PrepareCreate(payment); 
+                    await _unitOfWork.PaymentRepository.SaveAsync();
 
-                    paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
                     order.PaymentId = paymentId;
-
-                    //if (order.PaymentId != paymentId)
-                    //{
-                    //    order.PaymentId = paymentId;
-                    //    await _unitOfWork.OrderRepository.UpdateAsync(order);
-                    //}
-
                     await _unitOfWork.OrderRepository.UpdateAsync(order);
+                    return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG, payment);
                 }
                 else if (createPaymentRequest.Type == 2) // Type 2: Consignment
                 {
@@ -80,44 +90,33 @@ namespace KoiFarmShop.Service
                     amount = consignment.DealPrice ?? 0;
                     consignmentId = consignment.ConsignmentId;
                     paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
+                   
+                    var payment = new Payment
+                    {
+                        PaymentId = paymentId,
+                        UserId = userId,
+                        Amount = amount,
+                        ConsignmentId = consignmentId,
+                        OrderId = null,
+                        Type = createPaymentRequest.Type,
+                        Status = createPaymentRequest.Status,
+                        Currency = createPaymentRequest.Currency,
+                        PaymentMethod = createPaymentRequest.PaymentMethod,
+                        Refundable = createPaymentRequest.Refundable,
+                        Note = createPaymentRequest.Note,
+                        CreatedDate = createPaymentRequest.CreatedDate
+                    };
+                    _unitOfWork.PaymentRepository.PrepareCreate(payment);
+                    await _unitOfWork.PaymentRepository.UpdateAsync(payment);
+
                     consignment.PaymentId = paymentId;
-
-
-                    //paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
-                    //consignment.PaymentId = paymentId;
                     await _unitOfWork.ConsignmentRepository.UpdateAsync(consignment);
-                }
-                else
-                {
-                    throw new Exception("Type không hợp lệ.");
-                }
-
-                var payment = new Payment
-                {
-                    PaymentId = paymentId,
-                    UserId = userId,
-                    Amount = amount,
-                    ConsignmentId = string.IsNullOrEmpty(consignmentId) ? null : consignmentId, 
-                    OrderId = string.IsNullOrEmpty(orderId) ? null : orderId,
-                    Type = createPaymentRequest.Type,
-                    Status = createPaymentRequest.Status,
-                    Currency = createPaymentRequest.Currency,
-                    PaymentMethod = createPaymentRequest.PaymentMethod,
-                    Refundable = createPaymentRequest.Refundable,
-                    Note = createPaymentRequest.Note,
-                    CreatedDate = createPaymentRequest.CreatedDate
-                };
-                await _unitOfWork.PaymentRepository.UpdateAsync(payment);
-                int result = await _unitOfWork.PaymentRepository.CreateAsync(payment);
-
-                if (result > 0)
-                {
                     return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG, payment);
                 }
                 else
                 {
-                    return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
-                }
+                    throw new Exception("Type không hợp lệ.");
+                }       
             }
             catch (Exception ex)
             {
