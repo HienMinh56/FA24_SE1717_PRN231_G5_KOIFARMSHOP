@@ -33,13 +33,6 @@ namespace KoiFarmShop.APIService.Controllers
             return await _paymentService.GetAll();
         }
 
-        // GET: api/Payments/{paymentId}
-        [HttpGet("{paymentId}")]
-        public async Task<IBusinessResult> GetPaymentById(string paymentId)
-        {
-            return await _paymentService.GetPaymentById(paymentId);
-        }
-
         [HttpPut]
         public async Task<IBusinessResult> PutPayment(UpdatePaymentRequest payment)
         {
