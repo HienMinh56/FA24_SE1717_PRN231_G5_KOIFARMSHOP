@@ -120,7 +120,6 @@ namespace KoiFarmShop.Service
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }

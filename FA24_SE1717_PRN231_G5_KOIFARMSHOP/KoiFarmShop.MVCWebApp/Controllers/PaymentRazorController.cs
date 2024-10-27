@@ -12,6 +12,7 @@ using KoiFarmShop.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using KoiFarmShop.Data.Request;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace KoiFarmShop.MVCWebApp.Controllers
 {
@@ -118,9 +119,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             return consignments;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string PaymentId = null, string UserId = null, string? Type = null)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string? PaymentId = null, string? UserId = null, 
+                                               string? Type = null, string? PaymentMethod = null, string? Refundable = null, string? Currency = null)
         {
-
             List<Payment> data = new List<Payment>();
             try
             {
@@ -150,8 +151,29 @@ namespace KoiFarmShop.MVCWebApp.Controllers
             // Filter the data
             if (!string.IsNullOrEmpty(PaymentId))
                 data = data.Where(x => x.PaymentId.Contains(PaymentId)).ToList();
+
             if (!string.IsNullOrEmpty(UserId))
                 data = data.Where(x => x.UserId.Contains(UserId)).ToList();
+
+            if (!string.IsNullOrEmpty(PaymentMethod))
+                data = data.Where(x => x.PaymentMethod != null && x.PaymentMethod.Contains(PaymentMethod)).ToList();
+
+            int? typeRefundable = Refundable?.ToLower() switch
+            {
+                "yes" => 1,
+                "no" => 2,
+                _ => null
+            };
+
+            if (typeRefundable.HasValue)
+            {
+                data = data.Where(x => x.Refundable == typeRefundable.Value).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(Currency))
+            {
+                data = data.Where(x => x.Currency != null && x.Currency.Contains(Currency)).ToList();
+            }
 
             int? typeValue = Type?.ToLower() switch
             {
@@ -160,9 +182,9 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 _ => null 
             };
 
-            // Lọc theo Type
             if (typeValue.HasValue)
                 data = data.Where(x => x.Type == typeValue.Value).ToList();
+           
 
             data = data.OrderByDescending(x => x.Id).ToList();
 
@@ -172,12 +194,14 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
             var paginatedData = data.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            // Pass pagination and filter data to the view
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.PaymentId = PaymentId;
             ViewBag.UserId = UserId;
             ViewBag.Type = Type;
+            ViewBag.PaymentMethod = PaymentMethod;
+            ViewBag.Refundable = Refundable;
+            ViewBag.Currency = Currency;
 
             return View(paginatedData);
         }
