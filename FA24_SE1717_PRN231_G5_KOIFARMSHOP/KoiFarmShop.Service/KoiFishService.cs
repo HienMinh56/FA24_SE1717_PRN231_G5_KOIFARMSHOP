@@ -37,7 +37,14 @@ namespace KoiFarmShop.Service
             //3.create new image entities with koiId of koifish created as foreign key
             //4.check if new image entity was created. if wasn't, remove koifish entity created from DB and return failed message.
             #endregion
-            
+
+            var existedKoifish = _unitOfWork.KoiFishRepository.Get(k => k.KoiName == createKoiFishRequest.KoiName);
+            if (existedKoifish is not null)
+            {
+                existedKoifish.Quantity += createKoiFishRequest.Quantity;
+                await _unitOfWork.KoiFishRepository.UpdateAsync(existedKoifish);
+                return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, existedKoifish);
+            }
 
             var koiFishs = await _unitOfWork.KoiFishRepository.GetAllOrderedByKoiId();
             var Id = koiFishs.Count + 1;
@@ -192,6 +199,14 @@ namespace KoiFarmShop.Service
             try
             {
                 int result = -1;
+
+                var existedKoifish = _unitOfWork.KoiFishRepository.Get(k => k.KoiName == koiFish.KoiName);
+                if (existedKoifish is not null)
+                {
+                    existedKoifish.Quantity += koiFish.Quantity;
+                    await _unitOfWork.KoiFishRepository.UpdateAsync(existedKoifish);
+                    return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, existedKoifish);
+                }
 
                 var koiFishTmp = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == koiFish.KoiId);
 
