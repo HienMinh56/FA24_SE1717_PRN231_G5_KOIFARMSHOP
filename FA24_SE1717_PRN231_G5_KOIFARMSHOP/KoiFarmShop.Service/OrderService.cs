@@ -269,9 +269,10 @@ namespace KoiFarmShop.Service
                             orderDetail1.Price = koi.Price;
                             totalAmount += koi.Price * item.Quantity;
                             totalQuantity += item.Quantity;
+                            koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
 
 
-                            
+
 
 
                             orderTmp.VoucherId = order.VoucherId;
@@ -313,6 +314,7 @@ namespace KoiFarmShop.Service
                             totalAmount += koi.Price * item.Quantity;
                             totalQuantity += item.Quantity;
                             orderTmp.VoucherId = order.VoucherId;
+                            koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
 
                             await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
                             var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
@@ -370,6 +372,7 @@ namespace KoiFarmShop.Service
                         item.Quantity = item.Quantity;
                         totalAmount += item.Price * item.Quantity;
                         totalQuantity += item.Quantity;
+                        koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
                     }
                     var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
 
