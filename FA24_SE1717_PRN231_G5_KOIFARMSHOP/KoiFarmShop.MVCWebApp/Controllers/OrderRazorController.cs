@@ -183,7 +183,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         public async Task<IActionResult> Create()
         {
             // Initialize empty Order object
-            var order = new Order();
+            var order = new CreateOrderRequest();
 
             using (var httpClient = new HttpClient())
             {
@@ -216,7 +216,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // POST: OrderRazor/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,Note,TotalWeight,OrderDetails")] Order order)
+        public async Task<IActionResult> Create([Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherCode,ShippingAddress,PaymentMethod,DeliveryDate,Note,TotalWeight,OrderDetails")] CreateOrderRequest order)
         {
             if (order.OrderDetails == null || !order.OrderDetails.Any())
             {
@@ -279,7 +279,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 {
                     var orderContent = await orderResponse.Content.ReadAsStringAsync();
                     var orderResult = JsonConvert.DeserializeObject<BusinessResult>(orderContent);
-                    var order = JsonConvert.DeserializeObject<Order>(orderResult?.Data?.ToString() ?? "");
+                    var order = JsonConvert.DeserializeObject<CreateOrderRequest>(orderResult?.Data?.ToString() ?? "");
 
                     // Fetch OrderDetails for this specific Order ID
                     var detailsResponse = await httpClient.GetAsync(Const.API_ENDPOINT + "OrderDetails/" + id);
@@ -312,7 +312,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherId,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight")] Order order)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherCode,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight")] CreateOrderRequest order)
         {
             if (ModelState.IsValid)
             {
@@ -349,7 +349,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
             // If we get here, something went wrong, so return the view with the voucher data
             ViewData["UserId"] = new SelectList(await this.GetUsers(), "UserId", "Email", order.UserId);
-            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode", order.VoucherId);
+            ViewData["VoucherId"] = new SelectList(await this.GetVouchers(), "VoucherId", "VoucherCode", order.VoucherCode);
 
             return View(order);
         }

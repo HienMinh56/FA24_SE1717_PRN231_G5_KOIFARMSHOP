@@ -38,14 +38,14 @@ namespace KoiFarmShop.APIService.Controllers
         }
 
         [HttpPost]
-        public async Task<IBusinessResult> CreateOrder([FromBody] Order order)
+        public async Task<IBusinessResult> CreateOrder([FromBody] CreateOrderRequest order)
         {
             // Call the service to create the order
             return await _orderService.Save(order);
         }
 
         [HttpPut]
-        public async Task<IBusinessResult> UpdateOrder([FromBody] Order order)
+        public async Task<IBusinessResult> UpdateOrder([FromBody] CreateOrderRequest order)
         {
             return await _orderService.Save(order);
         }
