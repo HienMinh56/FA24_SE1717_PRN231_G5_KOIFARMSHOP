@@ -32,7 +32,7 @@ namespace KoiFarmShop.Service
             _unitOfWork ??= new UnitOfWork();
         }
 
-        
+
 
 
         public async Task<IBusinessResult> GetOrders()
@@ -79,11 +79,11 @@ namespace KoiFarmShop.Service
                         UserId = order.User.UserId,
                         UserName = order.User.FullName,
                     },
-                    Voucher = new VoucherDto
-                    {
-                        VoucherId = order.Voucher.VoucherId,
-                        VoucherCode = order.Voucher.VoucherCode,
-                    },
+                    //Voucher = new VoucherDto
+                    //{
+                    //    VoucherId = order.Voucher.VoucherId,
+                    //    VoucherCode = order.Voucher.VoucherCode,
+                    //},
                     OrderDetails = order.OrderDetails.Select(od => new OrderDetailDto
                     {
                         KoiId = od.KoiId,
@@ -195,72 +195,111 @@ namespace KoiFarmShop.Service
                             orderDetail1.Quantity = item.Quantity;
                             orderDetail1.Price = koi.Price;
                             totalAmount += koi.Price * item.Quantity;
-                            totalQuantity += item.Quantity;
-                            koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
+                            totalQuantity += item.Quantity; 
 
+                            if (koi.Quantity < 0)
+                            {
+                                return new BusinessResult(Const.FAIL_UPDATE_CODE, "Koi fish out of stock");
+                            }
 
-
-
-
+                            _unitOfWork.OrderDetailRepository.Update(orderDetail1);
+                            _unitOfWork.KoiFishRepository.Update(koi);
 
                             var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherCode == order.VoucherCode);
-
-                            if (voucher != null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 0 && voucher.ValidityEndDate <= DateTime.Now && voucher.ValidityStartDate>=DateTime.Now)
+                            var existVoucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderTmp.VoucherId);
+                            if (voucher == null && existVoucher == null)
+                            {
+                                orderTmp.TotalAmount = totalAmount;
+                                orderTmp.Quantity = totalQuantity;
+                            }
+                            else if(voucher == null && existVoucher != null)
+                            {
+                                orderTmp.TotalAmount = totalAmount;
+                                orderTmp.Quantity = totalQuantity;
+                                existVoucher.Quantity += 1;
+                                _unitOfWork.VoucherRepository.Update(existVoucher);
+                            }
+                            else if (voucher != null && existVoucher ==null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 1 &&
+                        voucher.ValidityEndDate >= DateTime.Now && voucher.ValidityStartDate <= DateTime.Now)
                             {
                                 totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
-                                orderTmp.Voucher.Quantity += 1;
                                 voucher.Quantity = voucher.Quantity - 1;
                                 orderTmp.VoucherId = voucher.VoucherId;
+
+                                if (voucher.Quantity < 0)
+                                {
+                                    return new BusinessResult(Const.FAIL_UPDATE_CODE, "Voucher out of stock");
+                                }
+
+                                _unitOfWork.VoucherRepository.Update(voucher);
+                            }
+                            else if ( voucher != null && existVoucher!= null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 1 &&
+                        voucher.ValidityEndDate >= DateTime.Now && voucher.ValidityStartDate <= DateTime.Now)
+                            {
+                                totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                                existVoucher.Quantity += 1;
+                                voucher.Quantity = voucher.Quantity - 1;
+                                orderTmp.VoucherId = voucher.VoucherId;
+
+                                if (voucher.Quantity < 0)
+                                {
+                                    return new BusinessResult(Const.FAIL_UPDATE_CODE, "Voucher out of stock");
+                                }
+
+                                _unitOfWork.VoucherRepository.Update(voucher);
+                                _unitOfWork.VoucherRepository.Update(existVoucher);
                             }
                             else
                             {
-                                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                                return new BusinessResult(Const.FAIL_UPDATE_CODE, "Cannot apply voucher!!!");
                             }
-                            orderTmp.TotalAmount = totalAmount;
-                            orderTmp.Quantity = totalQuantity;
+
+
                         }
 
                     }
-                    else
-                    {
-                        var totalAmount = 0.0;
-                        var totalQuantity = 0;
-                        foreach (var item in orderTmp.OrderDetails)
-                        {
-                            var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
-                            var orderDetail = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
-                            if (orderDetail == null)
-                            {
+                    #region if have order details
+                    //else
+                    //{
+                    //    var totalAmount = 0.0;
+                    //    var totalQuantity = 0;
+                    //    foreach (var item in orderTmp.OrderDetails)
+                    //    {
+                    //        var koi = _unitOfWork.KoiFishRepository.Get(k => k.KoiId == item.KoiId);
+                    //        var orderDetail = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
+                    //        if (orderDetail == null)
+                    //        {
 
 
-                                throw new Exception("Order detail not found");
-                            }
-                            orderDetail.Quantity = item.Quantity;
-                            orderDetail.Price = koi.Price;
-                            totalAmount += koi.Price * item.Quantity;
-                            totalQuantity += item.Quantity;
-                            koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
+                    //            throw new Exception("Order detail not found");
+                    //        }
+                    //        orderDetail.Quantity = item.Quantity;
+                    //        orderDetail.Price = koi.Price;
+                    //        totalAmount += koi.Price * item.Quantity;
+                    //        totalQuantity += item.Quantity;
+                    //        koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
 
-                            await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
-                            var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherCode == order.VoucherCode);
+                    //        await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
+                    //        var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherCode == order.VoucherCode);
+                    //        var existVoucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderTmp.VoucherId);
+                    //        if (voucher != null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 1 &&
+                    //    voucher.ValidityEndDate >= DateTime.Now && voucher.ValidityStartDate <= DateTime.Now)
+                    //        {
+                    //            totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                    //            existVoucher.Quantity += 1;
+                    //            voucher.Quantity = voucher.Quantity - 1;
+                    //            orderTmp.VoucherId = voucher.VoucherId;
+                    //        }
+                    //        else
+                    //        {
 
-                            if (voucher!= null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 0 && voucher.ValidityEndDate <= DateTime.Now)
-                            {
-                                totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
-                                orderTmp.Voucher.Quantity += 1;
-                                voucher.Quantity = voucher.Quantity - 1;
-                                orderTmp.VoucherId = voucher.VoucherId;
-                            }
-                            else
-                            {
-
-                                return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
-                            }
-                            orderTmp.TotalAmount = totalAmount;
-                            orderTmp.Quantity = totalQuantity;
-                        }
-                    }
-
+                    //            return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
+                    //        }
+                    //        orderTmp.TotalAmount = totalAmount;
+                    //        orderTmp.Quantity = totalQuantity;
+                    //    }
+                    //}
+                    #endregion
                     result = await _unitOfWork.OrderRepository.UpdateAsync(orderTmp);
 
                     if (result > 0)
@@ -301,22 +340,33 @@ namespace KoiFarmShop.Service
                         totalAmount += item.Price * item.Quantity;
                         totalQuantity += item.Quantity;
                         koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
+
+                        if (koi.Quantity < 0)
+                        {
+                            return new BusinessResult(Const.FAIL_CREATE_CODE, "Koi fish out of stock");
+                        }
+                        _unitOfWork.KoiFishRepository.Update(koi);
                     }
                     var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherCode == order.VoucherCode);
-
+                    if (voucher == null)
+                    {
+                        newOrder.TotalAmount = totalAmount;
+                        newOrder.Quantity = totalQuantity;
+                    }
                     if (voucher != null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 1 &&
-                        voucher.ValidityEndDate >= DateTime.Now && voucher.ValidityStartDate <= DateTime.Now)
+                        voucher.ValidityEndDate >= DateTime.Now && voucher.ValidityStartDate <= DateTime.Now && voucher.Quantity >= 1)
                     {
                         totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
-                        voucher.Quantity = voucher.Quantity - 1;
                         newOrder.VoucherId = voucher.VoucherId;
+                        voucher.Quantity = voucher.Quantity - 1;
+
+                        if (voucher.Quantity < 0)
+                        {
+                            return new BusinessResult(Const.FAIL_CREATE_CODE, "Voucher out of stock");
+                        }
+                        _unitOfWork.VoucherRepository.Update(voucher);
                     }
-                    else
-                    {
-                        return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
-                    }
-                    newOrder.TotalAmount = totalAmount;
-                    newOrder.Quantity = totalQuantity;
+                    
 
                     result = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 

@@ -69,8 +69,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="voucherCode">Voucher Code</label>
-                                <select class="form-control" id="voucherCode" name="voucherCode">
-                                </select>
+                                <input type="text" class="form-control" id="voucherCode" name="voucherCode" />
                             </div>
                         </div>
                     </div>
@@ -183,8 +182,7 @@
                 </div>
                 <div class="form-group">
                     <label for="updateVoucherId">Voucher Code</label>
-                    <select class="form-control" id="updateVoucherId" name="updateVoucherId">
-                    </select>
+                    <input type="text" class="form-control" id="updateVoucherId" name="updateVoucherId" />
                 </div>
             </div>
             <div class="form-group">
@@ -282,7 +280,7 @@
         $(document).ready(function () {
             loadData();
             loadUsers();
-            loadVouchers();
+            // loadVouchers();
             loadKoi();
             $('#OrderFilterForm input').on('input change', function () {
                 $('#searchBtn').addClass('active');
@@ -306,7 +304,7 @@
                 var order = {
                     userId: $('#userId').val(),
                     status: parseInt($('#status').val()), // Ensure this is an integer
-                    voucherId: $('#voucherCode').val() || null, // Ensure this is captured
+                    voucherCode: $('#voucherCode').val() || null, // Ensure this is captured
                     shippingAddress: $('#shippingAddress').val(),
                     paymentMethod: $('#paymentMethod').val(),
                     deliveryDate: new Date($('#deliveryDate').val()).toISOString(), // Convert to ISO string
@@ -376,7 +374,7 @@
                 var orderId = $('#updateOrderId').val();
                 var status = $('#updateStatus').val();
                 var userId = $('#updateUserId').val();
-                var voucherId = $('#updateVoucherId').val() || null;
+                var voucherCode = $('#updateVoucherId').val() || null;
                 var shippingAddress = $('#updateShippingAddress').val();
                 var paymentMethod = $('#updatePaymentMethod').val();
                 var deliveryDate = $('#updateDeliveryDate').val();
@@ -388,7 +386,7 @@
                     orderId: orderId,
                     status: status,
                     userId: userId,
-                    voucherId: voucherId,
+                    voucherCode: voucherCode,
                     shippingAddress: shippingAddress,
                     paymentMethod: paymentMethod,
                     deliveryDate: deliveryDate,
