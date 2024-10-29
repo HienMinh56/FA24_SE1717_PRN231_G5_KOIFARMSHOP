@@ -173,14 +173,44 @@ namespace KoiFarmShop.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateKoiFishRequest koiFish)
+        public async Task<IActionResult> Create([FromForm] CreateKoiFishRequest koiFish)
         {
             bool saveStatus = false;
             if (ModelState.IsValid)
             {
                 using (var httpClient = new HttpClient())
                 {
-                    using (var response = await httpClient.PostAsJsonAsync(Const.APIEndpoint + $"KoiFish", koiFish))
+                    var formData = new MultipartFormDataContent();
+
+                    formData.Add(new StringContent(koiFish.KoiName ?? ""), "KoiName");
+                    formData.Add(new StringContent(koiFish.Origin ?? ""), "Origin");
+                    formData.Add(new StringContent(koiFish.Gender ?? ""), "Gender");
+                    formData.Add(new StringContent(koiFish.Age.ToString()), "Age");
+                    formData.Add(new StringContent(koiFish.Size.ToString()), "Size");
+                    formData.Add(new StringContent(koiFish.Breed ?? ""), "Breed");
+                    formData.Add(new StringContent(koiFish.Type ?? ""), "Type");
+                    formData.Add(new StringContent(koiFish.Price.ToString()), "Price");
+                    formData.Add(new StringContent(koiFish.Quantity.ToString()), "Quantity");
+                    formData.Add(new StringContent(koiFish.OwnerType.ToString()), "OwnerType");
+                    formData.Add(new StringContent(koiFish.Description ?? ""), "Description");
+
+                    if (koiFish.Image != null && koiFish.Image.Count > 0)
+                    {
+                        foreach (var image in koiFish.Image)
+                        {
+                            if (image.Length > 0)
+                            {
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    await image.CopyToAsync(memoryStream);
+                                    var imageContent = new ByteArrayContent(memoryStream.ToArray());
+                                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+                                    formData.Add(imageContent, "Image", image.FileName);
+                                }
+                            }
+                        }
+                    }
+                    using (var response = await httpClient.PostAsync(Const.APIEndpoint + $"KoiFish", formData))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -190,6 +220,10 @@ namespace KoiFarmShop.MVC.Controllers
                             {
                                 saveStatus = true;
                             }
+                        }
+                        else
+                        {
+                            Console.WriteLine(response);
                         }
                     }
                 }
@@ -217,7 +251,12 @@ namespace KoiFarmShop.MVC.Controllers
             //}
             //return View(koiFish);
 
-            ViewBag.Images = new SelectList(await this.GetImages(), "Url", "ImageId");
+            //var availableImages = new List<SelectListItem>
+            //{
+
+            //}
+
+            ViewBag.Images = new SelectList((await this.GetImages()).Where(i => i.KoiId == id), "Url", "ImageId");
 
             using (var httpClient = new HttpClient())
             {
@@ -279,7 +318,45 @@ namespace KoiFarmShop.MVC.Controllers
             {
                 using (var httpClient = new HttpClient())
                 {
-                    using (var response = await httpClient.PutAsJsonAsync(Const.APIEndpoint + $"KoiFish", koiFish))
+                    var formData = new MultipartFormDataContent();
+
+                    formData.Add(new StringContent(koiFish.KoiId ?? ""), "KoiId");
+                    formData.Add(new StringContent(koiFish.KoiName ?? ""), "KoiName");
+                    formData.Add(new StringContent(koiFish.Origin ?? ""), "Origin");
+                    formData.Add(new StringContent(koiFish.Gender ?? ""), "Gender");
+                    formData.Add(new StringContent(koiFish.Age.ToString()), "Age");
+                    formData.Add(new StringContent(koiFish.Size.ToString()), "Size");
+                    formData.Add(new StringContent(koiFish.Breed ?? ""), "Breed");
+                    formData.Add(new StringContent(koiFish.Type ?? ""), "Type");
+                    formData.Add(new StringContent(koiFish.Price.ToString()), "Price");
+                    formData.Add(new StringContent(koiFish.Quantity.ToString()), "Quantity");
+                    formData.Add(new StringContent(koiFish.OwnerType.ToString()), "OwnerType");
+                    formData.Add(new StringContent(koiFish.Description ?? ""), "Description");
+
+                    if (koiFish.AddedImage != null && koiFish.AddedImage.Count > 0)
+                    {
+                        foreach (var image in koiFish.AddedImage)
+                        {
+                            if (image.Length > 0)
+                            {
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    await image.CopyToAsync(memoryStream);
+                                    var imageContent = new ByteArrayContent(memoryStream.ToArray());
+                                    imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+                                    formData.Add(imageContent, "AddedImage", image.FileName);
+                                }
+                            }
+                        }
+                    }
+                    if (koiFish.RemovedImage != null && koiFish.RemovedImage.Count > 0)
+                    {
+                        foreach (var image in koiFish.RemovedImage)
+                        {
+                            formData.Add(new StringContent(image), "RemovedImage");
+                        }
+                    }
+                    using (var response = await httpClient.PutAsync(Const.APIEndpoint + $"KoiFish", formData))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -297,7 +374,7 @@ namespace KoiFarmShop.MVC.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            return View(id);
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
 
