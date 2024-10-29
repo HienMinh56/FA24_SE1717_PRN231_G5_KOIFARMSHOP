@@ -11,7 +11,7 @@
 </p>
 <form method="get" asp-action="Index" class="d-flex mb-4 align-items-end" style="gap: 10px;">
     <div class="flex-fill">
-        <input type="text" class="form-control" id="VoucherId" name="VoucherId" placeholder="Enter VoucherId" value="@ViewBag.VoucherId" />
+        <input type="text" class="form-control" id="VoucherCode" name="VoucherCode" placeholder="Enter VoucherCode" value="@ViewBag.VoucherCode" />
     </div>
     <div class="flex-fill">
         <input type="number" class="form-control" id="DiscountAmount" name="DiscountAmount" placeholder="Enter  DiscountAmount" value="@ViewBag.DiscountAmount" />
@@ -33,7 +33,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.VoucherName)
             </th>
-
+            <th>
                 @Html.DisplayNameFor(model => model.DiscountAmount)
             </th>
             <th>
@@ -116,7 +116,7 @@
         {
             <li class="page-item">
                 <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)"
-                   asp-route-VoucherId="@ViewBag.VoucherId"
+                   asp-route-VoucherId="@ViewBag.VoucherCode"
                    asp-route-DiscountAmount="@ViewBag.DiscountAmount"
                    asp-route-Status="@ViewBag.Status">Previous</a>
             </li>
@@ -125,7 +125,7 @@
         {
             <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
                 <a class="page-link" asp-action="Index" asp-route-page="@i"
-                   asp-route-VoucherId="@ViewBag.VoucherId"
+                   asp-route-VoucherId="@ViewBag.VoucherCode"
                    asp-route-DiscountAmount="@ViewBag.DiscountAmount"
                    asp-route-Status="@ViewBag.Status">@i</a>
             </li>
@@ -134,7 +134,7 @@
         {
             <li class="page-item">
                 <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)"
-                   asp-route-VoucherId="@ViewBag.VoucherId"
+                   asp-route-VoucherId="@ViewBag.VoucherCode"
                    asp-route-DiscountAmount="@ViewBag.DiscountAmount"
                    asp-route-Status="@ViewBag.Status">Next</a>
             </li>

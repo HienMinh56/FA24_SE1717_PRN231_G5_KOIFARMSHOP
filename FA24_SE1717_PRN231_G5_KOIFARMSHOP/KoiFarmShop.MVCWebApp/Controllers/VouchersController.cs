@@ -23,7 +23,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
 
         }
         // GET: Vouchers
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, double? DiscountAmount = null, string voucherId = null, int? Status = null)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 5, double? DiscountAmount = null, string voucherCode = null, int? Status = null)
         {
             List<Voucher> data = new List<Voucher>();
             try
@@ -52,8 +52,8 @@ namespace KoiFarmShop.MVCWebApp.Controllers
                 Console.WriteLine($"Error fetching data: {ex.Message}");
                 return View(new List<Voucher>());
             }
-            if (!string.IsNullOrEmpty(voucherId))
-                data = data.Where(x => x.VoucherId.Contains(voucherId)).ToList();
+            if (!string.IsNullOrEmpty(voucherCode))
+                data = data.Where(x => x.VoucherCode.Contains(voucherCode)).ToList();
             if (DiscountAmount.HasValue && DiscountAmount >= 0 )
                 data = data.Where(x => x.DiscountAmount.Equals(DiscountAmount)).ToList();
             if (Status.HasValue)
