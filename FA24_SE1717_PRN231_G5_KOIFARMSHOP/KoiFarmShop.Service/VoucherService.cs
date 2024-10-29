@@ -18,7 +18,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetById(string Id);
         Task<IBusinessResult> Save(CreateVoucherRequest voucher);
         Task<IBusinessResult> DeleteById(string Id);
-
+        Task<IBusinessResult> GetByCode(string code);
 
     }
 
@@ -29,6 +29,26 @@ namespace KoiFarmShop.Service
         {
             _unitOfWork ??= new UnitOfWork();
         }
+
+
+        public async Task<IBusinessResult> GetByCode(string code)
+        {
+            #region Business rule
+
+            #endregion
+
+            var voucher = _unitOfWork.VoucherRepository.Get(u => u.VoucherCode == code);
+
+            if (voucher == null)
+            {
+                return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new User());
+            }
+            else
+            {
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, voucher);
+            }
+        }
+
         public async Task<IBusinessResult> GetAll()
         {
             #region Business rule

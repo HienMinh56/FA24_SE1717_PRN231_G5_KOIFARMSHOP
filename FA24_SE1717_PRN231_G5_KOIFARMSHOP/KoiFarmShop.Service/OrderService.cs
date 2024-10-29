@@ -24,6 +24,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> DeleteOrderAsync(string orderId);
         void UserVoucher(string voucherId);
         void GetBackVoucher(string voucherId);
+        Task<IBusinessResult> GetVoucherIdByCode(string VoucherCode);
     }
 
     public class OrderService : IOrderService
@@ -33,6 +34,24 @@ namespace KoiFarmShop.Service
         {
             _unitOfWork ??= new UnitOfWork();
         }
+
+        public async Task<IBusinessResult> GetVoucherIdByCode(string VoucherCode)
+        {
+            try
+            {
+                var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherCode == VoucherCode);
+                if (voucher == null)
+                {
+                    return new BusinessResult(Const.FAIL_READ_CODE, "Voucher not found");
+                }
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, voucher);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
 
         public void GetBackVoucher(string voucherId)
         {
