@@ -62,10 +62,6 @@
                     <!-- Add form fields here -->
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label for="voucherId" class="form-label">Voucher Id</label>
-                            <input type="text" class="form-control" id="voucherId" required>
-                        </div>
-                        <div class="col-4">
                             <label for="note" class="form-label">Note</label>
                             <input type="text" class="form-control" id="note" required>
                         </div>
@@ -466,7 +462,7 @@
 
         function saveData() {
             var obj = {
-                voucherId: $('#voucherId').val(),
+                voucherId: "new",
                 voucherCode: $('#voucherCode').val(),
                 voucherName: $('#voucherName').val(),
                 applyMethod: $('#applyMethod').val(),

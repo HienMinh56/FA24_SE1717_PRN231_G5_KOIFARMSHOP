@@ -15,7 +15,6 @@ namespace KoiFarmShop.Service
     {
         Task<IBusinessResult> Create(CreatePaymentRequest paymentRequest);
         Task<IBusinessResult> GetAll();
-        Task<IBusinessResult> GetPaymentById(string paymentId);
         Task<IBusinessResult> Update(UpdatePaymentRequest payment);
         Task<IBusinessResult> DeleteById(string paymentId);
 
@@ -30,12 +29,94 @@ namespace KoiFarmShop.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IBusinessResult> Create(CreatePaymentRequest paymentRequest)
+        public async Task<IBusinessResult> Create(CreatePaymentRequest createPaymentRequest)
         {
             try
             {
-                var payment = await _unitOfWork.PaymentRepository.CreatePaymentAsync(paymentRequest);
-                return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG, payment);
+                string userId = string.Empty;
+                double amount = 0;
+                string paymentId;
+                string orderId = null;
+                string consignmentId = null;
+
+                if (createPaymentRequest.Type == 1) // Type 1: Order
+                {
+                    var order =  _unitOfWork.OrderRepository.Get(c => c.OrderId == createPaymentRequest.OrderId);
+                    if (order == null)
+                    {
+                        return new BusinessResult(Const.WARNING_NO_DATA_CODE, "Order not found.");
+                    }
+                    paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
+                    userId = order.UserId;
+                    amount = order.TotalAmount;
+                    orderId = order.OrderId;
+                    var payment = new Payment
+                    {
+                        PaymentId = paymentId,
+                        UserId = userId,
+                        Amount = amount,
+                        ConsignmentId = null,
+                        OrderId = orderId,
+                        Type = createPaymentRequest.Type,
+                        Status = createPaymentRequest.Status,
+                        Currency = createPaymentRequest.Currency,
+                        PaymentMethod = createPaymentRequest.PaymentMethod,
+                        Refundable = createPaymentRequest.Refundable,
+                        Note = createPaymentRequest.Note,
+                        CreatedDate = createPaymentRequest.CreatedDate
+                    };
+                    _unitOfWork.PaymentRepository.PrepareCreate(payment); 
+                    await _unitOfWork.PaymentRepository.SaveAsync();
+
+                    order.PaymentId = paymentId;
+                    await _unitOfWork.OrderRepository.UpdateAsync(order);
+                    return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG, payment);
+                }
+                else if (createPaymentRequest.Type == 2) // Type 2: Consignment
+                {
+                    if (string.IsNullOrEmpty(createPaymentRequest.ConsignmentId))
+                    {
+                        return new BusinessResult(Const.FAIL_CREATE_CODE, "Type 2 requires ConsignmentId.");
+                    }
+
+                    var consignment = _unitOfWork.ConsignmentRepository.Get(c => c.ConsignmentId == createPaymentRequest.ConsignmentId);
+
+                    if (consignment == null)
+                    {
+                        return new BusinessResult(Const.WARNING_NO_DATA_CODE, "Consignment not found.");
+                    }
+
+                    userId = consignment.UserId;
+                    amount = consignment.DealPrice ?? 0;
+                    consignmentId = consignment.ConsignmentId;
+                    paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
+                   
+                    var payment = new Payment
+                    {
+                        PaymentId = paymentId,
+                        UserId = userId,
+                        Amount = amount,
+                        ConsignmentId = consignmentId,
+                        OrderId = null,
+                        Type = createPaymentRequest.Type,
+                        Status = createPaymentRequest.Status,
+                        Currency = createPaymentRequest.Currency,
+                        PaymentMethod = createPaymentRequest.PaymentMethod,
+                        Refundable = createPaymentRequest.Refundable,
+                        Note = createPaymentRequest.Note,
+                        CreatedDate = createPaymentRequest.CreatedDate
+                    };
+                    _unitOfWork.PaymentRepository.PrepareCreate(payment);
+                    await _unitOfWork.PaymentRepository.UpdateAsync(payment);
+
+                    consignment.PaymentId = paymentId;
+                    await _unitOfWork.ConsignmentRepository.UpdateAsync(consignment);
+                    return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG, payment);
+                }
+                else
+                {
+                    throw new Exception("Type không hợp lệ.");
+                }       
             }
             catch (Exception ex)
             {
@@ -56,28 +137,11 @@ namespace KoiFarmShop.Service
             }
         }
 
-        public async Task<IBusinessResult> GetPaymentById(string paymentId)
-        {
-            try
-            {
-                var payment = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(paymentId);
-                if (payment == null)
-                {
-                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new Payment());
-                }
-                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, payment);
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
-
         public async Task<IBusinessResult> Update(UpdatePaymentRequest payment)
         {
             try
             {
-                var paymentEntity = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(payment.PaymentId);
+                var paymentEntity =  _unitOfWork.PaymentRepository.Get(p => p.PaymentId == payment.PaymentId);
 
                 if (paymentEntity == null)
                 {
@@ -106,7 +170,7 @@ namespace KoiFarmShop.Service
         {
             try
             {
-                var payment = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(paymentId);
+                var payment =  _unitOfWork.PaymentRepository.Get(c => c.PaymentId == paymentId);
                 if (payment == null)
                     return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new Consignment());
                 else

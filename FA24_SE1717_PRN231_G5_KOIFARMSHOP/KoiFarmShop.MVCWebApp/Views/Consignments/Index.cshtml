@@ -420,12 +420,12 @@
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
-                    var userHtml = '';
+                    var koiHtml = '';
                     $.each(result.data, function (key, item) {
-                        userHtml += `<option value="${item.koiId}">${item.koiName}</option>`;
+                        koiHtml += `<option value="${item.koiId}">${item.koiName}</option>`;
                     });
-                    $('#koiId1').append(userHtml);
-                    $('#koiIdUpdate').append(userHtml);
+                    $('#koiId1').append(koiHtml);
+                    $('#koiIdUpdate').append(koiHtml);
                 },
                 error: function (xhr, error) {
                     alert(xhr.statusText);

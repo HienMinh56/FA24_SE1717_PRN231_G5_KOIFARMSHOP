@@ -22,6 +22,9 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> Update(Order order);
         Task<IBusinessResult> Save(Order order);
         Task<IBusinessResult> DeleteOrderAsync(string orderId);
+        void UserVoucher(string voucherId);
+        void GetBackVoucher(string voucherId);
+        Task<string> GetVoucherIdByCode(string VoucherCode);
     }
 
     public class OrderService : IOrderService
@@ -30,6 +33,76 @@ namespace KoiFarmShop.Service
         public OrderService()
         {
             _unitOfWork ??= new UnitOfWork();
+        }
+
+        public async Task<string> GetVoucherIdByCode(string VoucherCode)
+        {
+            try
+            {
+                var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherCode == VoucherCode);
+                if (voucher != null)
+                {
+                    return voucher.VoucherId;
+                }
+                return "voucher not found";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+
+        public void GetBackVoucher(string voucherId)
+        {
+            try
+            {
+                var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == voucherId);
+                if (voucher == null)
+                {
+                    return;
+                }
+
+                voucher.Quantity = voucher.Quantity + 1;
+                var flag = _unitOfWork.VoucherRepository.UpdateAsync(voucher);
+
+                return;
+            }
+            catch (Exception ex)
+            {
+                return;
+
+            }
+        }
+
+        public void UserVoucher(string voucherId)
+        {
+            try
+            {
+                var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == voucherId);
+                if (voucher == null)
+                {
+                    return ;
+                }
+                if (voucher.Status == 0)
+                {
+                    return ;
+                }
+                if (voucher.Quantity == 0)
+                {
+                    return ;
+                }
+                voucher.Quantity = voucher.Quantity - 1;
+                var flag = _unitOfWork.VoucherRepository.UpdateAsync(voucher);
+
+
+                return ;
+            }
+            catch (Exception ex)
+            {
+                return ;
+                
+            }
         }
 
 
@@ -155,11 +228,18 @@ namespace KoiFarmShop.Service
             try
             {
                 int result = -1;
+         
+             
 
                 Order orderTmp = _unitOfWork.OrderRepository.Get(o => o.OrderId == order.OrderId);
+      
+                var voucherUse = orderTmp.VoucherId;
+
 
                 if (orderTmp != null)
                 {
+                    
+
                     orderTmp.UserId = order.UserId;
                     orderTmp.TotalWeight = order.TotalWeight;
                     orderTmp.PaymentMethod = order.PaymentMethod;
@@ -182,22 +262,32 @@ namespace KoiFarmShop.Service
                             var orderDetail1 = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
                             if (orderDetail == null)
                             {
+
                                 throw new Exception("Order detail not found");
                             }
                             orderDetail1.Quantity = item.Quantity;
                             orderDetail1.Price = koi.Price;
                             totalAmount += koi.Price * item.Quantity;
                             totalQuantity += item.Quantity;
+                            koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
+
+
+
+
+
                             orderTmp.VoucherId = order.VoucherId;
 
                             var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
 
-                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 0 && voucher.ValidityEndDate <= DateTime.Now)
                             {
                                 totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                             
                             }
                             else
                             {
+                                 
+
                                 return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
                             }
                             orderTmp.TotalAmount = totalAmount;
@@ -215,6 +305,8 @@ namespace KoiFarmShop.Service
                             var orderDetail = _unitOfWork.OrderDetailRepository.Get(od => od.OrderId == order.OrderId && od.KoiId == item.KoiId);
                             if (orderDetail == null)
                             {
+
+
                                 throw new Exception("Order detail not found");
                             }
                             orderDetail.Quantity = item.Quantity;
@@ -222,16 +314,19 @@ namespace KoiFarmShop.Service
                             totalAmount += koi.Price * item.Quantity;
                             totalQuantity += item.Quantity;
                             orderTmp.VoucherId = order.VoucherId;
+                            koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
 
                             await _unitOfWork.OrderDetailRepository.UpdateAsync(orderDetail);
                             var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
 
-                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                            if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 0 && voucher.ValidityEndDate <= DateTime.Now)
                             {
                                 totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                      
                             }
                             else
                             {
+
                                 return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
                             }
                             orderTmp.TotalAmount = totalAmount;
@@ -243,10 +338,20 @@ namespace KoiFarmShop.Service
 
                     if (result > 0)
                     {
+                        if(voucherUse != orderTmp.VoucherId)
+                        {
+                            GetBackVoucher(voucherUse);
+                            UserVoucher(orderTmp.VoucherId);
+                        }
+
+
+
                         return new BusinessResult(Const.SUCCESS_UPDATE_CODE, Const.SUCCESS_UPDATE_MSG, orderTmp);
                     }
                     else
                     {
+
+
                         return new BusinessResult(Const.FAIL_UPDATE_CODE, Const.FAIL_UPDATE_MSG);
                     }
                 }
@@ -267,12 +372,14 @@ namespace KoiFarmShop.Service
                         item.Quantity = item.Quantity;
                         totalAmount += item.Price * item.Quantity;
                         totalQuantity += item.Quantity;
+                        koi.Quantity -= item.Quantity; // reduce koifish quantity according to amount of orderdetail quantity
                     }
                     var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == order.VoucherId);
 
-                    if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount)
+                    if (order.VoucherId != null && totalAmount >= voucher.MinOrderAmount && voucher.Status == 0 && voucher.ValidityEndDate <= DateTime.Now)
                     {
                         totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
+                   
                     }
                     order.TotalAmount = totalAmount;
                     order.Quantity = totalQuantity;
@@ -281,16 +388,21 @@ namespace KoiFarmShop.Service
 
                     if (result > 0)
                     {
+                        UserVoucher(order.VoucherId);
+
                         return new BusinessResult(Const.SUCCESS_CREATE_CODE, Const.SUCCESS_CREATE_MSG);
                     }
                     else
                     {
+
                         return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
                     }
                 }
             }
             catch (Exception ex)
             {
+              
+
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
 
@@ -321,7 +433,7 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-
+    
 
     }
 }

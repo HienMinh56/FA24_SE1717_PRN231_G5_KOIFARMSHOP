@@ -40,7 +40,7 @@ namespace KoiFarmShop.Data
         {
             get
             {
-                return paymentRepository ??= new PaymentRepository(context);
+                return paymentRepository ??= new PaymentRepository();
             }
         }
 
