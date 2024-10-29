@@ -22,6 +22,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> Update(Order order);
         Task<IBusinessResult> Save(Order order);
         Task<IBusinessResult> DeleteOrderAsync(string orderId);
+        Task<string> UserVoucher(string voucherId);
     }
 
     public class OrderService : IOrderService
@@ -30,6 +31,37 @@ namespace KoiFarmShop.Service
         public OrderService()
         {
             _unitOfWork ??= new UnitOfWork();
+        }
+
+
+        public async Task<string> UserVoucher(string voucherId)
+        {
+            try
+            {
+                var voucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == voucherId);
+                if (voucher == null)
+                {
+                    return "not found voucher";
+                }
+                if (voucher.Status == 0)
+                {
+                    return "voucher is not active";
+                }
+                if (voucher.Quantity == 0)
+                {
+                    return "no more voucher";
+                }
+                voucher.Quantity = voucher.Quantity - 1;
+                var flag = _unitOfWork.VoucherRepository.UpdateAsync(voucher);
+
+
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+                
+            }
         }
 
 
@@ -325,7 +357,7 @@ namespace KoiFarmShop.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-
+    
 
     }
 }
