@@ -33,17 +33,16 @@
             <th>
                 @Html.DisplayNameFor(model => model.VoucherName)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.DiscountAmount)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ApplyMethod)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.MinOrderAmount)
             </th>
-            <th>
-                    @Html.DisplayNameFor(model => model.Quantity)
-            <th>
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
@@ -56,8 +55,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Note)
             </th>
-
-
             <th></th>
         </tr>
     </thead>
@@ -85,9 +82,6 @@
                     @Html.DisplayFor(modelItem => item.MinOrderAmount)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
                     @(item.Status == 1 ? "Active" : "Inactive")
                 </td>
                 <td>
@@ -99,7 +93,6 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Note)
                 </td>
-                
 
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.VoucherId" class="btn btn-sm btn-warning">Edit</a>
