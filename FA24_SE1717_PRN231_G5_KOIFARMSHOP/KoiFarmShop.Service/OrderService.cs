@@ -274,10 +274,6 @@ namespace KoiFarmShop.Service
                     {
                         totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
                     }
-                    else
-                    {
-                        return new BusinessResult(Const.FAIL_CREATE_CODE, Const.FAIL_CREATE_MSG);
-                    }
                     order.TotalAmount = totalAmount;
                     order.Quantity = totalQuantity;
 
