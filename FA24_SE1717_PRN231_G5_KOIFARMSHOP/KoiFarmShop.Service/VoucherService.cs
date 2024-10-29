@@ -98,7 +98,8 @@ namespace KoiFarmShop.Service
                 int result = -1;
 
                 var voucherTmp = _unitOfWork.VoucherRepository.Get(u => u.VoucherId == voucher.VoucherId);
-
+                var toalVoucher = await _unitOfWork.VoucherRepository.Count();
+                var voucherNewId = $"Voucher{(toalVoucher + 1).ToString("D4")}";
                 if (voucherTmp != null)
                 {
                     #region Business Rule
@@ -174,7 +175,7 @@ namespace KoiFarmShop.Service
                 {
                     result = await _unitOfWork.VoucherRepository.CreateAsync(new Voucher
                     {
-                        VoucherId = voucher.VoucherId,
+                        VoucherId = voucherNewId,
                         VoucherCode = voucher.VoucherCode,
                         VoucherName = voucher.VoucherName ?? "",
                         DiscountAmount = voucher.DiscountAmount,
