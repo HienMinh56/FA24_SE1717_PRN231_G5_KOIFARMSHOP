@@ -29,7 +29,11 @@
             </div>
             <div class="form-group">
                 <label asp-for="ApplyMethod" class="control-label"></label>
-                <input asp-for="ApplyMethod" class="form-control" />
+                <select asp-for="ApplyMethod" class="form-control">
+                    <option value=1>Online</option>
+                    <option value=0>Offline</option>
+                    <option value=2>Both</option>
+                </select>
                 <span asp-validation-for="ApplyMethod" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -49,7 +53,10 @@
             </div>
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
+                <select asp-for="Status" class="form-control">
+                    <option value=1 selected>Active</option>
+                    <option value=0>Inactive</option>
+                </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
