@@ -26,6 +26,14 @@ namespace KoiFarmShop.APIService.Controllers
 
         }
 
+
+        // GET: api/Consignments/5
+        [HttpGet("{paymentId}")]
+        public async Task<IBusinessResult> GetConsignment(string paymentId)
+        {
+            return await _paymentService.GetById(paymentId);
+        }
+
         // GET: api/Payments
         [HttpGet]
         public async Task<IBusinessResult> GetPayments()
