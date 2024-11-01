@@ -209,11 +209,13 @@ namespace KoiFarmShop.Service
                             var existVoucher = _unitOfWork.VoucherRepository.Get(v => v.VoucherId == orderTmp.VoucherId);
                             if (voucher == null && existVoucher == null)
                             {
+                                orderTmp.VoucherId = null;
                                 orderTmp.TotalAmount = totalAmount;
                                 orderTmp.Quantity = totalQuantity;
                             }
                             else if(voucher == null && existVoucher != null)
                             {
+                                orderTmp.VoucherId = null;
                                 orderTmp.TotalAmount = totalAmount;
                                 orderTmp.Quantity = totalQuantity;
                                 existVoucher.Quantity += 1;
@@ -225,7 +227,8 @@ namespace KoiFarmShop.Service
                                 totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
                                 voucher.Quantity = voucher.Quantity - 1;
                                 orderTmp.VoucherId = voucher.VoucherId;
-
+                                orderTmp.TotalAmount = totalAmount;
+                                orderTmp.Quantity = totalQuantity;
                                 if (voucher.Quantity < 0)
                                 {
                                     return new BusinessResult(Const.FAIL_UPDATE_CODE, "Voucher out of stock");
@@ -240,7 +243,8 @@ namespace KoiFarmShop.Service
                                 existVoucher.Quantity += 1;
                                 voucher.Quantity = voucher.Quantity - 1;
                                 orderTmp.VoucherId = voucher.VoucherId;
-
+                                orderTmp.TotalAmount = totalAmount;
+                                orderTmp.Quantity = totalQuantity;
                                 if (voucher.Quantity < 0)
                                 {
                                     return new BusinessResult(Const.FAIL_UPDATE_CODE, "Voucher out of stock");
@@ -359,6 +363,8 @@ namespace KoiFarmShop.Service
                         totalAmount = totalAmount - (totalAmount * voucher.DiscountAmount) / 100;
                         newOrder.VoucherId = voucher.VoucherId;
                         voucher.Quantity = voucher.Quantity - 1;
+                        newOrder.TotalAmount = totalAmount;
+                        newOrder.Quantity = totalQuantity;
 
                         if (voucher.Quantity < 0)
                         {
