@@ -108,7 +108,7 @@ namespace KoiFarmShop.Service
                         CreatedDate = createPaymentRequest.CreatedDate
                     };
                     _unitOfWork.PaymentRepository.PrepareCreate(payment);
-                    await _unitOfWork.PaymentRepository.UpdateAsync(payment);
+                    await _unitOfWork.PaymentRepository.SaveAsync();
 
                     consignment.PaymentId = paymentId;
                     await _unitOfWork.ConsignmentRepository.UpdateAsync(consignment);
