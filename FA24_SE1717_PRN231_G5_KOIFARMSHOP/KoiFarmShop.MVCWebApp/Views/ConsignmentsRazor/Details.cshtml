@@ -46,33 +46,29 @@
         </dt>
         <dd class="col-sm-10">
             <span>
-                @if (Model.Status == 1)
+                @switch (Model.Status)
                 {
+                case 1:
                     @:Pending
-                }
-                else @if (Model.Status == 2)
-                {
+                    break;
+                case 2:
                     @:Agreed
-                }
-                else @if (Model.Status == 3)
-                {
+                    break;
+                case 3:
                     @:In Store
-                }
-                else @if (Model.Status == 4)
-                {
+                    break;
+                case 4:
                     @:Sold
-                }
-                else @if (Model.Status == 5)
-                {
+                    break;
+                case 5:
                     @:Returned
-                }
-                else @if (Model.Status == 6)
-                {
+                    break;
+                case 6:
                     @:Canceled
-                }
-                else
-                {
+                    break;
+                default:
                     @:Unknown
+                    break;
                 }
             </span>
         </dd>
