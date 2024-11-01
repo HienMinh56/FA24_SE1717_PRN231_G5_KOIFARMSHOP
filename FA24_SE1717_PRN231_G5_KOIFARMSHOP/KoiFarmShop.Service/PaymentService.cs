@@ -17,6 +17,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> GetAll();
         Task<IBusinessResult> Update(UpdatePaymentRequest payment);
         Task<IBusinessResult> DeleteById(string paymentId);
+        Task<IBusinessResult> GetById(string code);
 
     }
 
@@ -181,6 +182,24 @@ namespace KoiFarmShop.Service
                     else
                         return new BusinessResult(Const.FAIL_DELETE_CODE, Const.FAIL_DELETE_MSG, payment);
                 }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<IBusinessResult> GetById(string paymentId)
+        {
+
+            try
+            {
+                var consignment = await _unitOfWork.PaymentRepository.GetPaymentByIdAsync(paymentId);
+                if (consignment == null)
+                {
+                    return new BusinessResult(Const.WARNING_NO_DATA_CODE, Const.WARNING_NO_DATA_MSG, new Consignment());
+                }
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, consignment);
             }
             catch (Exception ex)
             {
