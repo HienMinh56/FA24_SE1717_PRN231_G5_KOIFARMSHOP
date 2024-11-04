@@ -32,6 +32,7 @@
                     <th class="card-title text-center">Status</th>
                     <th class="card-title text-center">Voucher</th>
                     <th class="card-title text-center">Shipping Address</th>
+                    <th class="card-title text-center">Phone</th>
                     <th class="card-title text-center">Payment Method</th>
                     <th class="card-title text-center">Delivery Date</th>
                     <th class="card-title text-center">Receive Date</th>
@@ -84,6 +85,12 @@
                             <div class="form-group">
                                 <label for="shippingAddress">Shipping Address</label>
                                 <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" required />
+                            </div>
+                        </div> 
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="text" class="form-control" id="phone" name="phone" required />
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -190,10 +197,14 @@
                 <input type="text" class="form-control" id="updateShippingAddress" name="updateShippingAddress" required />
             </div>
             <div class="form-group">
+                <label for="updatePhone">Phone</label>
+                <input type="text" class="form-control" id="updatePhone" name="updatePhone" required />
+            </div>
+            <div class="form-group">
                 <label for="updatePaymentMethod">Payment Method</label>
                 <select class="form-select" id="updatePaymentMethod" name="updatePaymentMethod" required>
-                    <option value="Online">Online</option>
-                    <option value="Offline">Offline</option>
+                    <option value="COD">COD</option>
+                    <option value="Banking">Banking</option>
                 </select>
             </div>
             <div class="form-group">
@@ -243,6 +254,7 @@
                             <th>User Id</th>
                             <th>Voucher Id</th>
                             <th>Shipping Address</th>
+                            <th>Phone</th>
                             <th>Payment Method</th>
                             <th>Delivery Date</th>
                             <th>Receive Date</th>
@@ -306,6 +318,7 @@
                     status: parseInt($('#status').val()), // Ensure this is an integer
                     voucherCode: $('#voucherCode').val() || null, // Ensure this is captured
                     shippingAddress: $('#shippingAddress').val(),
+                    phone: $('#phone').val(),
                     paymentMethod: $('#paymentMethod').val(),
                     deliveryDate: new Date($('#deliveryDate').val()).toISOString(), // Convert to ISO string
                     receiveDate: new Date().toISOString(), // Set to current time or another value as needed
@@ -376,6 +389,7 @@
                 var userId = $('#updateUserId').val();
                 var voucherCode = $('#updateVoucherId').val() || null;
                 var shippingAddress = $('#updateShippingAddress').val();
+                var phone = $('#updatePhone').val();
                 var paymentMethod = $('#updatePaymentMethod').val();
                 var deliveryDate = $('#updateDeliveryDate').val();
                 var receiveDate = $('#updateReceiveDate').val();
@@ -388,6 +402,7 @@
                     userId: userId,
                     voucherCode: voucherCode,
                     shippingAddress: shippingAddress,
+                    phone: phone,
                     paymentMethod: paymentMethod,
                     deliveryDate: deliveryDate,
                     receiveDate: receiveDate,
@@ -469,6 +484,7 @@
                 html += '<td>' + getStatusText(item.status) + '</td>';
                 html += '<td>' + (item.voucherId || 'N/A') + '</td>';
                 html += '<td>' + item.shippingAddress + '</td>';
+                html += '<td>' + item.phone + '</td>';
                 html += '<td>' + item.paymentMethod + '</td>';
                 html += '<td>' + item.deliveryDate + '</td>';
                 html += '<td>' + item.receiveDate + '</td>';
@@ -562,6 +578,7 @@
                         $('#updateVoucherId').val(result.data.voucherId || ''); 
                         $('#updateUserId').val(result.data.userId);
                         $('#updateShippingAddress').val(result.data.shippingAddress);
+                        $('#updatePhone').val(result.data.phone);
                         $('#updatePaymentMethod').val(result.data.paymentMethod);
                         $('#updateDeliveryDate').val(result.data.deliveryDate);
                         $('#updateReceiveDate').val(result.data.receiveDate);
@@ -624,6 +641,7 @@
                                 <td>${order.userId}</td>
                                 <td>${order.voucherId || 'N/A'}</td>
                                 <td>${order.shippingAddress}</td>
+                                <td>${order.phone}</td>
                                 <td>${order.paymentMethod}</td>
                                 <td>${order.deliveryDate}</td>
                                 <td>${order.receiveDate}</td>

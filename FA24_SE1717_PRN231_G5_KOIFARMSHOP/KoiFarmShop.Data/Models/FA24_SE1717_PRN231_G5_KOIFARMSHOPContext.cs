@@ -194,6 +194,9 @@ public partial class FA24_SE1717_PRN231_G5_KOIFARMSHOPContext : DbContext
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(10)
+                .IsUnicode(false);
             entity.Property(e => e.ReceiveDate).HasColumnType("datetime");
             entity.Property(e => e.TotalWeight).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.UserId)
