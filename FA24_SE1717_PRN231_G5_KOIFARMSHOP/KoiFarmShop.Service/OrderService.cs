@@ -67,6 +67,7 @@ namespace KoiFarmShop.Service
                     Status = order.Status,
                     VoucherId = order.VoucherId ?? "",
                     ShippingAddress = order.ShippingAddress,
+                    Phone = order.Phone,
                     PaymentMethod = order.PaymentMethod,
                     DeliveryDate = order.DeliveryDate,
                     ReceiveDate = order.ReceiveDate,
@@ -159,7 +160,7 @@ namespace KoiFarmShop.Service
                 int result = -1;
 
 
-
+                #region Bussiness logic
                 Order orderTmp = _unitOfWork.OrderRepository.Get(o => o.OrderId == order.OrderId);
 
 
@@ -175,6 +176,7 @@ namespace KoiFarmShop.Service
                     orderTmp.DeliveryDate = order.DeliveryDate;
                     orderTmp.ReceiveDate = order.ReceiveDate;
                     orderTmp.Note = order.Note;
+                    orderTmp.Phone = order.Phone;
                     orderTmp.Status = order.Status;
                     orderTmp.ModifiedDate = DateTime.Now;
                     orderTmp.ModifiedBy = "User";
@@ -262,6 +264,7 @@ namespace KoiFarmShop.Service
                         }
 
                     }
+                    #endregion
                     #region if have order details
                     //else
                     //{
@@ -319,6 +322,7 @@ namespace KoiFarmShop.Service
                 }
                 else
                 {
+                    #region Bussiness logic
                     var newOrder = new Order();
                     newOrder.OrderId = $"ORDER{(await _unitOfWork.OrderRepository.Count() + 1).ToString("D4")}";
                     newOrder.CreatedDate = DateTime.Now;
@@ -330,6 +334,7 @@ namespace KoiFarmShop.Service
                     newOrder.DeliveryDate = order.DeliveryDate;
                     newOrder.ReceiveDate = order.ReceiveDate;
                     newOrder.Note = order.Note;
+                    newOrder.Phone = order.Phone;
                     newOrder.Status = order.Status;
                     var totalAmount = 0.0;
                     var totalQuantity = 0;
@@ -372,8 +377,8 @@ namespace KoiFarmShop.Service
                         }
                         _unitOfWork.VoucherRepository.Update(voucher);
                     }
-                    
 
+                    #endregion
                     result = await _unitOfWork.OrderRepository.CreateAsync(newOrder);
 
                     if (result > 0)

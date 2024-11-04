@@ -16,6 +16,7 @@ namespace KoiFarmShop.Data.Response
         public int Quantity { get; set; }
         public string VoucherId { get; set; }
         public string ShippingAddress { get; set; }
+        public string Phone { get; set; }
         public string PaymentMethod { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public DateTime? ReceiveDate { get; set; }
