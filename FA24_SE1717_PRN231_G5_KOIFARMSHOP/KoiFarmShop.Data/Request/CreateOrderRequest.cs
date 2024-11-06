@@ -24,6 +24,7 @@ namespace KoiFarmShop.Data.Request
         public DateTime? DeliveryDate { get; set; }
 
         public DateTime? ReceiveDate { get; set; }
+        public string? Phone { get; set; }
 
         public string? Note { get; set; }
 

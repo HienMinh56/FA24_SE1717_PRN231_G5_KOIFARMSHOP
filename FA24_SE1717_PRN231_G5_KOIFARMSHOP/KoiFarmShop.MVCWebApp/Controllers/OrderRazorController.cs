@@ -216,7 +216,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // POST: OrderRazor/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherCode,ShippingAddress,PaymentMethod,DeliveryDate,Note,TotalWeight,OrderDetails")] CreateOrderRequest order)
+        public async Task<IActionResult> Create([Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherCode,ShippingAddress,Phone,PaymentMethod,DeliveryDate,Note,TotalWeight,OrderDetails")] CreateOrderRequest order)
         {
             if (order.OrderDetails == null || !order.OrderDetails.Any())
             {
@@ -312,7 +312,7 @@ namespace KoiFarmShop.MVCWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherCode,ShippingAddress,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight")] CreateOrderRequest order)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderId,UserId,TotalAmount,Quantity,Status,VoucherCode,ShippingAddress,Phone,PaymentMethod,DeliveryDate,ReceiveDate,Note,TotalWeight")] CreateOrderRequest order)
         {
             if (ModelState.IsValid)
             {
