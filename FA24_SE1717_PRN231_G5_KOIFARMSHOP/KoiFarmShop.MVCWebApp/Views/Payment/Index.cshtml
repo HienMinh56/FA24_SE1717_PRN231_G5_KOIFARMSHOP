@@ -23,7 +23,13 @@
                     <th class="card-title text-center">Amount</th>
                     <th class="card-title text-center">Type</th>
                     <th class="card-title text-center">Status</th>
-                    <th class="card-title text-center">Payment Date</th>
+                    <th class="card-title text-center">PaymentMethod</th>
+                    <th class="card-title text-center">Refundable</th>
+                    <th class="card-title text-center">Currency</th>
+                    <th class="card-title text-center">OrderId</th>
+                    <th class="card-title text-center">ConsignmentId</th>
+                    <th class="card-title text-center">Note</th>
+                    <th class="card-title text-center">CreatedDate</th>
                     <th class="card-title text-center">Function</th>
                 </tr>
             </thead>
@@ -33,85 +39,175 @@
     </div>
 </div>
 
-<!-- Add/Edit Modal -->
-<div class="modal" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+<!-- Modal Add Payment -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
-            @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
-            {
-                @Html.AntiForgeryToken()
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModalLabel">Add Payment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Add Section -->
-                    <div id="paymentItemsSection" class="payment-item">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="type">Type</label>
-                                    <select class="form-control" id="type" name="type" required>
-                                        <option value="">Select Type</option>
-                                        <option value="1">Order</option>
-                                        <option value="2">Consignment</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="orderId">Order Id</label>
-                                    <input type="text" class="form-control" id="orderId" name="orderId" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="consignmentId">Consignment Id</label>
-                                    <input type="text" class="form-control" id="consignmentId" name="consignmentId" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="amount">Amount</label>
-                                    <input type="number" class="form-control" id="amount" name="amount" readonly required />
-                                </div>
-                            </div>
-                        </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Add Payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addPaymentForm">
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label for="type">Payment Type</label>
+                        <select id="type" class="form-control">
+                            <option value="1">Order</option>
+                            <option value="2">Consignment</option>
+                        </select>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button id="btSave" type="button" class="btn btn-primary">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            }
+                    <!-- Order ID -->
+                    <div class="form-group" id="orderIdGroup">
+                        <label for="orderId">Order ID</label>
+                        <input type="text" id="orderId" class="form-control">
+                    </div>
+
+                    <!-- Consignment ID -->
+                    <div class="form-group" id="consignmentIdGroup">
+                        <label for="consignmentId">Consignment ID</label>
+                        <input type="text" id="consignmentId" class="form-control">
+                    </div>
+
+                    <!-- Currency -->
+                    <div class="form-group" id="currencyGroup">
+                        <label for="currency">Currency</label>
+                        <select id="currency" class="form-control">
+                            <option value="VND">Vietnamese Dong (VND)</option>
+                            <option value="USD">US Dollar (USD)</option>
+                            <option value="JPY">Japanese Yen (JPY)</option>
+                        </select>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="form-group" id="paymentMethodGroup">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" class="form-control">
+                            <option value="Cash">Cash</option>
+                            <option value="Credit">Credit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="E-Wallet">E-Wallet</option>
+                            <option value="COD">Cash On Delivery</option>
+                            <option value="QR Code">QR Code</option>
+                            <option value="Installments">Installments</option>
+                        </select>
+                    </div>
+
+                    <!-- Refundable -->
+                    <div class="form-group" id="refundableGroup">
+                        <label for="refundable">Refundable</label>
+                        <select id="refundable" class="form-control">
+                            <option value="1">Yes</option>
+                            <option value="2">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group" id="statusGroup">
+                        <label for="status">Status</label>
+                        <select id="status" class="form-control">
+                            <option value="1">Success</option>
+                            <option value="2">Pending</option>
+                            <option value="3">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="form-group" id="noteGroup">
+                        <label for="note">Note</label>
+                        <input type="text" id="note" class="form-control">
+                    </div>
+
+                    <!-- Created Date -->
+                    <div class="form-group" id="createdDateGroup">
+                        <label for="createdDate">Created Date</label>
+                        <input type="datetime-local" id="createdDate" class="form-control">
+                    </div>
+
+                    <!-- Save Button -->
+                    <button type="button" id="btSave" class="btn btn-primary">Save Payment</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Update Status Modal -->
-<div class="modal" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Update Payment Modal -->
+<div class="modal fade" id="updatePaymentModal" tabindex="-1" role="dialog" aria-labelledby="updatePaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="updateStatusModalLabel">Update Payment Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="updatePaymentModalLabel">Update Payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-                <input type="hidden" id="paymentIdUpdate" />
-                <div class="form-group">
-                    <label for="statusUpdate">Status</label>
-                    <select class="form-control" id="statusUpdate" required>
-                        <option value="">Select Status</option>
-                        <option value="1">Success</option>
-                        <option value="2">Pending</option>
-                        <option value="3">Cancelled</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="btUpdateStatus" type="button" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <form id="updatePaymentForm">
+                    <input type="hidden" id="paymentIdUpdate" />
+
+                    <!-- Payment Method -->
+                    <div class="form-group">
+                        <label for="paymentMethodUpdate">Payment Method</label>
+                        <select id="paymentMethodUpdate" class="form-control">
+                            <option value="Cash">Cash</option>
+                            <option value="Credit">Credit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="E-Wallet">E-Wallet</option>
+                            <option value="COD">Cash On Delivery</option>
+                            <option value="QR Code">QR Code</option>
+                            <option value="Installments">Installments</option>
+                        </select>
+                    </div>
+
+                    <!-- Currency -->
+                    <div class="form-group">
+                        <label for="currencyUpdate">Currency</label>
+                        <select id="currencyUpdate" class="form-control">
+                            <option value="VND">Vietnamese Dong (VND)</option>
+                            <option value="USD">US Dollar (USD)</option>
+                            <option value="JPY">Japanese Yen (JPY)</option>
+                        </select>
+                    </div>
+
+                    <!-- Refundable -->
+                    <div class="form-group">
+                        <label for="refundableUpdate">Refundable</label>
+                        <select id="refundableUpdate" class="form-control">
+                            <option value="1">Yes</option>
+                            <option value="2">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group">
+                        <label for="statusUpdate">Status</label>
+                        <select id="statusUpdate" class="form-control">
+                            <option value="1">Success</option>
+                            <option value="2">Pending</option>
+                            <option value="3">Cancel</option>
+                        </select>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="form-group">
+                        <label for="noteUpdate">Note</label>
+                        <textarea id="noteUpdate" class="form-control" rows="3" placeholder="Enter notes here..."></textarea>
+                    </div>
+
+                    <!-- Created Date -->
+                    <div class="form-group">
+                        <label for="createdDateUpdate">Created Date</label>
+                        <input type="datetime-local" id="createdDateUpdate" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" id="btUpdateStatus" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -131,25 +227,44 @@
                 contentType: "application/json;charset=utf-8",
                 dataType: "json",
                 success: function (result) {
-                    var html = '';
-                    $.each(result.data, function (key, item) {
-                        html += '<tr>';
-                        html += '<td>' + item.paymentId + '</td>';
-                        html += '<td>' + item.userId + '</td>';
-                        html += '<td>' + item.amount + '</td>';
-                        html += '<td>' + (item.type === 1 ? 'Order' : 'Consignment') + '</td>';
-                        var statusText = item.status === 2 ? "Pending" : (item.status === 1 ? "Success" : "Cancelled");
-                        html += '<td>' + statusText + '</td>';
-                        html += '<td>' + new Date(item.createdDate).toLocaleDateString() + '</td>';
-                        html += '<td><button class="btn btn-warning" onclick="openUpdateStatusModal(\'' + item.paymentId + '\', ' + item.status + ')">Update Status</button> <button class="btn btn-danger" onclick="deletePayment(\'' + item.paymentId + '\')">Delete</button></td>';
-                        html += '</tr>';
-                    });
-                    $('.tblPayments').html(html);
+                    displayPayments(result.data || []); 
                 },
                 error: function (xhr) {
                     alert(xhr.statusText);
                 }
             });
+        }
+
+        function displayPayments(payments) {
+
+            payments.sort(function (a, b) {
+                
+                var aId = parseInt(a.paymentId.replace('PAYMENT', ''));
+                var bId = parseInt(b.paymentId.replace('PAYMENT', '')); 
+                return bId - aId;
+            });
+            var html = '';
+
+            $.each(payments, function (key, item) {
+                html += '<tr>';
+                html += '<td>' + item.paymentId + '</td>';
+                html += '<td>' + item.userId + '</td>';
+                html += '<td>' + item.amount + '</td>';
+                html += '<td>' + (item.type === 1 ? 'Order' : 'Consignment') + '</td>';
+                var statusText = item.status === 2 ? "Pending" : (item.status === 1 ? "Success" : "Cancelled");
+                html += '<td>' + statusText + '</td>';
+                html += '<td>' + item.paymentMethod + '</td>';
+                html += '<td>' + (item.refundable ? 'Yes' : 'No') + '</td>';
+                html += '<td>' + item.currency + '</td>';
+                html += '<td>' + item.orderId + '</td>';
+                html += '<td>' + item.consignmentId + '</td>';
+                html += '<td>' + item.note + '</td>';
+                html += '<td>' + new Date(item.createdDate).toLocaleDateString() + '</td>';
+                html += '<td><button class="btn btn-warning" onclick="openUpdateStatusModal(\'' + item.paymentId + '\', ' + item.status + ')">Update</button> <button class="btn btn-danger" onclick="deletePayment(\'' + item.paymentId + '\')">Delete</button></td>';
+                html += '</tr>';
+            });
+
+            $('.tblPayments').html(html);
         }
 
         // Open Add Modal
@@ -166,6 +281,12 @@
             $('#type').val('');
             $('#orderId').val('');
             $('#consignmentId').val('');
+            $('#currency').val('');
+            $('#paymentMethod').val('');
+            $('#refundable').val('');
+            $('#status').val('');
+            $('#note').val('');
+            $('#createdDate').val('');
         }
 
         // Add Payment
@@ -173,7 +294,12 @@
             var type = $('#type').val();
             var orderId = $('#orderId').val();
             var consignmentId = $('#consignmentId').val();
-
+            var currency = $('#currency').val();
+            var paymentMethod = $('#paymentMethod').val();
+            var refundable = $('#refundable').val();
+            var status = $('#status').val();
+            var note = $('#note').val();
+            var createdDate = $('#createdDate').val();
 
             if (type == "1" && !orderId) {
                 alert("Order Id is required for Type 1 (Order).");
@@ -189,10 +315,15 @@
                 orderId: orderId,
                 consignmentId: consignmentId,
                 userId: $('#userId').val(),
-                amount: 0 // Placeholder, will be filled from the server
+                amount: 0, // Placeholder, will be filled from the server
+                currency: currency,
+                paymentMethod: paymentMethod,
+                refundable: refundable,
+                status: status,
+                note: note,
+                createdDate: createdDate
             };
 
-            // Call to API to create payment
             $.ajax({
                 url: "https://localhost:7149/api/Payments",
                 type: "POST",
@@ -201,7 +332,7 @@
                 success: function (result) {
                     if (result.status >= 1) {
                         $('#paymentModal').modal('hide');
-                        loadPayments(); // Reload Data
+                        loadPayments(); 
                     }
                     alert(result.message);
                 },
@@ -211,31 +342,94 @@
             });
         });
 
-        // Open Update Status Modal
-        function openUpdateStatusModal(paymentId, currentStatus) {
-            $("#updateStatusModalLabel").html("Update Payment Status");
-            $('#paymentIdUpdate').val(paymentId);
-            $('#statusUpdate').val(currentStatus);
+        // Handle Type Selection Change
+        $('#type').on('change', function () {
+            var type = $(this).val();
+            if (type == "1") {  // Order
+                $('#orderIdGroup').show();
+                $('#consignmentIdGroup').hide();
+            } else if (type == "2") {  // Consignment
+                $('#consignmentIdGroup').show();
+                $('#orderIdGroup').hide();
+            }
+
+            // Ensure all fields are visible
+            $('#currencyGroup').show();
+            $('#paymentMethodGroup').show();
+            $('#refundableGroup').show();
+            $('#statusGroup').show();
+            $('#noteGroup').show();
+            $('#createdDateGroup').show();
+        });
+
+        // Open Update Modal for editing payment details
+        function openUpdateStatusModal(paymentId) {
+            // Show loading spinner or message (optional)
+            $("#updateStatusModalLabel").html("Loading Payment Details...");
             $('#updateStatusModal').modal('show');
+
+            // Call API to get the current payment data
+            $.ajax({
+                url: "https://localhost:7149/api/Payments/" + paymentId,
+                type: "GET",
+                success: function (result) {
+                    if (result && result.data) {
+                        // Pre-fill the fields with current values from the API
+                        $('#paymentIdUpdate').val(result.data.PaymentId);
+                        $('#paymentMethodUpdate').val(result.data.PaymentMethod);
+                        $('#currencyUpdate').val(result.data.Currency);
+                        $('#refundableUpdate').val(result.data.Refundable);
+                        $('#statusUpdate').val(result.data.Status);
+                        $('#noteUpdate').val(result.data.Note);
+                        $('#createdDateUpdate').val(result.data.CreatedDate);
+
+                        // Change modal title to "Update Payment Details"
+                        $("#updateStatusModalLabel").html("Update Payment Details");
+                    } else {
+                        alert("Could not retrieve payment details.");
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.statusText);
+                }
+            });
         }
 
-        // Update Payment Status
+        // Update Payment Details
         $('#btUpdateStatus').on('click', function () {
             var paymentId = $('#paymentIdUpdate').val();
+            var paymentMethod = $('#paymentMethodUpdate').val();
+            var currency = $('#currencyUpdate').val();
+            var refundable = $('#refundableUpdate').val();
             var status = $('#statusUpdate').val();
+            var note = $('#noteUpdate').val();
+            var createdDate = $('#createdDateUpdate').val();
 
-            if (!status) {
-                alert("Please select a status.");
+            if (!paymentMethod || !currency || !status || !createdDate) {
+                alert("Please fill out all required fields.");
                 return;
             }
 
+            // Create form data object
+            var formData = {
+                PaymentMethod: paymentMethod,
+                Currency: currency,
+                Refundable: refundable,
+                Status: status,
+                Note: note,
+                CreatedDate: createdDate
+            };
+
+            // Call to API to update payment details
             $.ajax({
-                url: "https://localhost:7149/api/Payments/" + paymentId + "?status=" + status,
+                url: "https://localhost:7149/api/Payments/" + paymentId,
                 type: "PUT",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(formData),
                 success: function (result) {
                     if (result.status >= 1) {
                         $('#updateStatusModal').modal('hide');
-                        loadPayments();
+                        loadPayments(); 
                     }
                     alert(result.message);
                 },
@@ -245,8 +439,8 @@
             });
         });
 
-        // Delete Payment Function
-        function deletePayment(paymentId) {
+        // Delete Payment
+        function deletePayment(PaymentId) {
             if (confirm("Are you sure you want to delete this payment?")) {
                 $.ajax({
                     url: "https://localhost:7149/api/Payments/" + paymentId,
@@ -254,7 +448,7 @@
                     contentType: "application/json;charset=utf-8",
                     success: function (result) {
                         if (result.status >= 1) {
-                            loadPayments(); // Reload Data
+                            loadData();
                         }
                         alert(result.message);
                     },
