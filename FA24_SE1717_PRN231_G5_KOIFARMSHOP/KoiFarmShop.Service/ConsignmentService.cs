@@ -86,7 +86,7 @@ namespace KoiFarmShop.Service
             try
             {
                 var totalConsignments = await _unitOfWork.ConsignmentRepository.Count();
-                var ConsignmentId = $"CONSIGN{(totalConsignments + 1).ToString("D4")}";
+                var ConsignmentId = $"CONSIGN{Guid.NewGuid().ToString("N").Substring(0, 6)}";
 
                 var consignmentTmp = new Consignment
                 {
@@ -210,7 +210,7 @@ namespace KoiFarmShop.Service
                 {
                     // Đếm số lượng consignment hiện có để tạo ConsignmentId mới
                     var totalConsignments = await _unitOfWork.ConsignmentRepository.Count();
-                    var ConsignmentId = $"CONSIGN{(totalConsignments + 1).ToString("D4")}";
+                    var ConsignmentId = $"CONSIGN{Guid.NewGuid().ToString("N").Substring(0, 6)}";
 
                     // Tạo mới consignment từ createRequest
                     var newConsignment = new Consignment

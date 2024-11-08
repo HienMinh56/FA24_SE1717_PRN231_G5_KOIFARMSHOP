@@ -47,7 +47,7 @@ namespace KoiFarmShop.Service
                     {
                         return new BusinessResult(Const.WARNING_NO_DATA_CODE, "Order not found.");
                     }
-                    paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
+                    paymentId = $"PAYMENT{Guid.NewGuid().ToString("N").Substring(0, 6)}";
                     userId = order.UserId;
                     amount = order.TotalAmount;
                     orderId = order.OrderId;
@@ -90,7 +90,7 @@ namespace KoiFarmShop.Service
                     userId = consignment.UserId;
                     amount = consignment.DealPrice ?? 0;
                     consignmentId = consignment.ConsignmentId;
-                    paymentId = $"PAYMENT{(await _unitOfWork.PaymentRepository.Count() + 1).ToString("D4")}";
+                    paymentId = $"PAYMENT{Guid.NewGuid().ToString("N").Substring(0, 6)}";
                    
                     var payment = new Payment
                     {

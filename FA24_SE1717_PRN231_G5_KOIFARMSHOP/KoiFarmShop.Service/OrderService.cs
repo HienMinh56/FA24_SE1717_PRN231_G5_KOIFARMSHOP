@@ -324,7 +324,7 @@ namespace KoiFarmShop.Service
                 {
                     #region Bussiness logic
                     var newOrder = new Order();
-                    newOrder.OrderId = $"ORDER{(await _unitOfWork.OrderRepository.Count() + 1).ToString("D4")}";
+                    newOrder.OrderId = $"ORDER{Guid.NewGuid().ToString("N").Substring(0, 6)}";
                     newOrder.CreatedDate = DateTime.Now;
                     newOrder.CreatedBy = "User";
                     newOrder.UserId = order.UserId;
