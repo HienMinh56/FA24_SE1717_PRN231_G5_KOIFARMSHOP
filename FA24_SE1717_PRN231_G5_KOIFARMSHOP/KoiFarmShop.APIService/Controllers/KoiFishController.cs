@@ -11,6 +11,8 @@ using KoiFarmShop.Service;
 using KoiFarmShop.Data.Request;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.AspNetCore.Authorization;
+using KoiFarmShop.Common;
 
 namespace KoiFarmShop.APIService.Controllers
 {
@@ -75,6 +77,13 @@ namespace KoiFarmShop.APIService.Controllers
         public async Task<IBusinessResult> SearchKoiFish([FromQuery] QueryKoiFishRequest request)
         {
             return await _koiFishService.Search(request);
+        }
+
+        [Authorize]
+        [HttpGet("test-author")]
+        public IBusinessResult TestAuthor()
+        {
+            return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, HttpContext.User);
         }
     }
 }
