@@ -81,9 +81,9 @@ namespace KoiFarmShop.APIService.Controllers
 
         [Authorize]
         [HttpGet("test-author")]
-        public IBusinessResult TestAuthor()
+        public async Task<IBusinessResult> TestAuthor()
         {
-            return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, HttpContext.User);
+            return await _koiFishService.TestAuthen(HttpContext.User);
         }
     }
 }

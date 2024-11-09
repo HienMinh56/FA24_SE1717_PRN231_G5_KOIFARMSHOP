@@ -3,6 +3,8 @@ using KoiFarmShop.Data;
 using KoiFarmShop.Data.Models;
 using KoiFarmShop.Data.Request;
 using KoiFarmShop.Service.Base;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace KoiFarmShop.Service
 {
@@ -17,6 +19,7 @@ namespace KoiFarmShop.Service
         Task<IBusinessResult> DeleteById(string code);
         Task<IQueryable<KoiFish>> GetAllOData();
         Task<IBusinessResult> Search(QueryKoiFishRequest request);
+        Task<IBusinessResult> TestAuthen(ClaimsPrincipal claims);
 
     }
     public class KoiFishService : IKoiFishService
@@ -383,6 +386,15 @@ namespace KoiFarmShop.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message, new List<KoiFish>());
             }
+        }
+        public async Task<IBusinessResult> TestAuthen(ClaimsPrincipal claims)
+        {
+            var accountId = claims.FindFirst("aid")?.Value;
+            if (accountId is not null)
+            {
+                return new BusinessResult(Const.SUCCESS_READ_CODE, Const.SUCCESS_READ_MSG, _unitOfWork.UserRepository.Get(u => u.Id == int.Parse(accountId)));
+            }
+            return new BusinessResult(Const.FAIL_READ_CODE, Const.FAIL_READ_MSG, new User());
         }
     }
 }
